@@ -46,49 +46,49 @@ def imregionalmax(inim, windowsize, insubmask = np.empty([0],dtype='bool'), prom
     n=0
     for ii in np.arange(len(val)): 
         if testflag[sortind[ii]]==True:
-        #get next viable maxima in sorted array
-        currpos = sortind[ii]
-        
-        #get window
-        xmin = np.maximum(xx[currpos]-np.floor(windowsize/2),0).astype('int')
-        xmax = np.minimum(xx[currpos]+np.floor(windowsize/2),np.shape(inim)[1]).astype('int')
-        xrng = np.arange(xmin,xmax,1,dtype='int')
-        ymin = np.maximum(yy[currpos]-np.floor(windowsize/2),0).astype('int')
-        ymax = np.minimum(yy[currpos]+np.floor(windowsize/2),np.shape(inim)[0]).astype('int')
-        yrng = np.arange(ymin,ymax,1,dtype='int')
-        #print(str(ii)+': x('+str(xmin)+':'+str(xmax)+') y('+str(ymin)+':'+str(ymax)+')')
-        frameim = inim[ymin:ymax,xmin:xmax]
+            #get next viable maxima in sorted array
+            currpos = sortind[ii]
+            
+            #get window
+            xmin = np.maximum(xx[currpos]-np.floor(windowsize/2),0).astype('int')
+            xmax = np.minimum(xx[currpos]+np.floor(windowsize/2),np.shape(inim)[1]).astype('int')
+            xrng = np.arange(xmin,xmax,1,dtype='int')
+            ymin = np.maximum(yy[currpos]-np.floor(windowsize/2),0).astype('int')
+            ymax = np.minimum(yy[currpos]+np.floor(windowsize/2),np.shape(inim)[0]).astype('int')
+            yrng = np.arange(ymin,ymax,1,dtype='int')
+            #print(str(ii)+': x('+str(xmin)+':'+str(xmax)+') y('+str(ymin)+':'+str(ymax)+')')
+            frameim = inim[ymin:ymax,xmin:xmax]
 
-        #matching exclusion radius mask
-        xmin_bmsk = (np.floor(windowsize/2)-xx[currpos]+xmin).astype('int')
-        xmax_bmsk = (np.floor(windowsize/2)+xmax-xx[currpos]).astype('int')
-        ymin_bmsk = (np.floor(windowsize/2)-yy[currpos]+ymin).astype('int')
-        ymax_bmsk = (np.floor(windowsize/2)+ymax-yy[currpos]).astype('int')
-        #print(str(ii)+': x('+str(xmin_bmsk)+':'+str(xmax_bmsk)+') y('+str(ymin_bmsk)+':'+str(ymax_bmsk)+')')
+            #matching exclusion radius mask
+            xmin_bmsk = (np.floor(windowsize/2)-xx[currpos]+xmin).astype('int')
+            xmax_bmsk = (np.floor(windowsize/2)+xmax-xx[currpos]).astype('int')
+            ymin_bmsk = (np.floor(windowsize/2)-yy[currpos]+ymin).astype('int')
+            ymax_bmsk = (np.floor(windowsize/2)+ymax-yy[currpos]).astype('int')
+            #print(str(ii)+': x('+str(xmin_bmsk)+':'+str(xmax_bmsk)+') y('+str(ymin_bmsk)+':'+str(ymax_bmsk)+')')
 
-        mskind = np.where(b_mask[ymin_bmsk:ymax_bmsk,xmin_bmsk:xmax_bmsk].flatten()==False)
+            mskind = np.where(b_mask[ymin_bmsk:ymax_bmsk,xmin_bmsk:xmax_bmsk].flatten()==False)
 
-        #prominence test
-        pk_p = val[currpos]-np.min(inim[ymin:ymax,xmin:xmax].flatten()[mskind])
-        if  pk_p < prominence:
-            #print(str(ii)+': prominence failure ('+str(pk_p))
-            continue
+            #prominence test
+            pk_p = val[currpos]-np.min(inim[ymin:ymax,xmin:xmax].flatten()[mskind])
+            if  pk_p < prominence:
+                #print(str(ii)+': prominence failure ('+str(pk_p))
+                continue
 
-        #mask out exlusion radius
-        submask[ymin:ymax,xmin:xmax]=np.logical_and(submask[ymin:ymax,xmin:xmax],b_mask[ymin_bmsk:ymax_bmsk,xmin_bmsk:xmax_bmsk])
-        lx,ly = np.meshgrid(xrng,yrng)
-        lxy = np.vstack([ly.flatten(),lx.flatten()])
-        sind = np.ravel_multi_index(lxy, np.shape(inim))
-        testflag[sind]=False
+            #mask out exlusion radius
+            submask[ymin:ymax,xmin:xmax]=np.logical_and(submask[ymin:ymax,xmin:xmax],b_mask[ymin_bmsk:ymax_bmsk,xmin_bmsk:xmax_bmsk])
+            lx,ly = np.meshgrid(xrng,yrng)
+            lxy = np.vstack([ly.flatten(),lx.flatten()])
+            sind = np.ravel_multi_index(lxy, np.shape(inim))
+            testflag[sind]=False
 
-        #local peak
-        if exclusionmode==0:
-            if np.any(frameim.flatten()[mskind]>=val[currpos]):    #check if max within radius
-            #print(str(ii)+': not regional max:')
-            continue
-        maxposn = np.append(maxposn,currpos)
-        pkprominence = np.append(pkprominence, pk_p)
-        n+=1
+            #local peak
+            if exclusionmode==0:
+                if np.any(frameim.flatten()[mskind]>=val[currpos]):    #check if max within radius
+                    #print(str(ii)+': not regional max:')
+                    continue
+            maxposn = np.append(maxposn,currpos)
+            pkprominence = np.append(pkprominence, pk_p)
+            n+=1
     
     outxyval = np.array([xx[maxposn],yy[maxposn],val[maxposn]])
     return outxyval, maxposn, pkprominence, b_mask
