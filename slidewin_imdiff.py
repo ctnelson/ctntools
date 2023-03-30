@@ -142,9 +142,9 @@ def swid_rng_CPU(inimage, lpx, lpy, xx, yy):
 
 def slidewin_imdiff(inimage, inrng, stride=1, trygpu=True):
   lpx = np.arange(-inrng[0], inrng[0]+1, stride, dtype='int64')
-  lpy = np.arange(-inrng[1], inrng[1]+1, stride,dtype='int64')
+  lpy = np.arange(-inrng[1], inrng[1]+1, stride, dtype='int64')
   xx,yy = np.meshgrid(np.arange(0,np.shape(inimage)[1],dtype='int64'), np.arange(0,np.shape(inimage)[0],dtype='int64'))
-  result = np.ones((inrng[1]*2+1,inrng[0]*2+1),np.float32)
+  result = np.ones(lpy.size,lpx.size),np.float32)
 
   if trygpu:
     try:
