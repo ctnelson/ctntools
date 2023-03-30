@@ -137,7 +137,7 @@ def swid_rng_CPU(inimage, lpx, lpy, xx, yy):
   result = np.ones((lpy.size,lpx.size))*np.nan
   for i,x in tqdm(enumerate(lpx)):
       for j,y in enumerate(lpy):
-          result[j,i] = np.nanmean(np.abs(inim[yy+pdsz[1][0]+y,xx+pdsz[0][0]+x]-inim[yy+pdsz[1][0]-y,xx+pdsz[0][0]-x]).ravel())
+          result[j,i] = np.nanmean(np.abs(inimage[yy+pdsz[1][0]+y,xx+pdsz[0][0]+x]-inimage[yy+pdsz[1][0]-y,xx+pdsz[0][0]-x]).ravel())
 
 def slidewin_imdiff(inimage, inrng, stride=1, trygpu=True):
   lpx = np.arange(-inrng[0], inrng[0]+1, stride, dtype='int64')
