@@ -2,7 +2,7 @@ import numpy as np
 from scipy import signal
 
 #Kernel Density Estimation
-def gkde_core(ix,iy,val,s,ixx,iyy,interplinear=True):
+def gkde_core(ix,iy,ival,s,ixx,iyy,interplinear=True):
     #Inputs:
     #ix & iy        :   input xy positions
     #ival           :   value at the datapoint
