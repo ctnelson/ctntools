@@ -38,6 +38,7 @@ def gkde_core(ix,iy,ival,s,ixx,iyy,interplinear=True):
         yl = 1-yh
 
         #values
+        vals = np.zeros_like(ixx).astype('float')
         vals[ypos-1,xpos-1] = vals[ypos-1,xpos-1]   + xl*yl*ival    #p00
         vals[ypos,xpos-1]   = vals[ypos,xpos-1]     + xl*yh*ival    #p10
         vals[ypos-1,xpos]   = vals[ypos-1,xpos]     + xh*yl*ival    #p01
@@ -66,5 +67,6 @@ def gkde_core(ix,iy,ival,s,ixx,iyy,interplinear=True):
                     z = 1/(2*np.pi*s[0]*s[1]) * np.exp(-.5*dx**2/s[0]**2 - .5*dy**2/s[1]**2)
                     densitymap[yy,xx] = densitymap[yy,xx] + z
                     valsmap[yy,xx] = valsmap[yy,xx]+z*ival[i]
+        valsmap = np.divide(valsmap,densitymap)
 
     return densitymap, valsmap
