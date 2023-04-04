@@ -41,30 +41,7 @@ def swinvrtd_GPU(inim, winrng, ptnum, outval):
         y0 = y0+yhigh
         y1 = y1-yhigh
 
-    for xx in range(x1-x0):
-      for yy in range(y1-y0):
-        isnanflag = False
-        if inim.ndim==3:
-          isnanflag = (~math.isnan(inim[yy+y0,xx+x0,0]) and ~math.isnan(inim[y1-yy-1,x1-xx-1,0]))
-        elif inim.ndim==2:
-          isnanflag = (~math.isnan(inim[yy+y0,xx+x0]) and ~math.isnan(inim[y1-yy-1,x1-xx-1]))
-        if isnanflag:
-          if inim.ndim==3:
-            lp_3 = inim.shape[2]
-          elif inim.ndim==2:
-            lp_3 = 1
-          for l in range(lp_3):
-            if inim.ndim==3:
-              temp = inim[y1-yy-1,x1-xx-1,l]-inim[yy+y0,xx+x0,l]
-            elif inim.ndim==2:
-              temp = inim[y1-yy-1,x1-xx-1]-inim[yy+y0,xx+x0]
-            if temp>0:
-              outval[jj,ii] = outval[jj,ii]+temp
-            else:
-              outval[jj,ii] = outval[jj,ii]-temp
-            step += 1
-    outval[jj,ii] = outval[jj,ii]/step
-    ptnum[jj,ii] = step
+    
 
 def swinvrtd_CPU(inim, winrng):
     from tqdm import tqdm
