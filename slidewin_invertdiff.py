@@ -63,15 +63,15 @@ def slidewin_invertdiff(inimage, winrng, trygpu=True):
     result = np.ones(inimage.shape,np.float32)*np.nan
 
     if trygpu:
-        try:
-            blockdim = (32, 32)
-            #print('Blocks dimensions:', blockdim)
-            griddim = (result.shape[0] // blockdim[0] + 1, result.shape[1] // blockdim[1] + 1)
-            #print('Grid dimensions:', griddim)
-            swinvrtd_GPU[griddim, blockdim](inimage,winrng,result)
-        except:
-            print('GPU Execution failed, fall back to cpu')
-            result = swinvrtd_CPU(inimage,winrng)
+        #try:
+        blockdim = (32, 32)
+        #print('Blocks dimensions:', blockdim)
+        griddim = (result.shape[0] // blockdim[0] + 1, result.shape[1] // blockdim[1] + 1)
+        #print('Grid dimensions:', griddim)
+        swinvrtd_GPU[griddim, blockdim](inimage,winrng,result)
+        #except:
+        #print('GPU Execution failed, fall back to cpu')
+        #result = swinvrtd_CPU(inimage,winrng)
     else:
         result = swinvrtd_CPU(inimage,winrng)
 
