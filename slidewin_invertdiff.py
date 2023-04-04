@@ -6,7 +6,7 @@ import numpy as np
 def swinvrtd_GPU(inim, winrng, ptnum, outval): 
     ii,jj = cuda.grid(2)
 
-    if (ii >= inim.shape[0]) or (jj >= inim.shape[1]): 
+    if (ii >= inim.shape[0]-1) or (ii < 1) or (jj >= inim.shape[1]-1) or (jj < 1): 
       return
 
     outval[jj,ii] = 0
@@ -14,9 +14,9 @@ def swinvrtd_GPU(inim, winrng, ptnum, outval):
 
     #default index ranges
     x0 = np.int64(jj-winrng[1])
-    x1 = np.int64(jj+winrng[0]+1)
+    x1 = np.int64(jj+winrng[0])
     y0 = np.int64(ii-winrng[0])
-    y1 = np.int64(ii+winrng[1]+1)
+    y1 = np.int64(ii+winrng[1])
 
     #check for edges
     #x
