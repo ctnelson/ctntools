@@ -3,14 +3,15 @@ import math
 import numpy as np
 
 @cuda.jit
-def swinvrtd_GPU(inim, winrng, ptnum, outval): 
+def swinvrtd_GPU(inim, winrng, wincnt, winmean outval): 
     ii,jj = cuda.grid(2)
 
     if (ii >= inim.shape[0]-1) or (ii < 1) or (jj >= inim.shape[1]-1) or (jj < 1): 
       return
 
-    outval[jj,ii] = 0
+    outval[ii,jj] = 0
     step = 0
+    winmean[ii,jj] = 0
 
     #default index ranges
     x0 = np.int64(jj-winrng[1])
@@ -57,15 +58,18 @@ def swinvrtd_GPU(inim, winrng, ptnum, outval):
             temp = 0
             if inim.ndim==3:
               temp = inim[y1-yy-1,x1-xx-1,l]-inim[yy+y0,xx+x0,l]
+              winmean[ii,jj] += inim[yy+y0,xx+x0,l]
             elif inim.ndim==2:
               temp = inim[y1-yy-1,x1-xx-1]-inim[yy+y0,xx+x0]
+              winmean[ii,jj] += inim[yy+y0,xx+x0]
             if temp>0:
-              outval[jj,ii] = outval[jj,ii]+temp
+              outval[ii,jj] = outval[ii,jj]+temp
             else:
-              outval[jj,ii] = outval[jj,ii]-temp
+              outval[ii,jj] = outval[ii,jj]-temp
             step += 1
-    outval[jj,ii] = outval[jj,ii]/step
-    ptnum[jj,ii] = step
+    winmean[ii,jj] = winmean[ii,jj]/step
+    outval[ii,jj] = outval[ii,jj]/step
+    wincnt[ii,jj] = step
     
 
 def swinvrtd_CPU(inim, winrng):
