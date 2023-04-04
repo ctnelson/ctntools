@@ -9,7 +9,7 @@ def swinvrtd_GPU(inim, winrng, outval):
       return
 
     #window indices
-    test = jj+winrng[0].astype('int64')+np.int64(1)
+    test = jj+winrng[0]+1
     test2 = -inim.shape[0]+jj+winrng[0]+1
     temp = np.array([winrng[0] - jj, -inim.shape[0]+jj+winrng[0]+1, np.int64(0)],dtype='int64')
     xtrim = np.max(temp)      #check if indices extend over image edge
