@@ -9,7 +9,7 @@ def swinvrtd_GPU(inim, winrng, ptnum, outval):
     if (ii >= inim.shape[0]) or (jj >= inim.shape[1]): 
       return
 
-    outval[ii,jj] = 0
+    outval[jj,ii] = 0
     step = 0
 
     #default index ranges
