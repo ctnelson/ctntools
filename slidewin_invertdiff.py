@@ -45,9 +45,9 @@ def swinvrtd_GPU(inim, winrng, ptnum, outval):
       for yy in range(y1-y0):
         isnanflag = False
         if inim.ndim==3:
-          isnanflag = (~math.isnan(inim[yy+y0,xx+x0,0]) and ~math.isnan(inim[y1-yy,x1-xx,0]))
+          isnanflag = (~math.isnan(inim[yy+y0,xx+x0,0]) and ~math.isnan(inim[y1-yy-1,x1-xx-1,0]))
         elif inim.ndim==2:
-          isnanflag = (~math.isnan(inim[yy+y0,xx+x0]) and ~math.isnan(inim[yy+y0,xx+x0]))
+          isnanflag = (~math.isnan(inim[yy+y0,xx+x0]) and ~math.isnan(inim[y1-yy-1,x1-xx-1]))
         if isnanflag:
           if inim.ndim==3:
             lp_3 = inim.shape[2]
@@ -55,9 +55,9 @@ def swinvrtd_GPU(inim, winrng, ptnum, outval):
             lp_3 = 1
           for l in range(lp_3):
             if inim.ndim==3:
-              temp = inim[y1-yy,x1-xx,l]-inim[yy+y0,xx+x0,l]
+              temp = inim[y1-yy-1,x1-xx-1,l]-inim[yy+y0,xx+x0,l]
             elif inim.ndim==2:
-              temp = inim[y1-yy,x1-xx]-inim[yy+y0,xx+x0]
+              temp = inim[y1-yy-1,x1-xx-1]-inim[yy+y0,xx+x0]
             if temp>0:
               outval[jj,ii] = outval[jj,ii]+temp
             else:
