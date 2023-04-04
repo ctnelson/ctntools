@@ -9,23 +9,41 @@ def swinvrtd_GPU(inim, winrng, outval):
       return
 
     #window indices
-    test = jj+winrng[0]+1
-    test2 = -inim.shape[0]+jj+winrng[0]+1
-    temp = np.array([winrng[0] - jj, -inim.shape[0]+jj+winrng[0]+1, np.int64(0)],dtype='int64')
-    xtrim = np.max(temp)      #check if indices extend over image edge
-    ytrim = np.max(np.array([winrng[1] - ii, -inim.shape[1]+ii+winrng[1]+1, 0]))      
-    x0 = jj-winrng[0]+xtrim
+    x0 = np.int64(jj-winrng[1])
+    x1 = np.int64(jj+winrng[0]+1)
+    y0 = np.int64(ii-winrng[0])
+    y1 = np.int64(ii+winrng[1]+1)
+
+    #check for edges
+    #x
+    xlow = winrng[0] - jj
+    xhigh = -inim.shape[1]+jj+winrng[0]+1
+    if (xlow>0) | (xhigh>0):
+      if xlow>xhigh:
+        x0 = x0+xlow
+        x1 = x1-xlow
+      else:
+        x0 = x0+xhigh
+        x1 = x1-xhigh
     if x0==0:
       x0f=None
     else:
       x0f=x0-1
-    x1 = jj+winrng[0]+1-xtrim
-    y0 = ii-winrng[1]+ytrim
+
+    #y
+    ylow = winrng[1] - ii
+    yhigh = -inim.shape[0]+ii+winrng[1]+1
+    if (ylow>0) | (yhigh>0):
+      if ylow>yhigh:
+        y0 = y0+ylow
+        y1 = y1-ylow
+      else:
+        y0 = y0+yhigh
+        y1 = y1-yhigh
     if y0==0:
       y0f=None
     else:
-      y0f = y0-1
-    y1 = ii+winrng[1]+1-ytrim
+      y0f=y0-1
 
     #Comparison
     im1 = inim[y0:y1:1,x0:x1:1]
