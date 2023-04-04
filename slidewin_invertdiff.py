@@ -3,7 +3,7 @@ import math
 import numpy as np
 
 @cuda.jit
-def swinvrtd_GPU(inim, winrng, wincnt, winmean outval): 
+def swinvrtd_GPU(inim, winrng, wincnt, winmean, outval): 
     ii,jj = cuda.grid(2)
 
     if (ii >= inim.shape[0]-1) or (ii < 1) or (jj >= inim.shape[1]-1) or (jj < 1): 
@@ -98,13 +98,15 @@ def swinvrtd_CPU(inim, winrng):
             im2 = inim[y1-1:y0f:-1,x1-1:x0f:-1]
             temp = np.abs(im1-im2).ravel()
             result[ylp,xlp] = np.nanmean(temp)
-            ptnum = np.where(np.isfinite(temp))[0].size
-    return result, ptnum
+            wincnt = np.where(np.isfinite(temp))[0].size
+            winmean = np.nanmean(im1.ravel())
+    return result, wincnt, winmean
 
 def slidewin_invertdiff(inimage, winrng, trygpu=True):
 
     result = np.ones_like(inimage,np.float32)*np.nan
-    ptnum = np.zeros(inimage.shape,np.int64)
+    winmean = np.ones_like(inimage,np.float32)*np.nan
+    wincnt = np.zeros(inimage.shape,np.int64)
 
     if trygpu:
         #try:
@@ -112,11 +114,11 @@ def slidewin_invertdiff(inimage, winrng, trygpu=True):
         #print('Blocks dimensions:', blockdim)
         griddim = (result.shape[0] // blockdim[0] + 1, result.shape[1] // blockdim[1] + 1)
         #print('Grid dimensions:', griddim)
-        swinvrtd_GPU[griddim, blockdim](inimage,winrng,ptnum,result)
+        swinvrtd_GPU[griddim, blockdim](inimage,winrng,wincnt,winmean,result)
         #except:
         #print('GPU Execution failed, fall back to cpu')
         #result = swinvrtd_CPU(inimage,winrng)
     else:
-        result, ptnum = swinvrtd_CPU(inimage,winrng)
+        result, wincnt, winmean = swinvrtd_CPU(inimage,winrng)
 
-    return result, ptnum
+    return result, wincnt, winmean
