@@ -48,8 +48,8 @@ def swinvrtd_GPU(inim, winrng, outval):
     #Comparison
     im1 = inim[y0:y1:1,x0:x1:1]
     im2 = inim[y1-1:y0f:-1,x1-1:x0f:-1]
-    temp = np.abs(im1-im2)
-    temp = temp.ravel()
+    temp = im1.ravel()-im2.ravel()
+    temp = np.abs(temp)
     outval[ii,jj] = np.nanmean(temp)
 
 def swinvrtd_CPU(inim, winrng):
