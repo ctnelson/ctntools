@@ -55,9 +55,9 @@ def swinvrtd_GPU(inim, winrng, ptnum, outval):
             lp_3 = 1
           for l in range(lp_3):
             if inim.ndim==3:
-              temp = inim[yy+y0,xx+x0,l]-inim[yy+y0,xx+x0,l]
+              temp = inim[y1-yy,x1-xx,l]-inim[yy+y0,xx+x0,l]
             elif inim.ndim==2:
-              temp = inim[yy+y0,xx+x0]-inim[yy+y0,xx+x0]
+              temp = inim[y1-yy,x1-xx]-inim[yy+y0,xx+x0]
             if temp>0:
               outval[jj,ii] = outval[jj,ii]+temp
             else:
