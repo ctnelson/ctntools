@@ -54,16 +54,17 @@ def swinvrtd_GPU(inim, winrng, ptnum, outval):
           elif inim.ndim==2:
             lp_3 = 1
           for l in range(lp_3):
+            temp = 0
             if inim.ndim==3:
               temp = inim[y1-yy-1,x1-xx-1,l]-inim[yy+y0,xx+x0,l]
             elif inim.ndim==2:
               temp = inim[y1-yy-1,x1-xx-1]-inim[yy+y0,xx+x0]
             if temp>0:
-              #outval[jj,ii] = outval[jj,ii]+temp
-              temp2= 1
+              outval[jj,ii] = outval[jj,ii]+temp
+              #temp2= 1
             else:
-              temp2= 1
-              #outval[jj,ii] = outval[jj,ii]-temp
+              #temp2= 1
+              outval[jj,ii] = outval[jj,ii]-temp
             step += 1
     outval[jj,ii] = outval[jj,ii]/step
     ptnum[jj,ii] = step
@@ -100,7 +101,7 @@ def swinvrtd_CPU(inim, winrng):
 
 def slidewin_invertdiff(inimage, winrng, trygpu=True):
 
-    result = np.ones(inimage.shape,np.float32)*np.nan
+    result = np.ones_like(inimage,np.float32)*np.nan
     ptnum = np.zeros(inimage.shape,np.int64)
 
     if trygpu:
