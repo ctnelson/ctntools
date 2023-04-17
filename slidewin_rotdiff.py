@@ -69,7 +69,7 @@ def angarray_rotdiff_core_gpu(inim, itheta, ixy0, ixx, iyy, irad, mode, result):
 
       z0 = inim[yy+y0,xx+x0]
 
-      if mode=='bilinear':
+      if mode==0:
         xL = (xt-math.floor(xt))
         xH = 1-xL
         yL = (yt-math.floor(yt))
