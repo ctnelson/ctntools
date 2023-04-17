@@ -92,7 +92,7 @@ def angarray_rotdiff(inim, stride=1, ixy0=None, irad=None, iang=None, mode = 'bi
 
   if trygpu:
     threadsperblock = 32
-    blockspergrid = (an_array.size + (threadsperblock - 1)) // threadsperblock
+    blockspergrid = (iang.size + (threadsperblock - 1)) // threadsperblock
     angarray_rotdiff_core_gpu[blockspergrid, threadsperblock](inim, iang, xy0, xx, yy, irad, mode, rotdif)
     try:
       threadsperblock = 32
