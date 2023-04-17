@@ -83,7 +83,7 @@ def angarray_rotdiff_core_gpu(inim, itheta, ixy0, ixx, iyy, irad, mode, result):
         z1 = f00*xH*yH + f10*xL*yH + f01*xH*yL + f11*xL*yL
 
       else:
-        z1 = inim[np.int64(np.round(yt)),np.int64(np.round(xt))]
+        z1 = inim[np.int64(round(yt)),np.int64(round(xt))]
         if math.isnan(z1):
           continue
 
