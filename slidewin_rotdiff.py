@@ -80,12 +80,11 @@ def angarray_rotdiff(inim, stride=1, ixy0=None, irad=None, iang=None, mode = 'bi
   
   inim_sz = np.array(inim.shape)
   if iang is None:
-      print('no input angles, fallback to default')
-      iang = np.arange(0,np.pi,np.pi/180*2)      #angles to check
+      iang = np.arange(0,np.pi,np.pi/180*2,dtype=np.float32)      #angles to check
   if ixy0 is None:
-        ixy0 = np.floor(inim_sz/2)
+        ixy0 = np.floor(inim_sz/2).astype(np.float32)
   if irad is None:
-        irad = np.min(np.floor(np.array(inim_sz/2)))
+        irad = np.min(np.floor(np.array(inim_sz/2))).astype(np.float32)
 
   brdr = 1
   inim = np.pad(inim,brdr,mode='edge')
