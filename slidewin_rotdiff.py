@@ -25,8 +25,8 @@ def angarray_rotdiff_core_gpu(inim, itheta, ixy0, ixx, iyy, irad, mode, result):
 
   #check for edges
   #x
-  xlow = irad - jj
-  xhigh = -inim.shape[1]+jj+irad+1
+  xlow = np.int64(math.ceil(irad - jj))
+  xhigh = np.int64(math.floor(-inim.shape[1]+jj+irad+1))
   if (xlow>0) | (xhigh>0):
     if xlow>xhigh:
       x0 = x0+xlow
@@ -36,8 +36,8 @@ def angarray_rotdiff_core_gpu(inim, itheta, ixy0, ixx, iyy, irad, mode, result):
       x1 = x1-xhigh
 
   #y
-  ylow = irad - ii
-  yhigh = -inim.shape[0]+ii+irad+1
+  ylow = np.int64(math.ceil(irad - ii))
+  yhigh = np.int64(math.floor(-inim.shape[0]+ii+irad+1))
   if (ylow>0) | (yhigh>0):
     if ylow>yhigh:
       y0 = y0+ylow
