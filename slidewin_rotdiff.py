@@ -1,6 +1,7 @@
 from numba import cuda
 import math
 import numpy as np
+from scipy.signal import find_peaks
 
 @cuda.jit
 def angarray_rotdiff_core_gpu(inim, itheta, ixy0, irad, mode, result):
