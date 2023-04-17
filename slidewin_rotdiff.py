@@ -12,8 +12,8 @@ def angarray_rotdiff_core_gpu(inim, itheta, ixy0, ixx, iyy, irad, mode, result):
       return
 
     #polar
-    rx = ixx.ravel()-ixy0[0]
-    ry = iyy.ravel()-ixy0[1]
+    rx = np.ravel(ixx)-ixy0[0]
+    ry = np.ravel(iyy)-ixy0[1]
     r = ((rx)**2+(ry)**2)**.5
     rang = np.arctan2(ry,rx)
 
