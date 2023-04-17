@@ -18,10 +18,10 @@ def angarray_rotdiff_core_gpu(inim, itheta, ixy0, ixx, iyy, irad, mode, result):
   step = 0
 
   #default index ranges
-  x0 = np.int64(np.floor(ii-irad))
-  x1 = np.int64(np.ceil(ii+irad))
-  y0 = np.int64(np.floor(jj-irad))
-  y1 = np.int64(np.ceil(jj+irad))
+  x0 = np.int64(math.floor(ii-irad))
+  x1 = np.int64(math.ceil(ii+irad))
+  y0 = np.int64(math.floor(jj-irad))
+  y1 = np.int64(math.ceil(jj+irad))
 
   #check for edges
   #x
@@ -70,20 +70,20 @@ def angarray_rotdiff_core_gpu(inim, itheta, ixy0, ixx, iyy, irad, mode, result):
       z0 = inim[yy+y0,xx+x0]
 
       if mode=='bilinear':
-        xL = (xt-np.floor(xt))
+        xL = (xt-math.floor(xt))
         xH = 1-xL
-        yL = (yt-np.floor(yt))
+        yL = (yt-math.floor(yt))
         yH = 1-yL
-        f00 = inim[np.int64(np.floor(yt)),np.int64(np.floor(xt))]
-        f10 = inim[np.int64(np.floor(yt)),np.int64(np.ceil(xt))]
-        f01 = inim[np.int64(np.ceil(yt)),np.int64(np.floor(xt))]
-        f11 = inim[np.int64(np.ceil(yt)),np.int64(np.ceil(xt))]
+        f00 = inim[np.int64(math.floor(yt)),np.int64(math.floor(xt))]
+        f10 = inim[np.int64(math.floor(yt)),np.int64(math.ceil(xt))]
+        f01 = inim[np.int64(math.ceil(yt)),np.int64(math.floor(xt))]
+        f11 = inim[np.int64(math.ceil(yt)),np.int64(math.ceil(xt))]
         if math.isnan(f00) | math.isnan(f10) | math.isnan(f01) | math.isnan(f11):
           continue
         z1 = f00*xH*yH + f10*xL*yH + f01*xH*yL + f11*xL*yL
 
       elif mode=='nearest':
-        z1 = inim[np.int64(np.round(yt)),np.int64(np.round(xt))]
+        z1 = inim[np.int64(math.round(yt)),np.int64(math.round(xt))]
         if math.isnan(z1):
           continue
 
