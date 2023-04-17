@@ -148,18 +148,20 @@ def angarray_rotdiff_core_cpu(inim, itheta, ixy0, ixx, iyy, irad, mode, result):
         result[ii] = np.mean(np.abs(z1.ravel()-z0.ravel()))
 
 
-def angarray_rotdiff(inim, stride=1, ixy0=None, irad=None, iang=None, mode = 0, trygpu=True):
+def angarray_rotdiff(inim, stride=1, ixy0=None, irad=None, iang=None, mode = 0, inax=None, trygpu=True):
   #Inputs:
   #inim                   :     Input image
   #stride(optional)       :     downsampling of inim (will default to 1, all points)
   #ixy0(optional)         :     Center point (will default to image center)
   #irad(optional)         :     Maximum radius to consider (will default to half image)
   #iang(optional)         :     Array of rotation angles (radians) to test (will default to 0->180deg, 2 deg steps)
-  #mode(optional)         :     interpolation method, 0 ='bilinear', anything else uses 'nearest' 
-  #plotoutput(optional)   :     Plot results
+  #mode(optional)         :     interpolation method, 0 ='bilinear', anything else uses 'nearest'
+  #inax(optional)         :     plots results if given an axis
+  #trygpu(optional)       :     attemp to execute first on gpu
 
   #Outputs:
   #rotdif                :     rotation mean abs difference
+  #pks                   :     peak similarity angle
   
   inim_sz = np.array(inim.shape)
   if iang is None:
@@ -187,4 +189,24 @@ def angarray_rotdiff(inim, stride=1, ixy0=None, irad=None, iang=None, mode = 0, 
   else:
     rotdif = angarray_rotdiff_core_cpu(inim, iang, xy0, xx, yy, irad, mode, rotdif)
 
-  return np.hstack((iang,rotdif))
+  #normalize & find peaks
+  rotdif = rotdif/np.nanmax(rotdif)
+  rotdif = 1-rotdif
+  pk_ind, ht = find_peaks(rotdif,height=.2,width=5)
+  ht = ht['peak_heights']
+
+  #outputs
+  pks = np.empty((pk_ind.size,2))
+  pks[:,0] = iang[pk_ind]
+  pks[:,1] = ht
+
+  if ~(inax is None):
+    inax.plot(np.rad2deg(iang),rotdif,'-k')
+    inax.scatter(np.rad2deg(pks[:,0]),pks[:,1],s=100,c='r',marker='o')
+    for i in np.arange(pks.shape[0]):
+      inax.text(np.rad2deg(pks[i,0]),pks[i,1],str(i)+':'+str(pks[i,1]),va='bottom')
+    inax.set_xlim([0,180])
+    inax.set_xlabel('Angle (Degrees)')
+    inax.set_ylabel('Self Similarity')
+  
+  return np.vstack((iang,rotdif)), pks   
