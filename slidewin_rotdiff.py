@@ -58,6 +58,7 @@ def angarray_rotdiff_core_gpu(inim, itheta, ixy0, ixx, iyy, irad, mode, result):
     result[ii] = np.mean(np.abs(z1.ravel()-z0.ravel()))
 
 def angarray_rotdiff_core_cpu(inim, itheta, ixy0, ixx, iyy, irad, mode, result):
+    print('CPU run')
     result = np.nan
     return result
 
@@ -77,6 +78,7 @@ def angarray_rotdiff(inim, stride=1, ixy0=None, irad=None, iang=None, mode = 'bi
   
   inim_sz = np.array(inim.shape)
   if iang is None:
+      print('no input angles, fallback to default')
       iang = np.arange(0,np.pi,np.pi/180*2)      #angles to check
   if ixy0 is None:
         ixy0 = np.floor(inim_sz/2)
