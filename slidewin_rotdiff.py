@@ -12,7 +12,7 @@ def angarray_rotdiff_core_gpu(inim, itheta, ixy0, ixx, iyy, irad, mode, result):
       return
 
     #polar
-    test = ixx-10
+    test = ixx-np.ones_like(ixx)
     rx = ixx-ixy0[0]
     ry = iyy-ixy0[1]
     rx = rx.ravel()
