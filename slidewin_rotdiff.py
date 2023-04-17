@@ -91,6 +91,7 @@ def angarray_rotdiff(inim, stride=1, ixy0=None, irad=None, iang=None, mode = 'bi
   rotdif = np.ones((iang.size,),np.float32)*np.nan
 
   if trygpu:
+    angarray_rotdiff_core_gpu[griddim, blockdim](inim, iang, xy0, xx, yy, irad, mode, rotdif)
     try:
       blockdim = (32, 32)
       #print('Blocks dimensions:', blockdim)
