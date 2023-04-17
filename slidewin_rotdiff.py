@@ -3,7 +3,7 @@ import math
 import numpy as np
 
 @cuda.jit
-def angarray_rotdiff_core_gpu(inim, itheta, ixy0, ixx, iyy, irad, mode, result):
+def angarray_rotdiff_core_gpu(inim, itheta, ixy0, irad, mode, result):
     #Which thread
   hh = cuda.grid(1)
 
@@ -97,9 +97,55 @@ def angarray_rotdiff_core_gpu(inim, itheta, ixy0, ixx, iyy, irad, mode, result):
   result[hh] = result[hh]/step
 
 def angarray_rotdiff_core_cpu(inim, itheta, ixy0, ixx, iyy, irad, mode, result):
-    print('CPU run')
-    result = np.nan
-    return result
+    from tqdm import tqdm
+    for ii in tqdm(range(itheta.size)):
+        #polar
+        rx = ixx-ixy0[0]
+        ry = iyy-ixy0[1]
+        rx = rx.ravel()
+        ry = ry.ravel()
+        r = ((rx)**2+(ry)**2)**.5
+        rang = np.arctan2(ry,rx)
+
+        #limit to radius
+        ind = np.where(r<=irad)[0]
+
+        #coordinate transform
+        x1 = (r[ind]*np.cos(rang[ind]+itheta[ii]) + ixy0[0]).ravel()
+        y1 = (r[ind]*np.sin(rang[ind]+itheta[ii]) + ixy0[1]).ravel()
+
+        #limit to in bounds
+        ind2 = np.where((x1>=0) & (x1<=inim.shape[1]) & (y1>=0) & (y1<=inim.shape[0]))[0].astype('int')
+
+        if ind2.size==0:
+           result[ii] = np.nan
+           return
+        else:
+          ind = ind[ind2]
+
+        #values
+        x1 = x1[ind2]
+        y1 = y1[ind2]
+        z0 = inim.ravel()[ind]
+
+        if mode=='bilinear':
+          xL = (x1-np.floor(x1))
+          xH = 1-xL
+          yL = (y1-np.floor(y1))
+          yH = 1-yL
+          f00 = inim[np.floor(y1).astype('int'),np.floor(x1).astype('int')]
+          f10 = inim[np.floor(y1).astype('int'),np.ceil(x1).astype('int')]
+          f01 = inim[np.ceil(y1).astype('int'),np.floor(x1).astype('int')]
+          f11 = inim[np.ceil(y1).astype('int'),np.ceil(x1).astype('int')]
+          z1 = f00*xH*yH + f10*xL*yH + f01*xH*yL + f11*xL*yL
+
+        elif mode=='nearest':
+          z1 = inim[np.round(y1).astype('int'),np.round(x1).astype('int')]
+
+        else:
+          print('mode parameter not recognized')
+
+        result[ii] = np.mean(np.abs(z1.ravel()-z0.ravel()))
 
 
 def angarray_rotdiff(inim, stride=1, ixy0=None, irad=None, iang=None, mode = 0, trygpu=True):
@@ -131,14 +177,14 @@ def angarray_rotdiff(inim, stride=1, ixy0=None, irad=None, iang=None, mode = 0, 
   rotdif = np.ones((iang.size,),np.float32)*np.nan
 
   if trygpu:
-    #try:
-    threadsperblock = 32
-    blockspergrid = (iang.size + (threadsperblock - 1)) // threadsperblock
-    angarray_rotdiff_core_gpu[blockspergrid, threadsperblock](inim, iang, xy0, xx, yy, irad, mode, rotdif)
-    #except:
-    #print('GPU Execution failed, fall back to cpu')
-    #rotdif = angarray_rotdiff_core_cpu(inim, iang, xy0, xx, yy, irad, mode, rotdif)
+    try:
+        threadsperblock = 32
+        blockspergrid = (iang.size + (threadsperblock - 1)) // threadsperblock
+        angarray_rotdiff_core_gpu[blockspergrid, threadsperblock](inim, iang, xy0, irad, mode, rotdif)
+    except:
+        print('GPU Execution failed, fall back to cpu')
+        rotdif = angarray_rotdiff_core_cpu(inim, iang, xy0, xx, yy, irad, mode, rotdif)
   else:
     rotdif = angarray_rotdiff_core_cpu(inim, iang, xy0, xx, yy, irad, mode, rotdif)
 
-  return rotdif
+  return np.hstack((iang,rotdif))
