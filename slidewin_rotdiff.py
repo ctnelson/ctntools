@@ -21,8 +21,8 @@ def angarray_rotdiff_core_gpu(inim, itheta, ixy0, ixx, iyy, irad, mode, result):
     ind = np.where(r<=irad)[0]
 
     #coordinate transform
-    x1 = (r[ind]*np.cos(rang[ind]+itheta[i]) + ixy0[0]).ravel()
-    y1 = (r[ind]*np.sin(rang[ind]+itheta[i]) + ixy0[1]).ravel()
+    x1 = (r[ind]*np.cos(rang[ind]+itheta[ii]) + ixy0[0]).ravel()
+    y1 = (r[ind]*np.sin(rang[ind]+itheta[ii]) + ixy0[1]).ravel()
 
     #limit to in bounds
     ind2 = np.where((x1>=0) & (x1<=inim.shape[1]) & (y1>=0) & (y1<=inim.shape[0]))[0].astype('int')
