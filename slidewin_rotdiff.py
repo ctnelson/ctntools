@@ -53,7 +53,7 @@ def angarray_rotdiff_core_gpu(inim, itheta, ixy0, ixx, iyy, irad, mode, result):
       z1 = inim[np.round(y1).astype('int'),np.round(x1).astype('int')]
 
     else:
-      raise RaiseValueError('mode parameter not recognized')
+      print('mode parameter not recognized')
 
     result[ii] = np.mean(np.abs(z1.ravel()-z0.ravel()))
 
