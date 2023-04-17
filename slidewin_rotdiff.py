@@ -5,61 +5,96 @@ import numpy as np
 @cuda.jit
 def angarray_rotdiff_core_gpu(inim, itheta, ixy0, ixx, iyy, irad, mode, result):
     #Which thread
-    ii = cuda.grid(1)
+  hh = cuda.grid(1)
 
-    #is thread valid?
-    if (ii >= itheta.size): 
-      return
+  #is thread valid?
+  if (hh >= itheta.size): 
+    return
 
-    #polar
-    test = ixx
-    test = test-1
-    rx = ixx-ixy0[0]
-    ry = iyy-ixy0[1]
-    rx = rx.ravel()
-    ry = ry.ravel()
-    r = ((rx)**2+(ry)**2)**.5
-    rang = np.arctan2(ry,rx)
+  ii=ixy0[0]
+  jj=ixy0[1]
 
-    #limit to radius
-    ind = np.where(r<=irad)[0]
+  result[hh] = 0
+  step = 0
 
-    #coordinate transform
-    x1 = (r[ind]*np.cos(rang[ind]+itheta[ii]) + ixy0[0]).ravel()
-    y1 = (r[ind]*np.sin(rang[ind]+itheta[ii]) + ixy0[1]).ravel()
+  #default index ranges
+  x0 = np.int64(np.floor(ii-irad))
+  x1 = np.int64(np.ceil(ii+irad))
+  y0 = np.int64(np.floor(jj-irad))
+  y1 = np.int64(np.ceil(jj+irad))
 
-    #limit to in bounds
-    ind2 = np.where((x1>=0) & (x1<=inim.shape[1]) & (y1>=0) & (y1<=inim.shape[0]))[0].astype('int')
-
-    if ind2.size==0:
-       result[ii] = np.nan
-       return
+  #check for edges
+  #x
+  xlow = irad - jj
+  xhigh = -inim.shape[1]+jj+irad+1
+  if (xlow>0) | (xhigh>0):
+    if xlow>xhigh:
+      x0 = x0+xlow
+      x1 = x1-xlow
     else:
-      ind = ind[ind2]
+      x0 = x0+xhigh
+      x1 = x1-xhigh
 
-    #values
-    x1 = x1[ind2]
-    y1 = y1[ind2]
-    z0 = inim.ravel()[ind]
-
-    if mode=='bilinear':
-      xL = (x1-np.floor(x1))
-      xH = 1-xL
-      yL = (y1-np.floor(y1))
-      yH = 1-yL
-      f00 = inim[np.floor(y1).astype('int'),np.floor(x1).astype('int')]
-      f10 = inim[np.floor(y1).astype('int'),np.ceil(x1).astype('int')]
-      f01 = inim[np.ceil(y1).astype('int'),np.floor(x1).astype('int')]
-      f11 = inim[np.ceil(y1).astype('int'),np.ceil(x1).astype('int')]
-      z1 = f00*xH*yH + f10*xL*yH + f01*xH*yL + f11*xL*yL
-
-    elif mode=='nearest':
-      z1 = inim[np.round(y1).astype('int'),np.round(x1).astype('int')]
-
+  #y
+  ylow = irad - ii
+  yhigh = -inim.shape[0]+ii+irad+1
+  if (ylow>0) | (yhigh>0):
+    if ylow>yhigh:
+      y0 = y0+ylow
+      y1 = y1-ylow
     else:
-      print('mode parameter not recognized')
+      y0 = y0+yhigh
+      y1 = y1-yhigh
 
-    result[ii] = np.mean(np.abs(z1.ravel()-z0.ravel()))
+  for xx in range(x1-x0):
+    for yy in range(y1-y0):
+
+      #polar
+      rx = np.float32(xx)-ii
+      ry = np.float32(yy)-jj
+      r = ((rx)**2+(ry)**2)**.5
+      rang = np.arctan2(ry,rx)
+
+      #limit to radius
+      if r>irad:
+          continue
+
+      #coordinate transform
+      xt = (r*np.cos(rang+itheta[hh]) + ii)
+      yt = (r*np.sin(rang+itheta[hh]) + jj)
+
+      #limit to in bounds
+      if (xt<0) | (xt > inim.shape[1]) | (yt<0) | (yt > inim.shape[0]):
+        continue
+
+      z0 = inim[yy+y0,xx+x0]
+
+      if mode=='bilinear':
+        xL = (xt-np.floor(xt))
+        xH = 1-xL
+        yL = (yt-np.floor(yt))
+        yH = 1-yL
+        f00 = inim[np.int64(np.floor(yt)),np.int64(np.floor(xt))]
+        f10 = inim[np.int64(np.floor(yt)),np.int64(np.ceil(xt))]
+        f01 = inim[np.int64(np.ceil(yt)),np.int64(np.floor(xt))]
+        f11 = inim[np.int64(np.ceil(yt)),np.int64(np.ceil(xt))]
+        if math.isnan(f00) | math.isnan(f10) | math.isnan(f01) | math.isnan(f11):
+          continue
+        z1 = f00*xH*yH + f10*xL*yH + f01*xH*yL + f11*xL*yL
+
+      elif mode=='nearest':
+        z1 = inim[np.int64(np.round(yt)),np.int64(np.round(xt))]
+        if math.isnan(z1):
+          continue
+
+      zdiff = z1-z0
+      if zdiff>=0:
+        result[hh] += zdiff
+      else:
+        result[hh] -= zdiff
+      step += 1
+
+  result[hh] = result[hh]/step
 
 def angarray_rotdiff_core_cpu(inim, itheta, ixy0, ixx, iyy, irad, mode, result):
     print('CPU run')
