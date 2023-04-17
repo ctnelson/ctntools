@@ -91,13 +91,13 @@ def angarray_rotdiff(inim, stride=1, ixy0=None, irad=None, iang=None, mode = 'bi
   rotdif = np.ones((iang.size,),np.float32)*np.nan
 
   if trygpu:
-    angarray_rotdiff_core_gpu[griddim, blockdim](inim, iang, xy0, xx, yy, irad, mode, rotdif)
+    threadsperblock = 32
+    blockspergrid = (an_array.size + (threadsperblock - 1)) // threadsperblock
+    angarray_rotdiff_core_gpu[blockspergrid, threadsperblock](inim, iang, xy0, xx, yy, irad, mode, rotdif)
     try:
-      blockdim = (32, 32)
-      #print('Blocks dimensions:', blockdim)
-      griddim = (result.shape[0] // blockdim[0] + 1, result.shape[1] // blockdim[1] + 1)
-      #print('Grid dimensions:', griddim)
-      angarray_rotdiff_core_gpu[griddim, blockdim](inim, iang, xy0, xx, yy, irad, mode, rotdif)
+      threadsperblock = 32
+      blockspergrid = (an_array.size + (threadsperblock - 1)) // threadsperblock
+      angarray_rotdiff_core_gpu[blockspergrid, threadsperblock](inim, iang, xy0, xx, yy, irad, mode, rotdif)
     except:
       print('GPU Execution failed, fall back to cpu')
       rotdif = angarray_rotdiff_core_cpu(inim, iang, xy0, xx, yy, irad, mode, rotdif)
