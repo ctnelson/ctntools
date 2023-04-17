@@ -102,14 +102,14 @@ def angarray_rotdiff_core_cpu(inim, itheta, ixy0, ixx, iyy, irad, mode, result):
     return result
 
 
-def angarray_rotdiff(inim, stride=1, ixy0=None, irad=None, iang=None, mode = 'bilinear', trygpu=True):
+def angarray_rotdiff(inim, stride=1, ixy0=None, irad=None, iang=None, mode = 0, trygpu=True):
   #Inputs:
   #inim                   :     Input image
   #stride(optional)       :     downsampling of inim (will default to 1, all points)
   #ixy0(optional)         :     Center point (will default to image center)
   #irad(optional)         :     Maximum radius to consider (will default to half image)
   #iang(optional)         :     Array of rotation angles (radians) to test (will default to 0->180deg, 2 deg steps)
-  #mode(optional)         :     interpolation method, 'nearest', or 'bilinear'
+  #mode(optional)         :     interpolation method, 0 ='bilinear', anything else uses 'nearest' 
   #plotoutput(optional)   :     Plot results
 
   #Outputs:
