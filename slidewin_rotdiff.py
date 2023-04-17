@@ -89,7 +89,7 @@ def angarray_rotdiff(inim, stride=1, ixy0=None, irad=None, iang=None, mode = 'bi
 
   brdr = 1
   inim = np.pad(inim,brdr,mode='edge')
-  xx,yy = np.meshgrid(np.arange(0,inim_sz[0]+brdr*2,stride,dtype=np.int64),np.arange(0,inim_sz[1]+brdr*2,stride,dtype=np.int64))
+  xx,yy = np.meshgrid(np.arange(0,inim_sz[0]+brdr*2,stride,dtype=np.float32),np.arange(0,inim_sz[1]+brdr*2,stride,dtype=np.float32))
   xy0 = ixy0+brdr
 
   rotdif = np.ones((iang.size,),np.float32)*np.nan
