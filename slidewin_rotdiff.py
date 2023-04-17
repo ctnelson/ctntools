@@ -60,8 +60,8 @@ def angarray_rotdiff_core_gpu(inim, itheta, ixy0, ixx, iyy, irad, mode, result):
           continue
 
       #coordinate transform
-      xt = (r*np.cos(rang+itheta[hh]) + ii)
-      yt = (r*np.sin(rang+itheta[hh]) + jj)
+      xt = (r*math.cos(rang+itheta[hh]) + ii)
+      yt = (r*math.sin(rang+itheta[hh]) + jj)
 
       #limit to in bounds
       if (xt<0) | (xt > inim.shape[1]) | (yt<0) | (yt > inim.shape[0]):
