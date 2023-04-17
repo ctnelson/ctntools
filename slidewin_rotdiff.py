@@ -53,7 +53,7 @@ def angarray_rotdiff_core_gpu(inim, itheta, ixy0, ixx, iyy, irad, mode, result):
       rx = np.float32(xx)-ii
       ry = np.float32(yy)-jj
       r = ((rx)**2+(ry)**2)**.5
-      rang = np.arctan2(ry,rx)
+      rang = math.arctan2(ry,rx)
 
       #limit to radius
       if r>irad:
