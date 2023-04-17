@@ -62,7 +62,7 @@ def angarray_rotdiff_core_cpu(inim, itheta, ixy0, ixx, iyy, irad, mode, result):
     return result
 
 
-def angarray_rotdiff(inim, inrng, stride=1, ixy0=None, irad=None, iang=None, mode = 'bilinear', trygpu=True):
+def angarray_rotdiff(inim, stride=1, ixy0=None, irad=None, iang=None, mode = 'bilinear', trygpu=True):
   #Inputs:
   #inim                   :     Input image
   #stride(optional)       :     downsampling of inim (will default to 1, all points)
