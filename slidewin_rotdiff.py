@@ -382,7 +382,7 @@ def slidewin_rotdiff(inim, iang, irad, mode = 0, trygpu=True):
   brdr = 1
   inim = np.pad(inim,brdr,mode='edge')
 
-  rotdif = np.ones((iang.size,),np.float32)*np.nan
+  rotdif = np.ones((inim.size,),np.float32)*np.nan
 
   if trygpu:
     #try:
