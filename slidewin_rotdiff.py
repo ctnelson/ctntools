@@ -225,8 +225,6 @@ def slidewin_rotdiff_core_gpu(inim, itheta, irad, mode, result):
   if (ii >= inim.shape[0]-1) or (ii < 1) or (jj >= inim.shape[1]-1) or (jj < 1): 
       return
 
-  hh = 0  #not currently written to also handle angle arrays for 'itheta' but leaving in an index variable for them
-
   result[ii,jj] = 0
   step = 0
 
@@ -273,8 +271,8 @@ def slidewin_rotdiff_core_gpu(inim, itheta, irad, mode, result):
           continue
 
       #coordinate transform
-      xt = (r*math.cos(rang+itheta[hh]) + np.float32(ii))
-      yt = (r*math.sin(rang+itheta[hh]) + np.float32(jj))
+      xt = (r*math.cos(rang+itheta) + np.float32(ii))
+      yt = (r*math.sin(rang+itheta) + np.float32(jj))
 
       #limit to in bounds
       if (xt<0) | (xt > inim.shape[1]) | (yt<0) | (yt > inim.shape[0]):
