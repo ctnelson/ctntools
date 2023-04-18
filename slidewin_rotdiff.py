@@ -228,7 +228,7 @@ def slidewin_rotdiff_core_gpu(inim, itheta, irad, mode, result):
   result[ii,jj] = 0
   step = 0
 
-  return
+  #return
 
   #default index ranges
   x0 = np.int64(math.floor(np.float32(ii)-irad))
@@ -389,7 +389,7 @@ def slidewin_rotdiff(inim, iang, irad, mode = 0, trygpu=True):
   if trygpu:
     #try:
     blockdim = (32, 32)
-    griddim = (result.shape[0] // blockdim[0] + 1, result.shape[1] // blockdim[1] + 1)
+    griddim = (rotdif.shape[0] // blockdim[0] + 1, rotdif.shape[1] // blockdim[1] + 1)
     slidewin_rotdiff_core_gpu[griddim, blockdim](inim, iang, irad, mode, rotdif)
     #except:
     #print('GPU Execution failed, fall back to cpu')
