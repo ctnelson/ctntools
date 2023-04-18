@@ -300,12 +300,14 @@ def slidewin_rotdiff_core_gpu(inim, itheta, irad, mode, result):
 
       zdiff = z1-z0
       if zdiff>=0:
-        result[ii,jj] += zdiff
+        result[ii,jj] = result[ii,jj]+zdiff
       else:
-        result[ii,jj] -= zdiff
+        result[ii,jj] = result[ii,jj]-zdiff
       step += 1
 
-  result[ii,jj] = result[ii,jj]/step
+  #result[ii,jj] = result[ii,jj]/step
+  result[ii,jj] = step
+
 
 def slidewin_rotdiff_core_cpu(inim, itheta, ixx, iyy, irad, mode, result):
     from tqdm import tqdm
