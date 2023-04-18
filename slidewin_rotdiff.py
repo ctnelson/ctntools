@@ -231,15 +231,15 @@ def slidewin_rotdiff_core_gpu(inim, itheta, irad, mode, result):
   step = 0
 
   #default index ranges
-  x0 = np.int64(math.floor(ii-irad))
-  x1 = np.int64(math.ceil(ii+irad))
-  y0 = np.int64(math.floor(jj-irad))
-  y1 = np.int64(math.ceil(jj+irad))
+  x0 = np.int64(math.floor(np.float32(ii)-irad))
+  x1 = np.int64(math.ceil(np.float32(ii)+irad))
+  y0 = np.int64(math.floor(np.float32(jj)-irad))
+  y1 = np.int64(math.ceil(np.float32(jj)+irad))
 
   #check for edges
   #x
-  xlow = np.int64(math.ceil(irad - jj))
-  xhigh = np.int64(math.floor(-inim.shape[1]+jj+irad+1))
+  xlow = np.int64(math.ceil(irad - np.float32(jj)))
+  xhigh = np.int64(math.floor(-inim.shape[1]+np.float32(jj)+irad+1))
   if (xlow>0) | (xhigh>0):
     if xlow>xhigh:
       x0 = x0+xlow
@@ -263,8 +263,8 @@ def slidewin_rotdiff_core_gpu(inim, itheta, irad, mode, result):
     for yy in range(y1-y0):
 
       #polar
-      rx = np.float32(xx)-ii
-      ry = np.float32(yy)-jj
+      rx = np.float32(xx)-np.float32(ii)
+      ry = np.float32(yy)-np.float32(jj)
       r = ((rx)**2+(ry)**2)**.5
       rang = math.atan2(ry,rx)
 
@@ -273,8 +273,8 @@ def slidewin_rotdiff_core_gpu(inim, itheta, irad, mode, result):
           continue
 
       #coordinate transform
-      xt = (r*math.cos(rang+itheta[hh]) + ii)
-      yt = (r*math.sin(rang+itheta[hh]) + jj)
+      xt = (r*math.cos(rang+itheta[hh]) + np.float32(ii))
+      yt = (r*math.sin(rang+itheta[hh]) + np.float32(jj))
 
       #limit to in bounds
       if (xt<0) | (xt > inim.shape[1]) | (yt<0) | (yt > inim.shape[0]):
