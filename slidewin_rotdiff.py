@@ -385,14 +385,14 @@ def slidewin_rotdiff(inim, iang, irad, mode = 0, trygpu=True):
   rotdif = np.ones((iang.size,),np.float32)*np.nan
 
   if trygpu:
-    try:
-        threadsperblock = 32
-        blockspergrid = (iang.size + (threadsperblock - 1)) // threadsperblock
-        angarray_rotdiff_core_gpu[blockspergrid, threadsperblock](inim, iang, irad, mode, rotdif)
-    except:
-        print('GPU Execution failed, fall back to cpu')
-        xx,yy = np.meshgrid(np.arange(0,inim_sz[0]+brdr*2,dtype=np.float32),np.arange(0,inim_sz[1]+brdr*2,dtype=np.float32))
-        angarray_rotdiff_core_cpu(inim, iang, xx, yy, irad, mode, rotdif)
+    #try:
+    threadsperblock = 32
+    blockspergrid = (iang.size + (threadsperblock - 1)) // threadsperblock
+    angarray_rotdiff_core_gpu[blockspergrid, threadsperblock](inim, iang, irad, mode, rotdif)
+    #except:
+    #print('GPU Execution failed, fall back to cpu')
+    #xx,yy = np.meshgrid(np.arange(0,inim_sz[0]+brdr*2,dtype=np.float32),np.arange(0,inim_sz[1]+brdr*2,dtype=np.float32))
+    #angarray_rotdiff_core_cpu(inim, iang, xx, yy, irad, mode, rotdif)
   else:
     xx,yy = np.meshgrid(np.arange(0,inim_sz[0]+brdr*2,dtype=np.float32),np.arange(0,inim_sz[1]+brdr*2,dtype=np.float32))
     angarray_rotdiff_core_cpu(inim, iang, xx, yy, irad, mode, rotdif)
