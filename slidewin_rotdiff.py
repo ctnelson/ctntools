@@ -228,6 +228,8 @@ def slidewin_rotdiff_core_gpu(inim, itheta, irad, mode, result):
   result[ii,jj] = 0
   step = 0
 
+  return
+
   #default index ranges
   x0 = np.int64(math.floor(np.float32(ii)-irad))
   x1 = np.int64(math.ceil(np.float32(ii)+irad))
