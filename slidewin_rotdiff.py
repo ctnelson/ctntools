@@ -388,7 +388,7 @@ def slidewin_rotdiff(inim, iang, irad, mode = 0, trygpu=True):
     #try:
     threadsperblock = 32
     blockspergrid = (iang.size + (threadsperblock - 1)) // threadsperblock
-    slidewin_rotdiff_core_gpu[blockspergrid, threadsperblock](inim, iang[0], irad[0], mode, rotdif)
+    slidewin_rotdiff_core_gpu[blockspergrid, threadsperblock](inim, iang, irad, mode, rotdif)
     #except:
     #print('GPU Execution failed, fall back to cpu')
     #xx,yy = np.meshgrid(np.arange(0,inim_sz[0]+brdr*2,dtype=np.float32),np.arange(0,inim_sz[1]+brdr*2,dtype=np.float32))
