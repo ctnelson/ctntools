@@ -307,7 +307,7 @@ def slidewin_rotdiff_core_gpu(inim, itheta, irad, mode, result):
       step += 1
 
   #result[ii,jj] = result[ii,jj]/step
-  result[ii,jj] = step
+  #result[ii,jj] = step
 
 
 def slidewin_rotdiff_core_cpu(inim, itheta, ixx, iyy, irad, mode, result):
