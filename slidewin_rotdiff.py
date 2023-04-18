@@ -225,7 +225,7 @@ def slidewin_rotdiff_core_gpu(inim, itheta, irad, mode, result):
   if (ii >= inim.shape[0]-1) or (ii < 1) or (jj >= inim.shape[1]-1) or (jj < 1): 
       return
 
-  result[ii,jj] = 0
+  result[ii,jj] = -2
   step = 0
 
   #default index ranges
