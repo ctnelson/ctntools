@@ -14,9 +14,9 @@ def swinvrtd_GPU(inim, winrng, wincnt, winmean, outval):
     winmean[ii,jj] = 0
 
     #default index ranges
-    x0 = np.int64(jj-winrng[1])
+    x0 = np.int64(jj-winrng[0])
     x1 = np.int64(jj+winrng[0])
-    y0 = np.int64(ii-winrng[0])
+    y0 = np.int64(ii-winrng[1])
     y1 = np.int64(ii+winrng[1])
 
     #check for edges
