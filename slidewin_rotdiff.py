@@ -259,7 +259,7 @@ def slidewin_rotdiff_core_gpu(inim, itheta, irad, mode, result):
 
   for xx in range(x1-x0):
     for yy in range(y1-y0):
-      result[ii,jj] = x1-x0
+      result[ii,jj] = x1-x0+.2
       continue
       #polar
       rx = np.float32(xx-ii)
