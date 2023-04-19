@@ -225,14 +225,14 @@ def slidewin_rotdiff_core_gpu(inim, itheta, irad, mode, result):
   if (ii >= inim.shape[0]-1) or (ii < 1) or (jj >= inim.shape[1]-1) or (jj < 1): 
       return
 
-  result[ii,jj] = -2
+  result[ii,jj] = 0
   step = 0
 
   #default index ranges
-  x0 = np.int64(ii-irad)
-  x1 = np.int64(ii+irad)
-  y0 = np.int64(jj-irad)
-  y1 = np.int64(jj+irad)
+  x0 = np.int32(ii-irad)
+  x1 = np.int32(ii+irad)
+  y0 = np.int32(jj-irad)
+  y1 = np.int32(jj+irad)
 
   #check for edges
   #x
@@ -257,10 +257,9 @@ def slidewin_rotdiff_core_gpu(inim, itheta, irad, mode, result):
       y0 = y0+yhigh
       y1 = y1-yhigh
 
-  for xx in range(x1-x0):
-    for yy in range(y1-y0):
-      result[ii,jj] = y1-y0
-      continue
+  for xx in range(x0,x1):
+    for yy in range(y0,y1):
+      
       #polar
       rx = np.float32(xx-ii)
       ry = np.float32(yy-jj)
@@ -279,23 +278,23 @@ def slidewin_rotdiff_core_gpu(inim, itheta, irad, mode, result):
       if (xt<0) | (xt > inim.shape[1]) | (yt<0) | (yt > inim.shape[0]):
         continue
 
-      z0 = inim[yy+y0,xx+x0]
+      z0 = inim[yy,xx]
 
       if mode==0:
         xL = (xt-math.floor(xt))
         xH = 1-xL
         yL = (yt-math.floor(yt))
         yH = 1-yL
-        f00 = inim[np.int64(math.floor(yt)),np.int64(math.floor(xt))]
-        f10 = inim[np.int64(math.floor(yt)),np.int64(math.ceil(xt))]
-        f01 = inim[np.int64(math.ceil(yt)),np.int64(math.floor(xt))]
-        f11 = inim[np.int64(math.ceil(yt)),np.int64(math.ceil(xt))]
+        f00 = inim[np.int32(math.floor(yt)),np.int32(math.floor(xt))]
+        f10 = inim[np.int32(math.floor(yt)),np.int32(math.ceil(xt))]
+        f01 = inim[np.int32(math.ceil(yt)),np.int32(math.floor(xt))]
+        f11 = inim[np.int32(math.ceil(yt)),np.int32(math.ceil(xt))]
         if math.isnan(f00) | math.isnan(f10) | math.isnan(f01) | math.isnan(f11):
           continue
         z1 = f00*xH*yH + f10*xL*yH + f01*xH*yL + f11*xL*yL
 
       else:
-        z1 = inim[np.int64(round(yt)),np.int64(round(xt))]
+        z1 = inim[np.int32(round(yt)),np.int32(round(xt))]
         if math.isnan(z1):
           continue
 
@@ -306,7 +305,7 @@ def slidewin_rotdiff_core_gpu(inim, itheta, irad, mode, result):
         result[ii,jj] = result[ii,jj]-zdiff
       step += 1
 
-  #result[ii,jj] = result[ii,jj]/step
+  result[ii,jj] = result[ii,jj]/step
   #result[ii,jj] = step
 
 
