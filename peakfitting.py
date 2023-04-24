@@ -95,7 +95,7 @@ def refinePeaks(inim,ipkxy,winsz=[]):
 
 ############################################################### 2D ################################################################################
 #Performs subpixel fitting of local maxima/minima with least square fit. Meant as a refinement, requires initial guesses as an input.
-def refinePeaks2D(xyarr,ipk,winsz=None,method=1):
+def refinePeaks2D(xyarr,ipkxy,winsz=None,method=1):
     #Inputs:
     #xyarr           :          input array(s) [n x m x 2]
     #ipkxy          :           [n,1] array of local maxima guesses
@@ -127,7 +127,7 @@ def refinePeaks2D(xyarr,ipk,winsz=None,method=1):
         win = winsz
 
     #Iterate through arrays & perform fit
-    for i in tqdm(range(m)):
+    for i in range(m):
         if win.ndim>1:
             ind = np.arange(ipkxy[i]-win[i,0],ipkxy[i]+win[i,1]+1)
         else:
@@ -140,7 +140,7 @@ def refinePeaks2D(xyarr,ipk,winsz=None,method=1):
             A = np.array([np.ones_like(X), X, X**2]).T
             W = Y / np.max(Y)
             #W = np.ones((ind.size))
-            B = np.log(Y.copy())
+            B = np.log(Y)
             Aw = A * np.sqrt(W[:,np.newaxis])
             Bw = B * np.sqrt(W)
         else:
