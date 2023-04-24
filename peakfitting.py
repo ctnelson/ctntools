@@ -134,13 +134,12 @@ def refinePeaks2D(Yim, ipkxy, Xim=None, winsz=None, method=0):
         win = winsz
 
     #Iterate through arrays & perform fit
-    outparams = np.ones((m,6))*np.nan
-    for i in range(m):
+    outparams = np.ones((n,6))*np.nan
+    for i in range(n):
         if win.ndim>1:
             ind = np.arange(ipkxy[i]-win[i,0],ipkxy[i]+win[i,1]+1)
         else:
             ind = np.arange(ipkxy[i]-win[0],ipkxy[i]+win[1]+1)
-
 
         if method==1:
             X = np.squeeze(Xim[i,ind])
