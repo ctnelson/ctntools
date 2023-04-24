@@ -114,7 +114,8 @@ def refinePeaks2D(Yim, ipkxy, Xim=None, winsz=None, method=0):
     elif Yim.ndim==0:
         n = 1
         Yim = Yim[:,np.newaxis]
-    else raise Exception('input dimensions not recognized')
+    else:
+        raise Exception('input dimensions not recognized')
 
     #X values
     if Xim is None:
