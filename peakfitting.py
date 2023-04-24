@@ -95,24 +95,30 @@ def refinePeaks(inim,ipkxy,winsz=[]):
 
 ############################################################### 2D ################################################################################
 #Performs subpixel fitting of local maxima/minima with least square fit. Meant as a refinement, requires initial guesses as an input.
-def refinePeaks2D(xyarr,ipkxy,winsz=None,method=1):
+def refinePeaks2D(Yim, ipkxy, Xim=None, winsz=None, method=0):
     #Inputs:
-    #xyarr           :          input array(s) [n x m x 2]
-    #ipkxy          :           [n,1] array of local maxima guesses
-    #winsz          :           None, [1,], [2,], [n,1], or [n,2] array of cropping window to use around each guess point (uses pixels, not given x values)
-    #method         :           0=parabola, 1=fit as gaussian by taking log of data
+    #Yim                :           input Y value array [m x n], n is the # independant line [m x 1] line profiles
+    #ipkxy              :           [n,1] array of local maxima guesses
+    #Xim (optional)     :           input Y value array (if not provided will just be integer index)
+    #winsz (optionall)  :           None, [1,], [2,], [n,1], or [n,2] array of cropping window to use around each guess point (uses pixels, not given x values)
+    #method (optional)  :           0=parabola, 1=fit as gaussian by taking log of data
 
-    #Outpus:
-    #outparams      :           returns [n x 6] array of parameters [x of max/min, y of max/min, a,b,c, & R^2], where a*x^2 + b*x + c
+    #Outputs:
+    #outparams          :           returns [n x 6] array of parameters [x of max/min, y of max/min, a,b,c, & R^2], where a*x^2 + b*x + c
 
-    n = xyarr.shape[0]
-    if xyarr.ndim==3:
-        m = xyarr.shape[1]
-    elif xyarr.ndim==2:
-        m = 1
-        xyarr = xyarr[:,np.newaxis,:]
+    m = Yim.shape[0]
+    if Yim.ndim==2:
+        n = Yim.shape[1]
+    elif Yim.ndim==1:
+        n = 1
+    elif Yim.ndim==0:
+        n = 1
+        Yim = Yim[:,np.newaxis]
+    else raise Exception('input dimensions not recognized')
 
-    outparams = np.ones((m,6))*np.nan
+    #X values
+    if Xim is None:
+        Xim = np.repeat(np.arange(m)[:,np.newaxis],n,axis=1)
 
     #Window Determination
     if winsz is None:
@@ -127,6 +133,7 @@ def refinePeaks2D(xyarr,ipkxy,winsz=None,method=1):
         win = winsz
 
     #Iterate through arrays & perform fit
+    outparams = np.ones((m,6))*np.nan
     for i in range(m):
         if win.ndim>1:
             ind = np.arange(ipkxy[i]-win[i,0],ipkxy[i]+win[i,1]+1)
@@ -135,8 +142,8 @@ def refinePeaks2D(xyarr,ipkxy,winsz=None,method=1):
 
 
         if method==1:
-            X = np.squeeze(xyarr[i,ind,0])
-            Y = np.squeeze(xyarr[i,ind,1])
+            X = np.squeeze(Xim[i,ind])
+            Y = np.squeeze(Yim[i,ind])
             A = np.array([np.ones_like(X), X, X**2]).T
             W = Y / np.max(Y)
             #W = np.ones((ind.size))
@@ -144,8 +151,8 @@ def refinePeaks2D(xyarr,ipkxy,winsz=None,method=1):
             Aw = A * np.sqrt(W[:,np.newaxis])
             Bw = B * np.sqrt(W)
         else:
-            X = np.squeeze(xyarr[i,ind,0])
-            Y = np.squeeze(xyarr[i,ind,1])
+            X = np.squeeze(Xim[i,ind])
+            Y = np.squeeze(Yim[i,ind])
             A = np.array([np.ones_like(X), X, X**2]).T
             Aw = A
             Bw = Y
