@@ -74,7 +74,7 @@ def refinePeaks(inim,ipkxy,winsz=[]):
     winsz = np.ceil(winsz).astype('int')
     
 
-    for i in range(ipkxy.shape[0]):
+    for i in tqdm(range(ipkxy.shape[0])):
         try:
             if winsz.size==2:
                 winsz_lp = winsz
@@ -136,7 +136,7 @@ def refinePeaks2D(Yim, ipkxy, Xim=None, winsz=None, method='quad'):
 
     #Iterate through arrays & perform fit
     outparams = np.ones((n,6))*np.nan
-    for i in range(n):
+    for i in tqdm(range(n)):
         if win.ndim>1:
             ind = np.arange(ipkxy[i]-win[i,0],ipkxy[i]+win[i,1]+1)
         else:
