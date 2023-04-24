@@ -142,8 +142,8 @@ def refinePeaks2D(Yim, ipkxy, Xim=None, winsz=None, method=0):
             ind = np.arange(ipkxy[i]-win[0],ipkxy[i]+win[1]+1)
 
         if method==1:
-            X = np.squeeze(Xim[i,ind])
-            Y = np.squeeze(Yim[i,ind])
+            X = np.squeeze(Xim[ind,i])
+            Y = np.squeeze(Yim[ind,i])
             A = np.array([np.ones_like(X), X, X**2]).T
             W = Y / np.max(Y)
             #W = np.ones((ind.size))
@@ -151,8 +151,8 @@ def refinePeaks2D(Yim, ipkxy, Xim=None, winsz=None, method=0):
             Aw = A * np.sqrt(W[:,np.newaxis])
             Bw = B * np.sqrt(W)
         else:
-            X = np.squeeze(Xim[i,ind])
-            Y = np.squeeze(Yim[i,ind])
+            X = np.squeeze(Xim[ind,i])
+            Y = np.squeeze(Yim[ind,i])
             A = np.array([np.ones_like(X), X, X**2]).T
             Aw = A
             Bw = Y
