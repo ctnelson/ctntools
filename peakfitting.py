@@ -92,3 +92,78 @@ def refinePeaks(inim,ipkxy,winsz=[]):
             continue
         
     return outparams
+
+############################################################### 2D ################################################################################
+#Performs subpixel fitting of local maxima/minima with least square fit. Meant as a refinement, requires initial guesses as an input.
+def refinePeaks2D(xyarr,ipk,winsz=None,method=1):
+    #Inputs:
+    #xyarr           :          input array(s) [n x m x 2]
+    #ipkxy          :           [n,1] array of local maxima guesses
+    #winsz          :           None, [1,], [2,], [n,1], or [n,2] array of cropping window to use around each guess point (uses pixels, not given x values)
+    #method         :           0=parabola, 1=fit as gaussian by taking log of data
+
+    #Outpus:
+    #outparams      :           returns [n x 6] array of parameters [x of max/min, y of max/min, a,b,c, & R^2], where a*x^2 + b*x + c
+
+    n = xyarr.shape[0]
+    if xyarr.ndim==3:
+        m = xyarr.shape[1]
+    elif xyarr.ndim==2:
+        m = 1
+        xyarr = xyarr[:,np.newaxis,:]
+
+    outparams = np.ones((m,6))*np.nan
+
+    #Window Determination
+    if winsz is None:
+        win = np.array([ipkxy,n-ipkxy],dtype='int')
+    elif winsz.size==1:
+        win = np.array([winsz,winsz],dtype='int')
+    elif winsz.size==2:
+        win = np.array([winsz,winsz],dtype='int')
+    elif winsz.shape == n:
+        win = np.hstack((winsz,winsz))
+    elif winsz.shape == 2*n:
+        win = winsz
+
+    #Iterate through arrays & perform fit
+    for i in tqdm(range(m)):
+        if win.ndim>1:
+            ind = np.arange(ipkxy[i]-win[i,0],ipkxy[i]+win[i,1]+1)
+        else:
+            ind = np.arange(ipkxy[i]-win[0],ipkxy[i]+win[1]+1)
+
+
+        if method==1:
+            X = np.squeeze(xyarr[i,ind,0])
+            Y = np.squeeze(xyarr[i,ind,1])
+            A = np.array([np.ones_like(X), X, X**2]).T
+            W = Y / np.max(Y)
+            #W = np.ones((ind.size))
+            B = np.log(Y.copy())
+            Aw = A * np.sqrt(W[:,np.newaxis])
+            Bw = B * np.sqrt(W)
+        else:
+            X = np.squeeze(xyarr[i,ind,0])
+            Y = np.squeeze(xyarr[i,ind,1])
+            A = np.array([np.ones_like(X), X, X**2]).T
+            Aw = A
+            Bw = Y
+
+        p, res, _, _ = np.linalg.lstsq(Aw, Bw)
+        v = np.array([-p[1] / (2*p[2]) , p[0] - p[1]**2 / (4*p[2])]).T
+
+        #residual
+        if method==1:
+            Yf = np.exp(p[0] + X*p[1] + X**2*p[2])
+            v[1] = np.exp(v[1])
+        else:
+            Yf = p[0] + X*p[1] + X**2*p[2]
+        R_sq = np.corrcoef(Y,Yf)[0,1]**2
+
+        #outputs
+        outparams[i,:2] = v
+        outparams[i,2:5] = p
+        outparams[i,5] = R_sq
+        
+    return outparams
