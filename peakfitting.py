@@ -32,7 +32,7 @@ def fit1peak(inim, ipkxy=[], ithresh=.8, calcCVHullMask=True, calcprediction=Tru
     Y = yy[ind].ravel()
     B = inim[bbx[2]:bbx[3]+1,bbx[0]:bbx[1]+1][ind]
     A = np.array([np.ones_like(X), X, Y, X**2, X*Y, Y**2]).T
-    coeff= np.linalg.lstsq(A, B)[0]
+    coeff= np.linalg.lstsq(A, B, rcond=-1)[0]
 
     xf = (2*coeff[5]*coeff[1]-coeff[2]*coeff[4])/(-4*coeff[3]*coeff[5]+coeff[4]**2)
     yf = (-2*coeff[3]*xf-coeff[1])/coeff[4]
@@ -158,7 +158,7 @@ def refinePeaks2D(Yim, ipkxy, Xim=None, winsz=None, method='quad'):
             Aw = A
             Bw = Y
 
-        p, res, _, _ = np.linalg.lstsq(Aw, Bw)
+        p, res, _, _ = np.linalg.lstsq(Aw, Bw, rcond=-1)
         v = np.array([-p[1] / (2*p[2]) , p[0] - p[1]**2 / (4*p[2])]).T
 
         #residual
