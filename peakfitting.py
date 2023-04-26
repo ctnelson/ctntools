@@ -137,10 +137,16 @@ def refinePeaks2D(Yim, ipkxy, Xim=None, winsz=None, method='quad'):
     #Iterate through arrays & perform fit
     outparams = np.ones((n,6))*np.nan
     for i in tqdm(range(n)):
+        #get range to fit
         if win.ndim>1:
-            ind = np.arange(ipkxy[i]-win[i,0],ipkxy[i]+win[i,1]+1)
+            ind0 = np.max(np.array([ipkxy[i]-win[i,0],0],dtype='int'))
+            ind1 = np.min(np.array([ipkxy[i]+win[i,1],m],dtype='int'))
         else:
-            ind = np.arange(ipkxy[i]-win[0],ipkxy[i]+win[1]+1)
+            ind0 = np.max(np.array([ipkxy[i]-win[0],0],dtype='int'))
+            ind1 = np.min(np.array([ipkxy[i]+win[1],m],dtype='int'))
+        ind = np.arange(ind0,ind1+1)
+        if ind.size<3:
+            continue
 
         if method=='gaussian':
             X = np.squeeze(Xim[ind,i])
@@ -157,21 +163,25 @@ def refinePeaks2D(Yim, ipkxy, Xim=None, winsz=None, method='quad'):
             A = np.array([np.ones_like(X), X, X**2]).T
             Aw = A
             Bw = Y
+        try:
+            p, res, _, _ = np.linalg.lstsq(Aw, Bw, rcond=-1)
+            v = np.array([-p[1] / (2*p[2]) , p[0] - p[1]**2 / (4*p[2])]).T
 
-        p, res, _, _ = np.linalg.lstsq(Aw, Bw, rcond=-1)
-        v = np.array([-p[1] / (2*p[2]) , p[0] - p[1]**2 / (4*p[2])]).T
-
-        #residual
-        if method=='gaussian':
-            Yf = np.exp(p[0] + X*p[1] + X**2*p[2])
-            v[1] = np.exp(v[1])
-        elif method=='quad':
-            Yf = p[0] + X*p[1] + X**2*p[2]
-        R_sq = np.corrcoef(Y,Yf)[0,1]**2
-
-        #outputs
-        outparams[i,:2] = v
-        outparams[i,2:5] = p
-        outparams[i,5] = R_sq
+            #residual
+            if method=='gaussian':
+                Yf = np.exp(p[0] + X*p[1] + X**2*p[2])
+                v[1] = np.exp(v[1])
+            elif method=='quad':
+                Yf = p[0] + X*p[1] + X**2*p[2]
+            R_sq = np.corrcoef(Y,Yf)[0,1]**2
+        
+            #outputs
+            outparams[i,:2] = v
+            outparams[i,2:5] = p
+            outparams[i,5] = R_sq
+        
+        except Exception as err:
+            print(f"Unexpected {err=}, {type(err)=}")
+            raise
         
     return outparams
