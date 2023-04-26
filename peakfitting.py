@@ -181,7 +181,7 @@ def refinePeaks2D(Yim, ipkxy, Xim=None, winsz=None, method='quad'):
             outparams[i,5] = R_sq
         
         except Exception as err:
-            print(f"Unexpected {err=}, {type(err)=}")
+            print(f"{i}: Unexpected {err=}, {type(err)=}")
             #raise
         
     return outparams
