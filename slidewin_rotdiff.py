@@ -488,7 +488,7 @@ def slidewin_rotdiff(inim, iang, irad, mode = 0, trygpu=True):
   print('radius: '+str(irad))
   if trygpu:
     #try:
-    blockdim = (32, 32)
+    blockdim = (16, 16)
     print('Blocks dimensions:', blockdim)
     griddim = (rotdif.shape[0] // blockdim[0] + 1, rotdif.shape[1] // blockdim[1] + 1)
     print('Grid dimensions:', griddim)
