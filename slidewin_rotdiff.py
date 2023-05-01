@@ -371,7 +371,6 @@ def slidewin_rotdiff_core_test(inim, itheta, irad, mode, result):
       if (xt<0) | (xt > inim.shape[1]) | (yt<0) | (yt > inim.shape[0]):
         continue
 
-      z0 = inim[yy,xx]
 
       step += 1
 
