@@ -373,7 +373,7 @@ def slidewin_rotdiff_core_test(inim, itheta, irad, mode, result):
 
       if mode==0:
         xL = np.float32(xt-math.floor(xt))
-        yL = np.flaot32(yt-math.floor(yt))
+        yL = np.float32(yt-math.floor(yt))
         #f00
         v1 = np.int16(math.floor(yt))
         v2 = np.int16(math.floor(xt))
