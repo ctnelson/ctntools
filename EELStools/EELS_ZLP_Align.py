@@ -2,6 +2,7 @@ from scipy import interpolate
 import numpy as np
 import matplotlib.pyplot as plt
 from tqdm import tqdm
+from ctntools.peakfitting import refinePeaks2D
 
 #Aligns the EELS zero loss peak of an n-dim EELS dataset.  
 #Requires the ZLP to be the maximum within a predefined window of the unaligned data.
