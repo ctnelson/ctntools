@@ -584,7 +584,7 @@ def slidewin_rotccorr_core_gpu(inim, itheta, irad, mode, result_counts, result_m
       else:
         if math.isnan(inim[np.int32(round(yt)),np.int32(round(xt))]):
           continue
-      result_mean += inim[yy,xx]
+      result_mean += np.float32(inim[yy,xx])
       step +=1
   result_mean = result_mean/step
   result_counts = step
@@ -620,7 +620,7 @@ def slidewin_rotccorr_core_gpu(inim, itheta, irad, mode, result_counts, result_m
       else:
         if math.isnan(inim[np.int32(round(yt)),np.int32(round(xt))]):
           continue
-      result_var += inim[yy,xx]-result_mean[yy,xx]
+      result_var += (np.float32(inim[yy,xx])-result_mean[yy,xx])**2
   result_var = result_var/result_counts
         
   #The normalized cross correlation
