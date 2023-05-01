@@ -556,6 +556,10 @@ def slidewin_rotccorr_core_gpu(inim, itheta, irad, mode, result_counts, result_m
   #Get window Mean
   for xx in range(x0,x1):
     for yy in range(y0,y1):
+      z0 = np.float32(inim[yy,xx])
+      if math.isnan(z0):
+        continue
+        
       #polar
       rx = np.float32(xx-ii)
       ry = np.float32(yy-jj)
@@ -584,7 +588,7 @@ def slidewin_rotccorr_core_gpu(inim, itheta, irad, mode, result_counts, result_m
       else:
         if math.isnan(inim[np.int32(round(yt)),np.int32(round(xt))]):
           continue
-      result_mean += np.float32(inim[yy,xx])
+      result_mean += z0
       step +=1
   result_mean = result_mean/step
   result_counts = step
@@ -592,6 +596,9 @@ def slidewin_rotccorr_core_gpu(inim, itheta, irad, mode, result_counts, result_m
   #Get window standard deviation
   for xx in range(x0,x1):
     for yy in range(y0,y1):
+      if math.isnan(inim[yy,xx]):
+        continue
+        
       #polar
       rx = np.float32(xx-ii)
       ry = np.float32(yy-jj)
