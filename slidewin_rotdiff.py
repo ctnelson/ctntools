@@ -372,6 +372,26 @@ def slidewin_rotdiff_core_test(inim, itheta, irad, mode, result):
         continue
 
       z0 = inim[yy,xx]
+    
+          if mode==0:
+        xL = (xt-math.floor(xt))
+        xH = 1-xL
+        yL = (yt-math.floor(yt))
+        yH = 1-yL
+        f00 = inim[np.int32(math.floor(yt)),np.int32(math.floor(xt))]
+        f10 = inim[np.int32(math.floor(yt)),np.int32(math.ceil(xt))]
+        f01 = inim[np.int32(math.ceil(yt)),np.int32(math.floor(xt))]
+        f11 = inim[np.int32(math.ceil(yt)),np.int32(math.ceil(xt))]
+        if math.isnan(f00) | math.isnan(f10) | math.isnan(f01) | math.isnan(f11):
+          continue
+        z1 = f00*xH*yH + f10*xL*yH + f01*xH*yL + f11*xL*yL
+
+      else:
+        z1 = inim[np.int32(round(yt)),np.int32(round(xt))]
+        if math.isnan(z1):
+          continue
+
+      step += 1
 
   #result[ii,jj] = result[ii,jj]/step
   result[ii,jj] = step
