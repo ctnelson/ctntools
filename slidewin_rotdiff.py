@@ -350,10 +350,30 @@ def slidewin_rotdiff_core_test(inim, itheta, irad, mode, result):
       y0 = y0+yhigh
       y1 = y1-yhigh
 
-  
   for xx in range(x0,x1):
     for yy in range(y0,y1):
-      step += 1
+      
+      #polar
+      rx = np.float32(xx-ii)
+      ry = np.float32(yy-jj)
+      r = ((rx)**2+(ry)**2)**.5
+      rang = math.atan2(ry,rx)
+
+      #limit to radius
+      if r>irad:
+          continue
+
+      #coordinate transform
+      xt = (r*math.cos(rang+itheta) + np.float32(ii))
+      yt = (r*math.sin(rang+itheta) + np.float32(jj))
+
+      #limit to in bounds
+      if (xt<0) | (xt > inim.shape[1]) | (yt<0) | (yt > inim.shape[0]):
+        continue
+
+      z0 = inim[yy,xx]
+
+  #result[ii,jj] = result[ii,jj]/step
   result[ii,jj] = step
     
 def slidewin_rotdiff_core_cpu(inim, itheta, ixx, iyy, irad, mode, result):
