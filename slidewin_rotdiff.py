@@ -310,7 +310,7 @@ def slidewin_rotdiff_core_gpu(inim, itheta, irad, mode, result):
 
     ############################################################ debug #############################
 @cuda.jit
-def slidewin_rotdiff_core_gpu(inim, itheta, irad, mode, result):
+def slidewin_rotdiff_core_test(inim, itheta, irad, mode, result):
   #Which thread
   ii,jj = cuda.grid(2)
 
