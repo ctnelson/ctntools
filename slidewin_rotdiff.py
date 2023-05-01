@@ -671,8 +671,8 @@ def slidewin_rotccorr_core_gpu(inim, itheta, irad, mode, result_counts, result_m
         if math.isnan(z1):
           continue
         
-      result_ccorr[ii,jj] += (z1-result_mean)*(inim[yy,xx]-result_mean)/result_var
-  result_ccorr[ii,jj] = result_ccorr[ii,jj]/result_counts
+      result_ccorr[ii,jj] += (z1-result_mean[ii,jj])*(inim[yy,xx]-result_mean[ii,jj])/result_var[ii,jj]
+  result_ccorr[ii,jj] = result_ccorr[ii,jj]/result_counts[ii,jj]
 
 #Calculates the Zero Normalized Cross-Correlation for a sliding window of an image with a rotation transformed version of itself. 
 #This function handles the case of a sliding window with a fixed radius 
