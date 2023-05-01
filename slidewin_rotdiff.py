@@ -306,7 +306,6 @@ def slidewin_rotdiff_core_gpu(inim, itheta, irad, mode, result):
       step += 1
 
   result[ii,jj] = result[ii,jj]/step
-  #result[ii,jj] = step
 
     ############################################################ debug #############################
 @cuda.jit
@@ -505,3 +504,212 @@ def slidewin_rotdiff(inim, iang, irad, mode = 0, trygpu=True):
   rotdif = rotdif[brdr:-brdr,brdr:-brdr]
   
   return rotdif   
+
+#############################################################################################################################################
+####################################             Zero Normalized Cross-Correlation             ##############################################
+#############################################################################################################################################
+@cuda.jit
+def slidewin_rotccorr_core_gpu(inim, itheta, irad, mode, result_counts, result_mean, result_var, result_ccorr):
+  #Which thread
+  ii,jj = cuda.grid(2)
+
+  #is thread valid?
+  if (ii >= inim.shape[0]-1) or (ii < 1) or (jj >= inim.shape[1]-1) or (jj < 1): 
+      return
+  
+  result_counts[ii,jj] = 0
+  result_mean[ii,jj] = 0
+  result_var[ii,jj] = 0
+  result_ccorr[ii,jj] = 0
+  step = 0
+
+  #Get window
+  #default index ranges
+  x0 = np.int32(ii-irad)
+  x1 = np.int32(ii+irad)
+  y0 = np.int32(jj-irad)
+  y1 = np.int32(jj+irad)
+
+  #check for edges
+  #x
+  xlow = irad - jj
+  xhigh = -inim.shape[1]+jj+irad+1
+  if (xlow>0) | (xhigh>0):
+    if xlow>xhigh:
+      x0 = x0+xlow
+      x1 = x1-xlow
+    else:
+      x0 = x0+xhigh
+      x1 = x1-xhigh
+
+  #y
+  ylow = irad - ii
+  yhigh = -inim.shape[0]+ii+irad+1
+  if (ylow>0) | (yhigh>0):
+    if ylow>yhigh:
+      y0 = y0+ylow
+      y1 = y1-ylow
+    else:
+      y0 = y0+yhigh
+      y1 = y1-yhigh
+
+  #Get window Mean
+  for xx in range(x0,x1):
+    for yy in range(y0,y1):
+      #polar
+      rx = np.float32(xx-ii)
+      ry = np.float32(yy-jj)
+      r = ((rx)**2+(ry)**2)**.5
+      rang = math.atan2(ry,rx)
+
+      #limit to radius
+      if r>irad:
+          continue
+
+      #coordinate transform
+      xt = (r*math.cos(rang+itheta) + np.float32(ii))
+      yt = (r*math.sin(rang+itheta) + np.float32(jj))
+
+      #limit to in bounds
+      if (xt<0) | (xt > inim.shape[1]) | (yt<0) | (yt > inim.shape[0]):
+        continue
+        
+      if mode==0:
+        f00 = inim[np.int32(math.floor(yt)),np.int32(math.floor(xt))]
+        f10 = inim[np.int32(math.floor(yt)),np.int32(math.ceil(xt))]
+        f01 = inim[np.int32(math.ceil(yt)),np.int32(math.floor(xt))]
+        f11 = inim[np.int32(math.ceil(yt)),np.int32(math.ceil(xt))]
+        if math.isnan(f00) | math.isnan(f10) | math.isnan(f01) | math.isnan(f11):
+          continue
+      else:
+        if math.isnan(inim[np.int32(round(yt)),np.int32(round(xt))]):
+          continue
+      result_mean += inim[yy,xx]
+      step +=1
+  result_mean = result_mean/step
+  result_counts = step
+
+  #Get window standard deviation
+  for xx in range(x0,x1):
+    for yy in range(y0,y1):
+      #polar
+      rx = np.float32(xx-ii)
+      ry = np.float32(yy-jj)
+      r = ((rx)**2+(ry)**2)**.5
+      rang = math.atan2(ry,rx)
+
+      #limit to radius
+      if r>irad:
+          continue
+
+      #coordinate transform
+      xt = (r*math.cos(rang+itheta) + np.float32(ii))
+      yt = (r*math.sin(rang+itheta) + np.float32(jj))
+
+      #limit to in bounds
+      if (xt<0) | (xt > inim.shape[1]) | (yt<0) | (yt > inim.shape[0]):
+        continue
+        
+      if mode==0:
+        f00 = inim[np.int32(math.floor(yt)),np.int32(math.floor(xt))]
+        f10 = inim[np.int32(math.floor(yt)),np.int32(math.ceil(xt))]
+        f01 = inim[np.int32(math.ceil(yt)),np.int32(math.floor(xt))]
+        f11 = inim[np.int32(math.ceil(yt)),np.int32(math.ceil(xt))]
+        if math.isnan(f00) | math.isnan(f10) | math.isnan(f01) | math.isnan(f11):
+          continue
+      else:
+        if math.isnan(inim[np.int32(round(yt)),np.int32(round(xt))]):
+          continue
+      result_var += inim[yy,xx]-result_mean[yy,xx]
+  result_var = result_var/result_counts
+        
+  #The normalized cross correlation
+  for xx in range(x0,x1):
+    for yy in range(y0,y1):
+      if math.isnan(inim[yy,xx]):
+        continue
+    
+      #polar
+      rx = np.float32(xx-ii)
+      ry = np.float32(yy-jj)
+      r = ((rx)**2+(ry)**2)**.5
+      rang = math.atan2(ry,rx)
+
+      #limit to radius
+      if r>irad:
+          continue
+
+      #coordinate transform
+      xt = (r*math.cos(rang+itheta) + np.float32(ii))
+      yt = (r*math.sin(rang+itheta) + np.float32(jj))
+
+      #limit to in bounds
+      if (xt<0) | (xt > inim.shape[1]) | (yt<0) | (yt > inim.shape[0]):
+        continue
+
+      if mode==0:
+        xL = (xt-math.floor(xt))
+        xH = 1-xL
+        yL = (yt-math.floor(yt))
+        yH = 1-yL
+        f00 = inim[np.int32(math.floor(yt)),np.int32(math.floor(xt))]
+        f10 = inim[np.int32(math.floor(yt)),np.int32(math.ceil(xt))]
+        f01 = inim[np.int32(math.ceil(yt)),np.int32(math.floor(xt))]
+        f11 = inim[np.int32(math.ceil(yt)),np.int32(math.ceil(xt))]
+        if math.isnan(f00) | math.isnan(f10) | math.isnan(f01) | math.isnan(f11):
+          continue
+        z1 = f00*xH*yH + f10*xL*yH + f01*xH*yL + f11*xL*yL
+      else:
+        z1 = inim[np.int32(round(yt)),np.int32(round(xt))]
+        if math.isnan(z1):
+          continue
+        
+      result_ccorr[ii,jj] += (z1-result_mean)*(inim[yy,xx]-result_mean)/result_var
+  result[ii,jj] = result[ii,jj]/result_counts
+
+#Calculates the Zero Normalized Cross-Correlation for a sliding window of an image with a rotation transformed version of itself. 
+#This function handles the case of a sliding window with a fixed radius 
+def slidewin_rotccorr(inim, iang, irad, mode = 0, trygpu=True):
+    slidewin_rotccorr_core_gpu(inim, itheta, irad, mode, result_counts, result_mean, result_var, result_ccorr)
+  #Inputs:
+  #inim                   :     Input image
+  #iang                   :     Rotation angle (radians)
+  #irad                   :     Radius to calculate
+  #mode(optional)         :     interpolation method, 0 ='bilinear', anything else uses 'nearest'
+  #trygpu(optional)       :     attemp to execute first on gpu
+
+  #Outputs:
+  #rotdif                :     rotation mean abs difference
+  
+  inim_sz = np.array(inim.shape)
+
+  #edge padding (to aid interpolation at edges where neighbors are required)
+  brdr = 1
+  inim = np.pad(inim,brdr,mode='edge')
+
+  rotcounts = np.ones_like(inim,np.int32)*-1
+  rotmean = np.ones_like(inim,np.float32)*np.nan
+  rotvar = np.ones_like(inim,np.float32)*np.nan
+  rotccorr = np.ones_like(inim,np.float32)*np.nan
+    
+  print('angle: '+str(iang))
+  print('radius: '+str(irad))
+  if trygpu:
+    #try:
+    blockdim = (16, 16)
+    print('Blocks dimensions:', blockdim)
+    griddim = (rotdif.shape[0] // blockdim[0] + 1, rotdif.shape[1] // blockdim[1] + 1)
+    print('Grid dimensions:', griddim)
+    slidewin_rotccorr_core_gpu[griddim, blockdim](inim, iang, irad, mode, rotcounts, rotmean, rotvar, rotccorr)
+    #except:
+    #print('GPU Execution failed, fall back to cpu')
+    #xx,yy = np.meshgrid(np.arange(0,inim_sz[0]+brdr*2,dtype=np.float32),np.arange(0,inim_sz[1]+brdr*2,dtype=np.float32))
+    #slidewin_rotdiff_core_cpu(inim, iang, xx, yy, irad, mode, rotdif)
+  else:
+    xx,yy = np.meshgrid(np.arange(0,inim_sz[0]+brdr*2,dtype=np.float32),np.arange(0,inim_sz[1]+brdr*2,dtype=np.float32))
+    #slidewin_rotdiff_core_cpu(inim, iang, xx, yy, irad, mode, rotdif)
+
+  #outputs
+  rotdif = rotdif[brdr:-brdr,brdr:-brdr]
+  
+  return rotccorr, rotcounts, rotmean, rotvar
