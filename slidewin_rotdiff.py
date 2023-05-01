@@ -372,15 +372,6 @@ def slidewin_rotdiff_core_test(inim, itheta, irad, mode, result):
         continue
 
       z0 = inim[yy,xx]
-    
-      if mode==0:
-        step = step
-        
-
-      else:
-        z1 = inim[np.int32(round(yt)),np.int32(round(xt))]
-        if math.isnan(z1):
-          continue
 
       step += 1
 
