@@ -397,7 +397,7 @@ def slidewin_rotdiff_core_test(inim, itheta, irad, mode, result):
 
       else:
         zdiff = inim[np.int16(round(yt)),np.int16(round(xt))] - inim[yy,xx]
-        if math.isnan(z1):
+        if math.isnan(inim[np.int16(round(yt)),np.int16(round(xt))]):
           continue
 
       if zdiff>=0:
