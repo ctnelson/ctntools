@@ -353,7 +353,7 @@ def slidewin_rotdiff_core_test(inim, itheta, irad, mode, result):
   
   for xx in range(x0,x1):
     for yy in range(y0,y1):
-    step += 1
+      step += 1
   result[ii,jj] = step
     
 def slidewin_rotdiff_core_cpu(inim, itheta, ixx, iyy, irad, mode, result):
