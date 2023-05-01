@@ -374,10 +374,7 @@ def slidewin_rotdiff_core_test(inim, itheta, irad, mode, result):
       z0 = inim[yy,xx]
     
       if mode==0:
-        xL = (xt-math.floor(xt))
-        xH = 1-xL
-        yL = (yt-math.floor(yt))
-        yH = 1-yL
+        step = step
         
 
       else:
