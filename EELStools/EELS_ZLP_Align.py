@@ -38,6 +38,7 @@ def EELS_ZLP_Align(indata, zlpmethod='gaussian', Estep=1, i0=None, croptovalid=F
     outlierptflag = np.zeros((indata.shape[0],),dtype=bool)
     zlp_params = np.ones((indata.shape[0],2))
     x = np.arange(indata.shape[-1])
+    xE = x*Estep
 
     #if restrict to a prefined range:
     if i0 is None:
