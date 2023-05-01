@@ -588,10 +588,10 @@ def slidewin_rotccorr_core_gpu(inim, itheta, irad, mode, result_counts, result_m
       else:
         if math.isnan(inim[np.int32(round(yt)),np.int32(round(xt))]):
           continue
-      result_mean += z0
+      result_mean[ii,jj] += z0
       step +=1
-  result_mean = result_mean/step
-  result_counts = step
+  result_mean[ii,jj] = result_mean[ii,jj]/step
+  result_counts[ii,jj] = step
 
   #Get window standard deviation
   for xx in range(x0,x1):
@@ -627,8 +627,8 @@ def slidewin_rotccorr_core_gpu(inim, itheta, irad, mode, result_counts, result_m
       else:
         if math.isnan(inim[np.int32(round(yt)),np.int32(round(xt))]):
           continue
-      result_var += (np.float32(inim[yy,xx])-result_mean[yy,xx])**2
-  result_var = result_var/result_counts
+      result_var[ii,jj] += (np.float32(inim[yy,xx])-result_mean[ii,jj])**2
+  result_var[ii,jj] = result_var[ii,jj]/result_counts[ii,jj]
         
   #The normalized cross correlation
   for xx in range(x0,x1):
