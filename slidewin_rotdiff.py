@@ -310,7 +310,7 @@ def slidewin_rotdiff_core_gpu(inim, itheta, irad, mode, result):
 
     ############################################################ debug #############################
 @cuda.jit
-def slidewin_rotdiff_core_test(inim, itheta, irad, mode, result):
+def slidewin_rotdiff_core_gpu(inim, itheta, irad, mode, result):
   #Which thread
   ii,jj = cuda.grid(2)
 
@@ -318,46 +318,46 @@ def slidewin_rotdiff_core_test(inim, itheta, irad, mode, result):
   if (ii >= inim.shape[0]-1) or (ii < 1) or (jj >= inim.shape[1]-1) or (jj < 1): 
       return
 
-  result[ii,jj] = 0
-  step = 0
+  result[ii,jj] = np.float32(0)
+  step = np.int16(0)
 
   #default index ranges
-  x0 = np.int32(ii-irad)
-  x1 = np.int32(ii+irad)
-  y0 = np.int32(jj-irad)
-  y1 = np.int32(jj+irad)
+  x0 = np.int16(ii-irad)
+  x1 = np.int16(ii+irad)
+  y0 = np.int16(jj-irad)
+  y1 = np.int16(jj+irad)
 
   #check for edges
   #x
-  xlow = irad - jj
-  xhigh = -inim.shape[1]+jj+irad+1
-  if (xlow>0) | (xhigh>0):
-    if xlow>xhigh:
-      x0 = x0+xlow
-      x1 = x1-xlow
+  v1 = irad - jj
+  v2 = -inim.shape[1]+jj+irad+1
+  if (v1>0) | (v2>0):
+    if v1>v2:
+      x0 = x0+v1
+      x1 = x1-v1
     else:
-      x0 = x0+xhigh
-      x1 = x1-xhigh
+      x0 = x0+v2
+      x1 = x1-v2
 
   #y
-  ylow = irad - ii
-  yhigh = -inim.shape[0]+ii+irad+1
-  if (ylow>0) | (yhigh>0):
-    if ylow>yhigh:
-      y0 = y0+ylow
-      y1 = y1-ylow
+  v1 = irad - ii
+  v2 = -inim.shape[0]+ii+irad+1
+  if (v1>0) | (v2>0):
+    if v1>v2:
+      y0 = y0+v1
+      y1 = y1-v1
     else:
-      y0 = y0+yhigh
-      y1 = y1-yhigh
+      y0 = y0+v2
+      y1 = y1-v2
 
   for xx in range(x0,x1):
     for yy in range(y0,y1):
       
       #polar
-      rx = np.float32(xx-ii)
-      ry = np.float32(yy-jj)
-      r = ((rx)**2+(ry)**2)**.5
-      rang = math.atan2(ry,rx)
+      v1 = np.float32(xx-ii)
+      v2 = np.float32(yy-jj)
+      r = ((v1)**2+(v2)**2)**.5
+      rang = math.atan2(v2,v1)
 
       #limit to radius
       if r>irad:
@@ -371,11 +371,43 @@ def slidewin_rotdiff_core_test(inim, itheta, irad, mode, result):
       if (xt<0) | (xt > inim.shape[1]) | (yt<0) | (yt > inim.shape[0]):
         continue
 
+      if mode==0:
+        xL = np.float32(xt-math.floor(xt))
+        yL = np.flaot32(yt-math.floor(yt))
+        #f00
+        v1 = np.int16(math.floor(yt))
+        v2 = np.int16(math.floor(xt))
+        f00 = inim[v1,v2]
+        #f10
+        v1 = np.int16(math.floor(yt))
+        v2 = np.int16(math.ceil(xt))
+        f10 = inim[v1,v2]
+        #f01
+        v1 = np.int16(math.ceil(yt))
+        v2 = np.int16(math.floor(xt))
+        f01 = inim[v1,v2]
+        #f11
+        v1 = np.int16(math.ceil(yt))
+        v2 = np.int16(math.ceil(xt))
+        f11 = inim[v1,v2]
+        
+        if math.isnan(f00) | math.isnan(f10) | math.isnan(f01) | math.isnan(f11):
+          continue
+        zdiff = f00*(1-xL)*(1-yL) + f10*xL*(1-yL) + f01*(1-xL)*yL + f11*xL*yL - inim[yy,xx]
 
+      else:
+        zdiff = inim[np.int16(round(yt)),np.int16(round(xt))] - inim[yy,xx]
+        if math.isnan(z1):
+          continue
+
+      if zdiff>=0:
+        result[ii,jj] = result[ii,jj]+zdiff
+      else:
+        result[ii,jj] = result[ii,jj]-zdiff
       step += 1
 
-  #result[ii,jj] = result[ii,jj]/step
-  result[ii,jj] = step
+  result[ii,jj] = result[ii,jj]/step
+  #result[ii,jj] = step
     
 def slidewin_rotdiff_core_cpu(inim, itheta, ixx, iyy, irad, mode, result):
     from tqdm import tqdm
