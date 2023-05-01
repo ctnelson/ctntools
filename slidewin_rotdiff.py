@@ -697,7 +697,7 @@ def slidewin_rotccorr(inim, iang, irad, mode = 0, trygpu=True):
     #try:
     blockdim = (16, 16)
     print('Blocks dimensions:', blockdim)
-    griddim = (rotdif.shape[0] // blockdim[0] + 1, rotdif.shape[1] // blockdim[1] + 1)
+    griddim = (rotccorr.shape[0] // blockdim[0] + 1, rotccorr.shape[1] // blockdim[1] + 1)
     print('Grid dimensions:', griddim)
     slidewin_rotccorr_core_gpu[griddim, blockdim](inim, iang, irad, mode, rotcounts, rotmean, rotvar, rotccorr)
     #except:
@@ -709,6 +709,9 @@ def slidewin_rotccorr(inim, iang, irad, mode = 0, trygpu=True):
     #slidewin_rotdiff_core_cpu(inim, iang, xx, yy, irad, mode, rotdif)
 
   #outputs
-  rotdif = rotdif[brdr:-brdr,brdr:-brdr]
+  rotccorr = rotccorr[brdr:-brdr,brdr:-brdr]
+  rotcounts = rotcounts[brdr:-brdr,brdr:-brdr]
+  rotmean = rotmean[brdr:-brdr,brdr:-brdr]
+  rotvar = rotvar[brdr:-brdr,brdr:-brdr]
   
   return rotccorr, rotcounts, rotmean, rotvar
