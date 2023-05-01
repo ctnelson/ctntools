@@ -308,7 +308,54 @@ def slidewin_rotdiff_core_gpu(inim, itheta, irad, mode, result):
   result[ii,jj] = result[ii,jj]/step
   #result[ii,jj] = step
 
+    ############################################################ debug #############################
+@cuda.jit
+def slidewin_rotdiff_core_test(inim, itheta, irad, mode, result):
+  #Which thread
+  ii,jj = cuda.grid(2)
 
+  #is thread valid?
+  if (ii >= inim.shape[0]-1) or (ii < 1) or (jj >= inim.shape[1]-1) or (jj < 1): 
+      return
+
+  result[ii,jj] = 0
+  step = 0
+
+  #default index ranges
+  x0 = np.int32(ii-irad)
+  x1 = np.int32(ii+irad)
+  y0 = np.int32(jj-irad)
+  y1 = np.int32(jj+irad)
+
+  #check for edges
+  #x
+  xlow = irad - jj
+  xhigh = -inim.shape[1]+jj+irad+1
+  if (xlow>0) | (xhigh>0):
+    if xlow>xhigh:
+      x0 = x0+xlow
+      x1 = x1-xlow
+    else:
+      x0 = x0+xhigh
+      x1 = x1-xhigh
+
+  #y
+  ylow = irad - ii
+  yhigh = -inim.shape[0]+ii+irad+1
+  if (ylow>0) | (yhigh>0):
+    if ylow>yhigh:
+      y0 = y0+ylow
+      y1 = y1-ylow
+    else:
+      y0 = y0+yhigh
+      y1 = y1-yhigh
+
+  
+  for xx in range(x0,x1):
+    for yy in range(y0,y1):
+    step += 1
+  result[ii,jj] = step
+    
 def slidewin_rotdiff_core_cpu(inim, itheta, ixx, iyy, irad, mode, result):
     from tqdm import tqdm
 
@@ -392,7 +439,7 @@ def slidewin_rotdiff(inim, iang, irad, mode = 0, trygpu=True):
     print('Blocks dimensions:', blockdim)
     griddim = (rotdif.shape[0] // blockdim[0] + 1, rotdif.shape[1] // blockdim[1] + 1)
     print('Grid dimensions:', griddim)
-    slidewin_rotdiff_core_gpu[griddim, blockdim](inim, iang, irad, mode, rotdif)
+    slidewin_rotdiff_core_test[griddim, blockdim](inim, iang, irad, mode, rotdif)
     #except:
     #print('GPU Execution failed, fall back to cpu')
     #xx,yy = np.meshgrid(np.arange(0,inim_sz[0]+brdr*2,dtype=np.float32),np.arange(0,inim_sz[1]+brdr*2,dtype=np.float32))
