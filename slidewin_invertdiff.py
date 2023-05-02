@@ -271,10 +271,10 @@ def slidewin_invertccorr(inimage, winrng, trygpu=True):
     #invmean                :     mean value of sliding windows
     #invvar                 :     variance of sliding windows
     
-    invcounts = np.ones_like(inim,np.int32)*-1
-    invccorr = np.ones_like(inim,np.float32)*np.nan
-    invmean = np.ones((inim.shape[0],inim.shape[1],2),dtype=np.float32)*np.nan
-    invvar = np.ones((inim.shape[0],inim.shape[1],2),dtype=np.float32)*np.nan
+    invcounts = np.ones_like(inimage,np.int32)*-1
+    invccorr = np.ones_like(inimage,np.float32)*np.nan
+    invmean = np.ones((inimage.shape[0],inimage.shape[1],2),dtype=np.float32)*np.nan
+    invvar = np.ones((inimage.shape[0],inimage.shape[1],2),dtype=np.float32)*np.nan
     
     if trygpu:
         #try:
