@@ -22,11 +22,11 @@ def imregionalmax(inim, windowsize, insubmask = np.empty([0],dtype='bool'), prom
 
     #Normalize
     if normalmode==0:   #full range
-        inim = inim-np.min(inim.flatten())
-        inim = inim/np.max(inim.flatten())
+        inim = inim-np.nanmin(inim.flatten())
+        inim = inim/np.nanmax(inim.flatten())
     elif normalmode==1: #percentile
-        inim = inim-np.percentile(inim.flatten(),1)
-        inim = inim/np.percentile(inim.flatten(),99)
+        inim = inim-np.nanpercentile(inim.flatten(),1)
+        inim = inim/np.nanpercentile(inim.flatten(),99)
 
     #Local variables
     xx, yy = np.meshgrid(np.arange(np.shape(inim)[1]), np.arange(np.shape(inim)[0]))
@@ -69,7 +69,7 @@ def imregionalmax(inim, windowsize, insubmask = np.empty([0],dtype='bool'), prom
             mskind = np.where(b_mask[ymin_bmsk:ymax_bmsk,xmin_bmsk:xmax_bmsk].flatten()==False)
 
             #prominence test
-            pk_p = val[currpos]-np.min(inim[ymin:ymax,xmin:xmax].flatten()[mskind])
+            pk_p = val[currpos]-np.nanmin(inim[ymin:ymax,xmin:xmax].flatten()[mskind])
             if  pk_p < prominence:
                 #print(str(ii)+': prominence failure ('+str(pk_p))
                 continue
