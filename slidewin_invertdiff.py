@@ -190,7 +190,8 @@ def swinvrt_ccorr_GPU(inim, winrng, result_counts, result_mean, result_var, resu
               result_mean[ii,jj,0] += inim[yy+y0,xx+x0]
               result_mean[ii,jj,1] += inim[y1-yy-1,x1-xx-1]
           step += 1
-    result_mean[ii,jj,:] = result_mean[ii,jj,:]/step/lp_3
+    result_mean[ii,jj,0] = result_mean[ii,jj,0]/step/lp_3
+    result_mean[ii,jj,1] = result_mean[ii,jj,1]/step/lp_3
     result_counts[ii,jj] = step
     
     #Get window standard deviation
