@@ -225,9 +225,9 @@ def swinvrt_ccorr_GPU(inim, winrng, result_counts, result_mean, result_var, resu
           for l in range(lp_3):
             temp = 0
             if inim.ndim==3:
-              result_ccorr[ii,jj] += (inim[y1-yy-1,x1-xx-1,l]-result_mean[ii,jj,1])*(inim[yy+y0,xx+x0,l]-result_mean[ii,jj,0])/result_var[ii,jj,0]/result_var[ii,jj,0]
+              result_ccorr[ii,jj] += (inim[y1-yy-1,x1-xx-1,l]-result_mean[ii,jj,1])*(inim[yy+y0,xx+x0,l]-result_mean[ii,jj,0])/(result_var[ii,jj,0]*result_var[ii,jj,1])
             elif inim.ndim==2:
-              result_ccorr[ii,jj] += (inim[y1-yy-1,x1-xx-1]-result_mean[ii,jj,1])*(inim[yy+y0,xx+x0]-result_mean[ii,jj,0])/result_var[ii,jj,0]/result_var[ii,jj,0]
+              result_ccorr[ii,jj] += (inim[y1-yy-1,x1-xx-1]-result_mean[ii,jj,1])*(inim[yy+y0,xx+x0]-result_mean[ii,jj,0])/(result_var[ii,jj,0]*result_var[ii,jj,1])
     result_ccorr[ii,jj] = result_ccorr[ii,jj]/step/lp_3
     
 
