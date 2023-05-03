@@ -702,7 +702,7 @@ def slidewin_rotccorr(inim, iang, irad, mode = 0, trygpu=True):
   print('radius: '+str(irad))
   if trygpu:
     #try:
-    blockdim = (16, 16)
+    blockdim = (8, 8)
     print('Blocks dimensions:', blockdim)
     griddim = (rotccorr.shape[0] // blockdim[0] + 1, rotccorr.shape[1] // blockdim[1] + 1)
     print('Grid dimensions:', griddim)
