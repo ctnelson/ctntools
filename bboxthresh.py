@@ -45,15 +45,10 @@ def bboxthresh(inim, ptxy=[], thr=.5, normalize=True, convexhullmask=True, minHW
     tyn = decaythresh1D(tyc,thr)
     tyn = np.max(np.array([tyn,ptxy[1]-minHW[1]]))
 
-    xmin = ptxy[0]-txn
-    xmax = ptxy[0]+txp
-    ymin = ptxy[1]-tyn
-    ymax = ptxy[1]+typ
-
-    print(xmin)
-    print(xmax)
-    print(ymin)
-    print(ymax)
+    xmin = np.int16(ptxy[0]-txn)
+    xmax = np.int16(ptxy[0]+txp)
+    ymin = np.int16(ptxy[1]-tyn)
+    ymax =np.int16( ptxy[1]+typ)
     
     #outputs
     ROI = np.array([xmin,xmax,ymin,ymax])
