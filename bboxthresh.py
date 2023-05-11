@@ -47,7 +47,7 @@ def bboxthresh(inim, ptxy=[], thr=.5, normalize=True, convexhullmask=True, minHW
     tyc = ty[np.ceil(ptxy[1]).astype('int'):]
     typ = decaythresh1D(tyc,thr)-1
     print('y+'+str(typ))
-    typ = np.max(np.array([typ,minHW[1]-1]))
+    typ = np.max(np.array([typ,minHW[1]]))
     tyc = np.flip(ty[:np.ceil(ptxy[1]).astype('int')])
     tyn = decaythresh1D(tyc,thr)
     print('y-'+str(tyn))
@@ -61,10 +61,6 @@ def bboxthresh(inim, ptxy=[], thr=.5, normalize=True, convexhullmask=True, minHW
     #outputs
     ROI = np.array([xmin,xmax,ymin,ymax])
     thrmsk = (inim[ymin:ymax+1,xmin:xmax+1]>thr).astype('int')
-    if np.all(thrmsk.ravel()==0):
-        print('Error with calculated bbx bounds: xmin: '+str(xmin)+', xmax: '+str(xmax)+', ymin: '+str(ymin)+', ymax: '+str(ymax))
-        #plt.imshow(inim)
-        #plt.scatter(ptxy[0],ptxy[1],s=10,c='k',marker='o')
 
     if ~np.any(thrmsk.ravel()==1) & np.all(minHW==0):
         raise ValueError('No points above threshold found')
@@ -85,6 +81,6 @@ def bboxthresh(inim, ptxy=[], thr=.5, normalize=True, convexhullmask=True, minHW
             thrmsk = inhull>-1
         else:
             thrmsk=np.ones_like(thrmsk)
-            Warning('No points above threshold, returning minimum bbx as mask')
+            Warning('No points above threshold, returning minimum bbx as mask, xmin: '+str(xmin)+', xmax: '+str(xmax)+', ymin: '+str(ymin)+', ymax: '+str(ymax))
 
     return ROI, thrmsk
