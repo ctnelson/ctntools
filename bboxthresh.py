@@ -50,6 +50,11 @@ def bboxthresh(inim, ptxy=[], thr=.5, normalize=True, convexhullmask=True, minHW
     ymin = ptxy[1]-tyn
     ymax = ptxy[1]+typ
 
+    print(xmin)
+    print(xmax)
+    print(ymin)
+    print(ymax)
+    
     #outputs
     ROI = np.array([xmin,xmax,ymin,ymax])
     thrmsk = (inim[ymin:ymax+1,xmin:xmax+1]>thr).astype('int')
