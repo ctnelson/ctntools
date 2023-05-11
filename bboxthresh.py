@@ -74,5 +74,8 @@ def bboxthresh(inim, ptxy=[], thr=.5, normalize=True, convexhullmask=True, minHW
         else:
             thrmsk=np.ones_like(thrmsk)
             Warning('No points above threshold, returning minimum bbx as mask, xmin: '+str(xmin)+', xmax: '+str(xmax)+', ymin: '+str(ymin)+', ymax: '+str(ymax))
-
+    
+    #guarantee min HW is in mask (at minimum this will be the zero point)
+    thrmsk[ptxy[1]-minHW[1]:ptxy[1]+minHW[1]+1,ptxy[0]-minHW[0]:ptxy[0]+minHW[0]+1] = True
+            
     return ROI, thrmsk
