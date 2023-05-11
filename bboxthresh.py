@@ -2,7 +2,7 @@
 import numpy as np
 from scipy import spatial
 
-def bboxthresh(inim, ptxy=[], thr=.5, normalize=True, convexhullmask=True, minHW=np.array([0,0])):
+def bboxthresh(inim, ptxy=[], thr=.5, normalize=True, convexhullmask=True, minHW=np.array([0,0],dtype=np.int8)):
     #Inputs:
     #inim                       :           input image
     #ptxy (optional)            :           rough center guess
