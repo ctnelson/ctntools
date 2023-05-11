@@ -26,12 +26,7 @@ def fit1peak(inim, ipkxy=[], ithresh=.7, calcCVHullMask=True, calcprediction=Tru
 
     if ipkxy.size==0:
         ipkxy = np.array([np.argmax(np.max(inim,axis=0)),np.argmax(np.max(inim,axis=1))]) 
-    bbx, msk = bboxthresh(inim,ipkxy,ithresh,convexhullmask=calcCVHullMask,normalize=True)
-    #check they are at least min value
-    bbx[0] = np.min(np.array([bbx[0],np.ceil(ipkxy[0])-minHW]))
-    bbx[1] = np.max(np.array([bbx[1],np.ceil(ipkxy[0])+minHW]))
-    bbx[2] = np.min(np.array([bbx[2],np.ceil(ipkxy[1])-minHW]))
-    bbx[3] = np.min(np.array([bbx[3],np.ceil(ipkxy[1])+minHW]))
+    bbx, msk = bboxthresh(inim,ipkxy=ipkxy,thr=.7,convexhullmask=calcCVHullMask,normalize=True)
     ind=np.where(msk==1)
     xx,yy = np.meshgrid(np.arange(0,bbx[1]-bbx[0]+1),np.arange(0,bbx[3]-bbx[2]+1))
     X = xx[ind].ravel()
