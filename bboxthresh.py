@@ -66,7 +66,8 @@ def bboxthresh(inim, ptxy=[], thr=.5, normalize=True, convexhullmask=True, minHW
         #plt.imshow(inim)
         #plt.scatter(ptxy[0],ptxy[1],s=10,c='k',marker='o')
 
-    assert np.any(thrmsk.ravel()==1), 'No points above threshold found'
+    if ~np.any(thrmsk.ravel()==1) & np.all(minHW==0):
+        raise ValueError('No points above threshold found')
 
     if convexhullmask:
         pts = np.array(np.where(thrmsk==1)).T[:,::-1]
