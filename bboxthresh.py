@@ -2,19 +2,20 @@
 import numpy as np
 from scipy import spatial
 
-def bboxthresh(inim, ptxy, thr=.5, normalize=True, convexhullmask=True, xytoargmax=True):
+def bboxthresh(inim, ptxy=[], thr=.5, normalize=True, convexhullmask=True, minHW=np.array([0,0])):
     #Inputs:
-    #inim               :           input image
-    #ptxy               :           rough center guess
-    #thr                :           threshold value
-    #normalize          :           flag to normalize data
-    #mask               :           flag to calculate a mask in addition to the boundary box
+    #inim                       :           input image
+    #ptxy (optional)            :           rough center guess
+    #thr (optional)             :           threshold value
+    #normalize (optional)       :           flag to normalize data
+    #convexhullmask (optional)  :           flag to calculate a mask in addition to the boundary box (uses the scipy ConvexHull function)
+    #minHW (optional)           :           minimum boundary distance from ptxy point (assures a minimum height/width)
 
     #Outputs:
     #ROI                :           Boundary Box [xmin, xmax, ymin, ymax]
     #thrmsk             :           Threshold mask within boundary box. Default is simple threshold
 
-    if xytoargmax:
+    if ptxy.size==0:
         ptxy = np.array([np.argmax(np.max(inim,axis=0)),np.argmax(np.max(inim,axis=1))])
 
     if normalize:
@@ -30,15 +31,19 @@ def bboxthresh(inim, ptxy, thr=.5, normalize=True, convexhullmask=True, xytoargm
     tx = np.max(inim,axis=0)
     txc = tx[np.ceil(ptxy[0]).astype('int'):]
     txp = decaythresh1D(txc,thr)-1
+    txp = np.max(np.array([txp,tpxy[0]+winHW[0]]))
     txc = np.flip(tx[:np.ceil(ptxy[0]).astype('int')])
     txn = decaythresh1D(txc,thr)
+    txn = np.min(np.array([txn,tpxy[0]-winHW[0]]))
 
     #y
     ty = np.max(inim/np.max(inim.ravel()),axis=1)
     tyc = ty[np.ceil(ptxy[1]).astype('int'):]
     typ = decaythresh1D(tyc,thr)-1
+    typ = np.max(np.array([typ,tpxy[1]+winHW[1]]))
     tyc = np.flip(ty[:np.ceil(ptxy[1]).astype('int')])
     tyn = decaythresh1D(tyc,thr)
+    tyn = np.max(np.array([tyn,tpxy[1]-winHW[1]]))
 
     xmin = ptxy[0]-txn
     xmax = ptxy[0]+txp
