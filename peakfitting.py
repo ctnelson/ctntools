@@ -3,7 +3,7 @@ import numpy as np
 from ctntools.bboxthresh import bboxthresh
 from tqdm import tqdm
 
-def fit1peak(inim, ipkxy=[], ithresh=.7, calcCVHullMask=True, calcprediction=True, calcresidual=True):
+def fit1peak(inim, ipkxy=[], ithresh=.7, calcCVHullMask=True, calcprediction=True, calcresidual=True, minHW=1):
     #Inputs:
     #inim               :           input image
     #ipkxy(optional)    :           [2,1] guess of xy location, will default to peak value
@@ -11,6 +11,7 @@ def fit1peak(inim, ipkxy=[], ithresh=.7, calcCVHullMask=True, calcprediction=Tru
     #calcCVHullMask     :           flag to calculate a convex hull of above-threshold region
     #calcprediction     :           flag to calculate the fitting result (required to return valid zeval)
     #calcresidual       :           flag to calculate the residual of indata-fit_result (required to return resid)
+    #minHW              :           minimum half width, if threshold/boundary box returns a smaller value it will be increased to this
     
     #Outputs:
     #outparams      :           [5,1] array of parameters [x, y, maximum/minimum, rotation, elipticity]
@@ -26,6 +27,11 @@ def fit1peak(inim, ipkxy=[], ithresh=.7, calcCVHullMask=True, calcprediction=Tru
     if ipkxy.size==0:
         ipkxy = np.array([np.argmax(np.max(inim,axis=0)),np.argmax(np.max(inim,axis=1))]) 
     bbx, msk = bboxthresh(inim,ipkxy,ithresh,convexhullmask=calcCVHullMask,normalize=True)
+    #check they are at least min value
+    bbx[0] = np.min(np.array([bbx[0],np.ceil(ipkxy[0])-minHW]))
+    bbx[1] = np.max(np.array([bbx[1],np.ceil(ipkxy[0])+minHW]))
+    bbx[2] = np.min(np.array([bbx[2],np.ceil(ipkxy[1])-minHW]))
+    bbx[3] = np.min(np.array([bbx[3],np.ceil(ipkxy[1])+minHW]))
     ind=np.where(msk==1)
     xx,yy = np.meshgrid(np.arange(0,bbx[1]-bbx[0]+1),np.arange(0,bbx[3]-bbx[2]+1))
     X = xx[ind].ravel()
@@ -52,11 +58,12 @@ def fit1peak(inim, ipkxy=[], ithresh=.7, calcCVHullMask=True, calcprediction=Tru
 
 
 #Performs subpixel fitting of local maxima/minima with least square fit to parabaloids. Meant as a refinement, requires initial guesses as an input.
-def refinePeaks(inim,ipkxy,winsz=[]):
+def refinePeaks(inim,ipkxy,winsz=[],ithresh=.5):
     #Inputs:
     #inim           :           input image
     #ipkxy          :           [n x 2] array of local maxima guesses
     #winsz          :           [1,], [2,1], or [n,2] array of cropping window to use around each guess point
+    #ithresh        :           intensity threshold to crop around peak
 
     #Outpus:
     #outparams      :           returns [n x 5] array of parameters [x, y, maximum/minimum, rotation, elipticity]
