@@ -30,8 +30,8 @@ def bboxthresh(inim, ptxy=[], thr=.5, normalize=True, convexhullmask=True, minHW
     #x
     tx = np.max(inim,axis=0)
     txc = tx[np.ceil(ptxy[0]).astype('int'):]
-    txp = decaythresh1D(txc,thr)
-    txp = np.max(np.array([txp,minHW[0]]))-1
+    txp = decaythresh1D(txc,thr)-1
+    txp = np.max(np.array([txp,minHW[0]-1]))
     txc = np.flip(tx[:np.ceil(ptxy[0]).astype('int')])
     txn = decaythresh1D(txc,thr)
     txn = np.max(np.array([txn,minHW[0]]))
@@ -39,8 +39,8 @@ def bboxthresh(inim, ptxy=[], thr=.5, normalize=True, convexhullmask=True, minHW
     #y
     ty = np.max(inim/np.max(inim.ravel()),axis=1)
     tyc = ty[np.ceil(ptxy[1]).astype('int'):]
-    typ = decaythresh1D(tyc,thr)
-    typ = np.max(np.array([typ,minHW[1]]))-1
+    typ = decaythresh1D(tyc,thr)-1
+    typ = np.max(np.array([typ,minHW[1]-1]))
     tyc = np.flip(ty[:np.ceil(ptxy[1]).astype('int')])
     tyn = decaythresh1D(tyc,thr)
     tyn = np.max(np.array([tyn,minHW[1]]))
