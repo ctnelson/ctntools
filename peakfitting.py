@@ -53,12 +53,13 @@ def fit1peak(inim, ipkxy=[], ithresh=.7, calcCVHullMask=True, calcprediction=Tru
 
 
 #Performs subpixel fitting of local maxima/minima with least square fit to parabaloids. Meant as a refinement, requires initial guesses as an input.
-def refinePeaks(inim,ipkxy,winsz=[],ithresh=.5):
+def refinePeaks(inim,ipkxy,winsz=[],ithresh=.5,minHW=np.array([1,1],dtype=np.int8)):
     #Inputs:
     #inim           :           input image
     #ipkxy          :           [n x 2] array of local maxima guesses
     #winsz          :           [1,], [2,1], or [n,2] array of cropping window to use around each guess point
     #ithresh        :           intensity threshold to crop around peak
+    #minHW          :           minimum half distance of crop to peak center (assures a minimum image size)
 
     #Outpus:
     #outparams      :           returns [n x 5] array of parameters [x, y, maximum/minimum, rotation, elipticity]
@@ -88,7 +89,7 @@ def refinePeaks(inim,ipkxy,winsz=[],ithresh=.5):
             ymax_ = np.min(np.array([ipkxy[i,1]+winsz_lp[1]+1,inim.shape[0]],dtype='int'))
 
             pkxy_lp = ipkxy[i,:]-np.array([xmin_,ymin_])
-            outparams[i,:] = fit1peak(inim[ymin_:ymax_,xmin_:xmax_], pkxy_lp, calcCVHullMask=True, calcprediction=False, calcresidual=False)[0]
+            outparams[i,:] = fit1peak(inim[ymin_:ymax_,xmin_:xmax_], ipkxy=pkxy_lp, ithresh=ithresh, calcCVHullMask=True, calcprediction=False, calcresidual=False)[0]
             outparams[i,:2] += np.array([xmin_,ymin_])
         except:
             print('Peak#'+str(i)+'failure')
