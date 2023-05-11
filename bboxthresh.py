@@ -83,7 +83,7 @@ def bboxthresh(inim, ptxy=[], thr=.5, normalize=True, convexhullmask=True, minHW
             inhull = delny.find_simplex(pts)
             inhull = np.reshape(inhull,xx.shape)
             thrmsk = inhull>-1
-         else:
+        else:
             thrmsk=np.ones_like(thrmsk)
             Warning('No points above threshold, returning minimum bbx as mask')
 
