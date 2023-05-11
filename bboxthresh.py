@@ -70,17 +70,21 @@ def bboxthresh(inim, ptxy=[], thr=.5, normalize=True, convexhullmask=True, minHW
         raise ValueError('No points above threshold found')
 
     if convexhullmask:
-        pts = np.array(np.where(thrmsk==1)).T[:,::-1]
-        hull = spatial.ConvexHull(pts)
-        delny = spatial.Delaunay(pts[hull.vertices])
-        #plt.scatter(pts[hull.vertices,0],pts[hull.vertices,1],s=10,c='r',marker='o')
-        xx,yy = np.meshgrid(np.arange(xmax-xmin+1),np.arange(ymax-ymin+1))
-        pts = np.array([xx.ravel(),yy.ravel()]).T
-        #plt.scatter(pts[:,0],pts[:,1],s=1,c='k',marker='o')
-        #plt.xlim([0,inim.shape[1]])
-        #plt.ylim([0,inim.shape[0]])
-        inhull = delny.find_simplex(pts)
-        inhull = np.reshape(inhull,xx.shape)
-        thrmsk = inhull>-1
+        if np.any(thrmsk.ravel()==1):
+            pts = np.array(np.where(thrmsk==1)).T[:,::-1]
+            hull = spatial.ConvexHull(pts)
+            delny = spatial.Delaunay(pts[hull.vertices])
+            #plt.scatter(pts[hull.vertices,0],pts[hull.vertices,1],s=10,c='r',marker='o')
+            xx,yy = np.meshgrid(np.arange(xmax-xmin+1),np.arange(ymax-ymin+1))
+            pts = np.array([xx.ravel(),yy.ravel()]).T
+            #plt.scatter(pts[:,0],pts[:,1],s=1,c='k',marker='o')
+            #plt.xlim([0,inim.shape[1]])
+            #plt.ylim([0,inim.shape[0]])
+            inhull = delny.find_simplex(pts)
+            inhull = np.reshape(inhull,xx.shape)
+            thrmsk = inhull>-1
+         else:
+            thrmsk=np.ones_like(thrmsk)
+            Warning('No points above threshold, returning minimum bbx as mask')
 
     return ROI, thrmsk
