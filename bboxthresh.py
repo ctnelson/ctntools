@@ -16,7 +16,9 @@ def bboxthresh(inim, ptxy=[], thr=.5, normalize=True, convexhullmask=True, minHW
     #thrmsk             :           Threshold mask within boundary box. Default is simple threshold
 
     if ptxy.size==0:
-        ptxy = np.array([np.argmax(np.max(inim,axis=0)),np.argmax(np.max(inim,axis=1))])
+        ptxy = np.array([np.argmax(np.max(inim,axis=0)),np.argmax(np.max(inim,axis=1))],dtype=np.int32)
+    else:
+        ptxy = np.int32(np.ceil(ptxy))
 
     if normalize:
         inim = (inim-np.nanmin(inim.ravel()))/(np.nanmax(inim.ravel())-np.nanmin(inim.ravel()))
@@ -29,26 +31,30 @@ def bboxthresh(inim, ptxy=[], thr=.5, normalize=True, convexhullmask=True, minHW
         return t
     #x
     tx = np.max(inim,axis=0)
-    txc = tx[np.ceil(ptxy[0]).astype('int'):]
+    #txc = tx[np.ceil(ptxy[0]).astype('int'):]
+    txc = tx[ptxy[0]:]
     txp = decaythresh1D(txc,thr)-1
     txp = np.max(np.array([txp,minHW[0]]))
-    txc = np.flip(tx[:np.ceil(ptxy[0]).astype('int')])
+    #txc = np.flip(tx[:np.ceil(ptxy[0]).astype('int')])
+    txc = np.flip(tx[:ptxy[0]])
     txn = decaythresh1D(txc,thr)
     txn = np.max(np.array([txn,minHW[0]]))
 
     #y
     ty = np.max(inim/np.max(inim.ravel()),axis=1)
-    tyc = ty[np.ceil(ptxy[1]).astype('int'):]
+    #tyc = ty[np.ceil(ptxy[1]).astype('int'):]
+    tyc = ty[ptxy[1]:]
     typ = decaythresh1D(tyc,thr)-1
     typ = np.max(np.array([typ,minHW[1]]))
-    tyc = np.flip(ty[:np.ceil(ptxy[1]).astype('int')])
+    #tyc = np.flip(ty[:np.ceil(ptxy[1]).astype('int')])
+    tyc = np.flip(ty[:ptxy[1]])
     tyn = decaythresh1D(tyc,thr)
     tyn = np.max(np.array([tyn,minHW[1]]))
 
-    xmin = np.int16(ptxy[0]-txn)
-    xmax = np.int16(ptxy[0]+txp)
-    ymin = np.int16(ptxy[1]-tyn)
-    ymax =np.int16( ptxy[1]+typ)
+    xmin = np.int32(ptxy[0]-txn)
+    xmax = np.int32(ptxy[0]+txp)
+    ymin = np.int32(ptxy[1]-tyn)
+    ymax = np.int32( ptxy[1]+typ)
     
     #outputs
     ROI = np.array([xmin,xmax,ymin,ymax])
