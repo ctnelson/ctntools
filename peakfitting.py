@@ -89,7 +89,7 @@ def refinePeaks(inim,ipkxy,winsz=[],ithresh=.5,minHW=np.array([1,1],dtype=np.int
             ymax_ = np.min(np.array([ipkxy[i,1]+winsz_lp[1]+1,inim.shape[0]],dtype='int'))
 
             pkxy_lp = ipkxy[i,:]-np.array([xmin_,ymin_])
-            outparams[i,:] = fit1peak(inim[ymin_:ymax_,xmin_:xmax_], ipkxy=pkxy_lp, ithresh=ithresh, calcCVHullMask=True, calcprediction=False, calcresidual=False)[0]
+            outparams[i,:] = fit1peak(inim[ymin_:ymax_,xmin_:xmax_], ipkxy=pkxy_lp, ithresh=ithresh, calcCVHullMask=True, calcprediction=False, calcresidual=False, minHW=minHW)[0]
             outparams[i,:2] += np.array([xmin_,ymin_])
         except:
             print('Peak#'+str(i)+'failure')
