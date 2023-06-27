@@ -1,3 +1,7 @@
+from numba import cuda
+import math
+import numpy as np
+
 @cuda.jit
 def swin_var_GPU(inim, winrng, result_var): 
     ii,jj = cuda.grid(2)
