@@ -89,7 +89,9 @@ def slidewin_imdiff(inimage, inrng, stride=1, trygpu=True):
       griddim = (result.shape[0] // blockdim[0] + 1, result.shape[1] // blockdim[1] + 1)
       #print('Grid dimensions:', griddim)
       swid_rng_GPU[griddim, blockdim](inimage,lpx,lpy,xx,yy,result)
-    except:
+    except Exception as inst:
+      print(type(inst))
+      print(inst)
       print('GPU Execution failed, fall back to cpu')
       result = swid_rng_CPU(inimage,lpx,lpy,xx,yy)
   else:
