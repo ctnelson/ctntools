@@ -174,16 +174,16 @@ def gkde_core(ix,iy,ival,s,ixx,iyy,interplinear=True):
         
         #density & value ~histogram
         ind = np.vstack((ypos-1,xpos-1))
-        vals += accumarray(ind, vals.shape, wt=xL*yL*iz)    #p00 value
+        vals += accumarray(ind, vals.shape, wt=xL*yL*ival)    #p00 value
         dens += accumarray(ind, dens.shape)                 #p00 density
         ind = np.vstack((ypos,xpos-1))
-        vals += accumarray(ind, vals.shape, wt=xL*yH*iz)    #p01
+        vals += accumarray(ind, vals.shape, wt=xL*yH*ival)    #p01
         dens += accumarray(ind, dens.shape)                 #p01
         ind = np.vstack((ypos-1,xpos))
-        vals += accumarray(ind, vals.shape, wt=xH*yL*iz)    #p10
+        vals += accumarray(ind, vals.shape, wt=xH*yL*ival)    #p10
         dens += accumarray(ind, dens.shape)                 #p10
         ind = np.vstack((yposH,xposH))
-        vals += accumarray(ind, vals.shape, wt=xH*yH*iz)    #p11
+        vals += accumarray(ind, vals.shape, wt=xH*yH*ival)    #p11
         dens += accumarray(ind, dens.shape)                 #p11
 
         #convolve w/ kernel
