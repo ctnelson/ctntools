@@ -182,7 +182,7 @@ def gkde_core(ix,iy,ival,s,ixx,iyy,interplinear=True):
         ind = np.vstack((ypos-1,xpos))
         vals += accumarray(ind, vals.shape, wt=xH*yL*ival)    #p10
         dens += accumarray(ind, dens.shape)                 #p10
-        ind = np.vstack((yposH,xposH))
+        ind = np.vstack((ypos,xpos))
         vals += accumarray(ind, vals.shape, wt=xH*yH*ival)    #p11
         dens += accumarray(ind, dens.shape)                 #p11
 
