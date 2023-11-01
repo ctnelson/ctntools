@@ -159,12 +159,12 @@ def gkde_core(ix,iy,ival,s,ixx,iyy,interplinear=True):
 
         #estimate each datapoint as sum of 4 at integer positions
         stpsz = xv[1]-xv[0]
-        xpos = np.floor((ix-xv[0])/stpsz+1).astype('int')     #get first position
-        xH = (ix-(xv[xpos-1]))/stpsz                          #fraction of xpos
+        xpos = np.floor((ix-xv[0])/stpsz).astype('int')     #get first position
+        xH = (ix-(xv[xpos]))/stpsz                          #fraction of xpos
         xL = 1-xH                                             #fraction of xpos+1
         stpsz = yv[1]-yv[0]
-        ypos = np.floor((iy-yv[0])/stpsz+1).astype('int')
-        yH = (iy-(yv[ypos-1]))/stpsz
+        ypos = np.floor((iy-yv[0])/stpsz).astype('int')
+        yH = (iy-(yv[ypos]))/stpsz
         yL = 1-yH
         
         #values
