@@ -35,6 +35,79 @@ def gkernel(s,wincutoff=3):
     z =  1/(2*np.pi*s[0]*s[1]) * np.exp(-.5*xx**2/s[0]**2 - .5*yy**2/s[1]**2)
     return z
 
+#2D gaussian kernel (allowing non integer values of s but can create sharp edges depending on s vs rmax)
+def gkernel_float(s,rmax):
+    if np.size(s)==1:
+        s = [s,s]
+    if np.size(rmax)==1:
+        rmax = [rmax,rmax]
+    xv = np.arange(-rmax[0],rmax[0]+1)*s[0]**-1
+    yv = np.arange(-rmax[1],rmax[1]+1)*s[1]**-1
+    xx,yy = np.meshgrid(xv, yv)
+    z =  np.exp(-.5*xx**2 - .5*yy**2)
+    z = z/np.sum(z.ravel())
+    return z
+
+#2D bump function kernel (advantage as a constrained function)
+def bkernel(rmax,n=1):
+    #Inputs:
+    #rmax       :       distance cutoff
+    #n          :       broadness variable, larger values increase flattening of the central plateau
+    #Outputs:
+    #z          :       bump kernel
+    if np.size(rmax)==1:
+        rmax = [rmax,rmax]
+    xv = np.arange(-rmax[0],rmax[0]+1)/rmax[0]
+    yv = np.arange(-rmax[1],rmax[1]+1)/rmax[1]
+    xx,yy = np.meshgrid(xv, yv)
+    r = (xx**2+yy**2)**n
+    z = np.zeros_like(xx)
+    ind = np.where(r<1)
+    z[ind] =  np.exp(1/(r[ind]-1))
+    z = z/np.sum(z.ravel())
+    return z
+
+def xytointerpgrid(ix, iy, x0=None, y0=None, ixv=[1,0], iyv=[0,1]):
+    #creates and applies transformation matrix on input x & y vectors
+    #inpute can either be basis vectors or the interpolation meshgrid
+    
+    #Inputs
+    #ix     :       x positions
+    #iy     :       y positions
+    #x0     :       x origin
+    #y0     :       y origin
+    #ixv    :       x vector or x meshgrid
+    #iyv    :       y vector or y meshgrid
+    
+    #Outputs
+    #oxy    :       transformed xy coords
+
+    ixv = np.array(ixv)
+    iyv = np.array(iyv)
+
+    #ixv & iyv are vectors
+    if ((np.size(ixv)==2) & (np.size(iyv)==2)):
+        xy = np.vstack((ix.ravel(),iy.ravel(),np.ones_like(iy.ravel())))
+        M = np.array([[ixv[0],ixv[1],x0],[iyv[0],iyv[1],y0],[0,0,1]],dtype='float')
+        oxy = M @ xy
+        oxy = oxy[:2,:].T
+    
+    #ixv & iyv are meshgrids
+    #note, will not rigorously check if actually a meshgrid
+    if (np.ndim(ixv)==2) & (np.ndim(iyv)==2) & (np.size(ixv)>=4) & (np.size(iyv)>=4):
+        if x0 is None:
+            x0 = -np.min(ixv)
+        if y0 is None:
+            y0 = -np.min(iyv)
+        ixv = np.array([ixv[0,1] - ixv[0,0],0])
+        iyv = np.array([0,iyv[1,0] - iyv[0,0]])
+        xy = np.vstack((ix.ravel(),iy.ravel(),np.ones_like(iy.ravel())))
+        M = np.array([[ixv[0],ixv[1],x0],[iyv[0],iyv[1],y0],[0,0,1]],dtype='float')
+        oxy = M @ xy
+        oxy = oxy[:2,:].T
+
+    return oxy
+
 ############################################## Radial Basis Function Interpolator: Periodic Unit Cell ##################################################
 #This RBFI uses periodic boundaries. Inputs are asserted to be in units of fractional 'unit cell' coordinates.
 #a and b vectors (av and bv) are required basis vectors used to map to the a & b coordinates. Their magnitude determines the output image size.
@@ -107,16 +180,16 @@ def gkde_core_periodic(ia, ib, iz, av=None, bv=None, ds=1, isig=np.array([1,1]),
         #density & value ~histogram
         ind = np.vstack((bposL,aposL))
         vals += accumarray(ind, vals.shape, wt=aL*bL*iz)    #p00 value
-        dens += accumarray(ind, dens.shape)                 #p00 density
+        dens += accumarray(ind, dens.shape, wt=aL*bL)       #p00 density
         ind = np.vstack((bposH,aposL))
         vals += accumarray(ind, vals.shape, wt=aL*bH*iz)    #p01
-        dens += accumarray(ind, dens.shape)                 #p01
+        dens += accumarray(ind, dens.shape, wt=aL*bH)       #p01
         ind = np.vstack((bposL,aposH))
         vals += accumarray(ind, vals.shape, wt=aH*bL*iz)    #p10
-        dens += accumarray(ind, dens.shape)                 #p10
+        dens += accumarray(ind, dens.shape, wt=aH*bL)       #p10
         ind = np.vstack((bposH,aposH))
         vals += accumarray(ind, vals.shape, wt=aH*bH*iz)    #p11
-        dens += accumarray(ind, dens.shape)                 #p11
+        dens += accumarray(ind, dens.shape, wt=aH*bH)       #p11
     
     #round to nearest pixel position
     elif mode=='nearest':
@@ -150,21 +223,22 @@ def gkde_core(ix,iy,ival,s,ixx,iyy,interplinear=True):
     #interplinear   :   whether to calculate from subpixel positions or linear interpolate from pixel positions (former will be slower)
 
 
-    if interplinear:
-        #get guassian kernel
-        k = gkernel(s)
+        if interplinear:
+        #get kernel
+        k = gkernel_float(s,np.ceil(3*s))
+        #k = gkernel(s)
+        #k = bkernel(s)
 
-        xv = ixx[0,:]
-        yv = iyy[:,0]
-
-        #estimate each datapoint as sum of 4 at integer positions
-        stpsz = xv[1]-xv[0]
-        xpos = np.floor((ix-xv[0])/stpsz).astype('int')     #get first position
-        xH = (ix-(xv[xpos]))/stpsz                          #fraction of xpos
-        xL = 1-xH                                             #fraction of xpos+1
-        stpsz = yv[1]-yv[0]
-        ypos = np.floor((iy-yv[0])/stpsz).astype('int')
-        yH = (iy-(yv[ypos]))/stpsz
+        #convert to interpolation grid
+        xy = xytointerpgrid(ix,iy,ixv=ixx,iyv=iyy)
+        #linear interpolation points
+        #x
+        xpos = np.floor(xy[:,0]).astype('int')
+        xH = xy[:,0]-xpos
+        xL = 1-xH
+        #y
+        ypos = np.floor(xy[:,1]).astype('int')
+        yH = xy[:,1]-ypos
         yL = 1-yH
         
         #values
@@ -173,18 +247,18 @@ def gkde_core(ix,iy,ival,s,ixx,iyy,interplinear=True):
         dens = np.zeros_like(ixx).astype('float')
         
         #density & value ~histogram
-        ind = np.vstack((ypos-1,xpos-1))
-        vals += accumarray(ind, vals.shape, wt=xL*yL*ival)    #p00 value
-        dens += accumarray(ind, dens.shape)                 #p00 density
-        ind = np.vstack((ypos,xpos-1))
-        vals += accumarray(ind, vals.shape, wt=xL*yH*ival)    #p01
-        dens += accumarray(ind, dens.shape)                 #p01
-        ind = np.vstack((ypos-1,xpos))
-        vals += accumarray(ind, vals.shape, wt=xH*yL*ival)    #p10
-        dens += accumarray(ind, dens.shape)                 #p10
         ind = np.vstack((ypos,xpos))
+        vals += accumarray(ind, vals.shape, wt=xL*yL*ival)    #p00 value
+        dens += accumarray(ind, dens.shape, wt=xL*yL)                 #p00 density
+        ind = np.vstack((ypos+1,xpos))
+        vals += accumarray(ind, vals.shape, wt=xL*yH*ival)    #p01
+        dens += accumarray(ind, dens.shape, wt=xL*yH)                 #p01
+        ind = np.vstack((ypos,xpos+1))
+        vals += accumarray(ind, vals.shape, wt=xH*yL*ival)    #p10
+        dens += accumarray(ind, dens.shape, wt=xH*yL)                 #p10
+        ind = np.vstack((ypos+1,xpos+1))
         vals += accumarray(ind, vals.shape, wt=xH*yH*ival)    #p11
-        dens += accumarray(ind, dens.shape)                 #p11
+        dens += accumarray(ind, dens.shape, wt=xH*yH)                 #p11
 
         #convolve w/ kernel
         densitymap = convolve(dens,k,mode='nearest')
@@ -203,5 +277,5 @@ def gkde_core(ix,iy,ival,s,ixx,iyy,interplinear=True):
                     densitymap[yy,xx] = densitymap[yy,xx] + z
                     valsmap[yy,xx] = valsmap[yy,xx]+z*ival[i]
         valsmap = np.divide(valsmap,densitymap)
-
+        
     return densitymap, valsmap
