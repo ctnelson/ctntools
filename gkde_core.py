@@ -223,7 +223,7 @@ def gkde_core(ix,iy,ival,s,ixx,iyy,interplinear=True):
     #interplinear   :   whether to calculate from subpixel positions or linear interpolate from pixel positions (former will be slower)
 
 
-        if interplinear:
+    if interplinear:
         #get kernel
         k = gkernel_float(s,np.ceil(3*s))
         #k = gkernel(s)
