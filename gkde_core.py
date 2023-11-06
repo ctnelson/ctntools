@@ -95,14 +95,20 @@ def xytointerpgrid(ix, iy, x0=None, y0=None, ixv=[1,0], iyv=[0,1]):
     #ixv & iyv are meshgrids
     #note, will not rigorously check if actually a meshgrid
     if (np.ndim(ixv)==2) & (np.ndim(iyv)==2) & (np.size(ixv)>=4) & (np.size(iyv)>=4):
+        ixv = np.array([ixv[0,1] - ixv[0,0],0])**-1
+        iyv = np.array([0,iyv[1,0] - iyv[0,0]])**-1
+        ixv = np.where(np.isfinite(ixv),ixv,0)
+        iyv = np.where(np.isfinite(iyv),iyv,0)
         if x0 is None:
-            x0 = -np.min(ixv)
+            x0 = -np.min(ix)
         if y0 is None:
-            y0 = -np.min(iyv)
-        ixv = np.array([ixv[0,1] - ixv[0,0],0])
-        iyv = np.array([0,iyv[1,0] - iyv[0,0]])
-        xy = np.vstack((ix.ravel(),iy.ravel(),np.ones_like(iy.ravel())))
-        M = np.array([[ixv[0],ixv[1],x0],[iyv[0],iyv[1],y0],[0,0,1]],dtype='float')
+            y0 = -np.min(iy)        
+        #xy = np.vstack((ix.ravel(),iy.ravel(),np.ones_like(iy.ravel())))
+        #M = np.array([[ixv[0],ixv[1],0],[iyv[0],iyv[1],0],[0,0,1]],dtype='float')
+        ix = ix-x0
+        iy = iy-y0
+        xy = np.vstack((ix.ravel(),iy.ravel()))
+        M = np.array([[ixv[0],ixv[1]],[iyv[0],iyv[1]]],dtype='float')
         oxy = M @ xy
         oxy = oxy[:2,:].T
 
