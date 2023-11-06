@@ -236,7 +236,7 @@ def gkde_core(ix,iy,ival,s,ixx,iyy,interplinear=True):
         #k = bkernel(s)
 
         #convert to interpolation grid
-        xy = xytointerpgrid(ix,iy,ixv=ixx,iyv=iyy)
+        xy = xytointerpgrid(ix,iy,ixv=ixx,iyv=iyy,x0=np.min(ixx.ravel()),y0=np.min(iyy.ravel()))
         #linear interpolation points
         #x
         xpos = np.floor(xy[:,0]).astype('int')
