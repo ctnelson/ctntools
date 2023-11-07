@@ -52,16 +52,22 @@ def gkernel_float(s,rmax):
 def bkernel(rmax,n=1):
     #Inputs:
     #rmax       :       distance cutoff
-    #n          :       broadness variable, larger values increase flattening of the central plateau
+    #n          :       broadness variable, larger values increase flattening of the central plateau (defaults to 1)
+    #M          :       Transform matrix (defaults to identity)
     #Outputs:
     #z          :       bump kernel
     if np.size(rmax)==1:
         rmax = [rmax,rmax]
-    xv = np.arange(-rmax[0],rmax[0]+1)/rmax[0]
-    yv = np.arange(-rmax[1],rmax[1]+1)/rmax[1]
+    rmax[0] = np.ceil((M[0,0]+M[0,1])*rmax[0]).astype('int')
+    rmax[1] = np.ceil((M[1,0]+M[1,1])*rmax[1]).astype('int')
+    xv = np.arange(-rmax[0],rmax[0]+1)#/rmax[0]
+    yv = np.arange(-rmax[1],rmax[1]+1)#/rmax[1]
     xx,yy = np.meshgrid(xv, yv)
-    r = (xx**2+yy**2)**n
-    z = np.zeros_like(xx)
+    xy = np.vstack((xx.ravel(),yy.ravel()))
+    xyn = np.linalg.inv(M)@xy
+    r = (xyn[0,:]**2+xyn[1,:]**2)**n
+    r = np.reshape(r,xx.shape)
+    z = np.zeros_like(xx,dtype='float')
     ind = np.where(r<1)
     z[ind] =  np.exp(1/(r[ind]-1))
     z = z/np.sum(z.ravel())
@@ -81,6 +87,7 @@ def xytointerpgrid(ix, iy, x0=None, y0=None, ixv=[1,0], iyv=[0,1]):
     
     #Outputs
     #oxy    :       transformed xy coords
+    #M      :       transform matrix used
 
     ixv = np.array(ixv)
     iyv = np.array(iyv)
@@ -112,7 +119,7 @@ def xytointerpgrid(ix, iy, x0=None, y0=None, ixv=[1,0], iyv=[0,1]):
         oxy = M @ xy
         oxy = oxy[:2,:].T
 
-    return oxy
+    return oxy, M
 
 ############################################## Radial Basis Function Interpolator: Periodic Unit Cell ##################################################
 #This RBFI uses periodic boundaries. Inputs are asserted to be in units of fractional 'unit cell' coordinates.
@@ -230,13 +237,14 @@ def gkde_core(ix,iy,ival,s,ixx,iyy,interplinear=True):
 
 
     if interplinear:
-        #get kernel
-        k = gkernel_float(s,np.ceil(3*s))
-        #k = gkernel(s)
-        #k = bkernel(s)
-
         #convert to interpolation grid
-        xy = xytointerpgrid(ix,iy,ixv=ixx,iyv=iyy,x0=np.min(ixx.ravel()),y0=np.min(iyy.ravel()))
+        xy, M = xytointerpgrid(ix,iy,ixv=ixx,iyv=iyy,x0=np.min(ixx.ravel()),y0=np.min(iyy.ravel()))
+        
+        #get kernel
+        #k = gkernel_float(s,np.ceil(3*s))
+        #k = gkernel(s)
+        k = bkernel(s, M=M)
+        
         #linear interpolation points
         #x
         xpos = np.floor(xy[:,0]).astype('int')
