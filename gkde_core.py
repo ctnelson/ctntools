@@ -59,10 +59,11 @@ def bkernel(rmax,n=1, M=[[1,0],[0,1]]):
     M=np.array(M)
     if np.size(rmax)==1:
         rmax = [rmax,rmax]
-    rmax[0] = np.ceil((M[0,0]+M[0,1])*rmax[0]).astype('int')
-    rmax[1] = np.ceil((M[1,0]+M[1,1])*rmax[1]).astype('int')
-    xv = np.arange(-rmax[0],rmax[0]+1)#/rmax[0]
-    yv = np.arange(-rmax[1],rmax[1]+1)#/rmax[1]
+    rmaxn = rmax.copy()
+    rmaxn[0] = np.ceil((M[0,0]+M[0,1])*rmax[0]).astype('int')
+    rmaxn[1] = np.ceil((M[1,0]+M[1,1])*rmax[1]).astype('int')
+    xv = np.arange(-rmaxn[0],rmaxn[0]+1)/rmax[0]
+    yv = np.arange(-rmaxn[1],rmaxn[1]+1)/rmax[1]
     xx,yy = np.meshgrid(xv, yv)
     xy = np.vstack((xx.ravel(),yy.ravel()))
     xyn = np.linalg.inv(M)@xy
