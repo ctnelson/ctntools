@@ -49,13 +49,14 @@ def gkernel_float(s,rmax):
     return z
 
 #2D bump function kernel (advantage as a constrained function)
-def bkernel(rmax,n=1):
+def bkernel(rmax,n=1, M=[[1,0],[0,1]]):
     #Inputs:
     #rmax       :       distance cutoff
     #n          :       broadness variable, larger values increase flattening of the central plateau (defaults to 1)
     #M          :       Transform matrix (defaults to identity)
     #Outputs:
     #z          :       bump kernel
+    M=np.array(M)
     if np.size(rmax)==1:
         rmax = [rmax,rmax]
     rmax[0] = np.ceil((M[0,0]+M[0,1])*rmax[0]).astype('int')
