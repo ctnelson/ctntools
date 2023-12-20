@@ -3,7 +3,7 @@ import numpy as np
 from ctntools.bboxthresh import bboxthresh
 from tqdm import tqdm
 
-def fit1peak(inim, ipkxy=[], ithresh=.7, calcCVHullMask=True, calcprediction=True, calcresidual=True, minHW=np.array([1,1],dtype=np.int8)):
+def fit1peak(inim, ipkxy=np.array([]), ithresh=.7, calcCVHullMask=True, calcprediction=True, calcresidual=True, minHW=np.array([1,1],dtype=np.int8)):
     #Inputs:
     #inim               :           input image
     #ipkxy(optional)    :           [2,1] guess of xy location, will default to peak value
