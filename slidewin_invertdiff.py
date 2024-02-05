@@ -3,10 +3,11 @@ import math
 import numpy as np
 
 @cuda.jit
-def swinvrtd_GPU(inim, winrng, wincnt, winmean, outval): 
+def swinvrtd_GPU(inim, winrng, searchwin, wincnt, winmean, outval): 
     ii,jj = cuda.grid(2)
 
-    if (ii >= inim.shape[0]-1) or (ii < 1) or (jj >= inim.shape[1]-1) or (jj < 1): 
+    #if (ii >= inim.shape[0]-1) or (ii < 1) or (jj >= inim.shape[1]-1) or (jj < 1):
+    if (ii >= searchwin[3]) or (ii < searchwin[2]) or (jj >= searchwin[1]) or (jj < searchwin[0]):
       return
 
     outval[ii,jj] = 0
@@ -72,12 +73,14 @@ def swinvrtd_GPU(inim, winrng, wincnt, winmean, outval):
     wincnt[ii,jj] = step
     
 
-def swinvrtd_CPU(inim, winrng):
+def swinvrtd_CPU(inim, winrng, searchwin):
     from tqdm import tqdm
     inim_sz = np.array(inim.shape)
     result = np.ones_like(inim)*np.nan
-    for xlp in tqdm(np.arange(inim_sz[1])):
-        for ylp in np.arange(inim_sz[0]):
+    #for xlp in tqdm(np.arange(inim_sz[1])):
+    for xlp in tqdm(np.arange(searchwin[0],searchwin[1]+1)):
+        #for ylp in np.arange(inim_sz[0]):
+        for ylp in np.arange(searchwin[2],searchwin[3]+1):
             xtrim = np.max(np.array([winrng[0] - xlp, -inim_sz[0]+xlp+winrng[0]+1, 0]))      #a check if indices extend over image edge
             ytrim = np.max(np.array([winrng[1] - ylp, -inim_sz[1]+ylp+winrng[1]+1, 0]))      #a check if indices extend over image edge
             xx = np.arange(xlp-winrng[0]+xtrim,xlp+winrng[0]+1-xtrim)
@@ -102,8 +105,11 @@ def swinvrtd_CPU(inim, winrng):
             winmean = np.nanmean(im1.ravel())
     return result, wincnt, winmean
 
-def slidewin_invertdiff(inimage, winrng, trygpu=True):
+def slidewin_invertdiff(inimage, winrng, trygpu=True, searchwin = None):
 
+    if searchwin is None:
+        searchwin = np.array([1, inimage.shape[1]-1, 1, inimage.shape[0]-1], dtype=np.int16)
+    
     result = np.ones_like(inimage,np.float32)*np.nan
     winmean = np.ones_like(inimage,np.float32)*np.nan
     wincnt = np.zeros(inimage.shape,np.int64)
@@ -114,12 +120,12 @@ def slidewin_invertdiff(inimage, winrng, trygpu=True):
         print('Blocks dimensions:', blockdim)
         griddim = (result.shape[0] // blockdim[0] + 1, result.shape[1] // blockdim[1] + 1)
         print('Grid dimensions:', griddim)
-        swinvrtd_GPU[griddim, blockdim](inimage,winrng,wincnt,winmean,result)
+        swinvrtd_GPU[griddim, blockdim](inimage,winrng,searchwin,wincnt,winmean,result)
         #except:
         #print('GPU Execution failed, fall back to cpu')
         #result = swinvrtd_CPU(inimage,winrng)
     else:
-        result, wincnt, winmean = swinvrtd_CPU(inimage,winrng)
+        result, wincnt, winmean = swinvrtd_CPU(inimage,winrng,searchwin)
 
     return result, wincnt, winmean
 
@@ -127,10 +133,11 @@ def slidewin_invertdiff(inimage, winrng, trygpu=True):
 #########################################    Zero Normalized Cross Correlation     ###############################################
 ##################################################################################################################################
 @cuda.jit
-def swinvrt_ccorr_GPU(inim, winrng, result_counts, result_mean, result_var, result_ccorr): 
+def swinvrt_ccorr_GPU(inim, winrng, searchwin, result_counts, result_mean, result_var, result_ccorr): 
     ii,jj = cuda.grid(2)
 
-    if (ii >= inim.shape[0]-1) or (ii < 1) or (jj >= inim.shape[1]-1) or (jj < 1): 
+    #if (ii >= inim.shape[0]-1) or (ii < 1) or (jj >= inim.shape[1]-1) or (jj < 1):
+    if (ii >= searchwin[3]) or (ii < searchwin[2]) or (jj >= searchwin[1]) or (jj < searchwin[0]):
       return
 
     result_counts[ii,jj] = 0
@@ -230,12 +237,14 @@ def swinvrt_ccorr_GPU(inim, winrng, result_counts, result_mean, result_var, resu
     result_ccorr[ii,jj] = result_ccorr[ii,jj]/step/lp_3
     
 
-def swinvrt_ccorr_CPU(inim, winrng):
+def swinvrt_ccorr_CPU(inim, winrng, searchwin):
     from tqdm import tqdm
     inim_sz = np.array(inim.shape)
     result = np.ones_like(inim)*np.nan
-    for xlp in tqdm(np.arange(inim_sz[1])):
-        for ylp in np.arange(inim_sz[0]):
+    #for xlp in tqdm(np.arange(inim_sz[1])):
+    for xlp in tqdm(np.arange(searchwin[0],searchwin[1]+1)):
+        #for ylp in np.arange(inim_sz[0]):
+        for ylp in np.arange(searchwin[2],searchwin[3]+1):
             xtrim = np.max(np.array([winrng[0] - xlp, -inim_sz[0]+xlp+winrng[0]+1, 0]))      #a check if indices extend over image edge
             ytrim = np.max(np.array([winrng[1] - ylp, -inim_sz[1]+ylp+winrng[1]+1, 0]))      #a check if indices extend over image edge
             xx = np.arange(xlp-winrng[0]+xtrim,xlp+winrng[0]+1-xtrim)
@@ -260,17 +269,21 @@ def swinvrt_ccorr_CPU(inim, winrng):
             winmean = np.nanmean(im1.ravel())
     return result, wincnt, winmean
 
-def slidewin_invertccorr(inimage, winrng, trygpu=True):
+def slidewin_invertccorr(inimage, winrng, trygpu=True, searchwin=None):
     #Inputs:
     #inimage                :     Input image
     #winrng                 :     Sliding window half-width
     #trygpu(optional)       :     attemp to execute first on gpu
+    #searchwin              :     manually dictate the search window [xmin, xmax, ymin, ymax] (make sure < image bounds)
 
     #Outputs:
     #invccorr               :     sliding window cross correlation
     #invcounts              :     pixel-count of window size per window location
     #invmean                :     mean value of sliding windows
     #invvar                 :     variance of sliding windows
+
+    if searchwin is None:
+        searchwin = np.array([1, inimage.shape[1]-1, 1, inimage.shape[0]-1], dtype=np.int16)
     
     invcounts = np.ones_like(inimage,np.int32)*-1
     invccorr = np.ones_like(inimage,np.float32)*np.nan
@@ -283,11 +296,11 @@ def slidewin_invertccorr(inimage, winrng, trygpu=True):
         print('Blocks dimensions:', blockdim)
         griddim = (invccorr.shape[0] // blockdim[0] + 1, invccorr.shape[1] // blockdim[1] + 1)
         print('Grid dimensions:', griddim)
-        swinvrt_ccorr_GPU[griddim, blockdim](inimage, winrng, invcounts, invmean, invvar, invccorr) 
+        swinvrt_ccorr_GPU[griddim, blockdim](inimage, winrng, searchwin, invcounts, invmean, invvar, invccorr) 
         #except:
         #print('GPU Execution failed, fall back to cpu')
         #result = swinvrtd_CPU(inimage,winrng)
     else:
-        invccorr, invcounts, invmean = swinvrt_ccorr_CPU(inimage,winrng)
+        invccorr, invcounts, invmean = swinvrt_ccorr_CPU(inimage,winrng,searchwin)
 
     return invccorr, invcounts, invmean, invvar
