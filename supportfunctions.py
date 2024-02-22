@@ -2,6 +2,10 @@
 #  gKernel1D    :    a 1D gaussian kernel   (normalized to have total area=1)
 #  gKernel2D    :    a 2D gaussian kernel    (normalized to have total volume=1)
 
+######################################## Imports  ###################################################
+import numpy as np
+
+
 ######################################## 1D Gauss Kernel ############################################
 def gKernel2D(sig, rdist=None, rscalar=2, normalize=True):
     #creates a 1D guassian kernel of size rdist*2+1
