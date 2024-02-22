@@ -34,11 +34,11 @@ def gKernel2D(sig, rdist=None, rscalar=2, normalize=True):
     #outval   :  [rdist[0]*2+1, rdist[1]*2+1] 2D gaussian centered at rdist,rdist
 
     #set rdist
-    if sig.size==1:
+    if np.size(sig)==1:
       sig = np.array([sig,sig])
     if rdist is None:
       rdist = np.ceil(rscalar*sig)
-    if rdist.size==1:
+    if np.size(rdist)==1:
       rdist = np.array([rdist,rdist])
     rdist = np.ceil(rdist).astype('int')
     #create guassian
