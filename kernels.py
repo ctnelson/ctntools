@@ -52,3 +52,31 @@ def gKernel2D(sig, rdist=None, rscalar=2, normalize=True):
     if normalize:
       outval = outval/np.sum(outval.ravel())
     return outval
+
+#########################################  2D Bump Function  ###########################################
+#2D bump function kernel (advantage as a constrained function)
+def bkernel(rdist, n=1, M=[[1,0],[0,1]]):
+    #Inputs:
+    #rmax       :       distance cutoff
+    #n          :       broadness variable, larger values increase flattening of the central plateau (defaults to 1)
+    #M          :       Transform matrix (defaults to identity)
+    #Outputs:
+    #z          :       bump kernel
+    M=np.array(M)
+    if np.size(rdist)==1:
+        rdist = [rdist,rdist]
+    rdistn = rmax.copy()
+    rdistn[0] = np.ceil((M[0,0]+M[0,1])*rdist[0]).astype('int')
+    rdistn[1] = np.ceil((M[1,0]+M[1,1])*rdist[1]).astype('int')
+    xv = np.arange(-rdistn[0],rdistn[0]+1)/rdist[0]
+    yv = np.arange(-rdistn[1],rdistn[1]+1)/rdist[1]
+    xx,yy = np.meshgrid(xv, yv)
+    xy = np.vstack((xx.ravel(),yy.ravel()))
+    xyn = np.linalg.inv(M)@xy
+    r = (xyn[0,:]**2+xyn[1,:]**2)**n
+    r = np.reshape(r,xx.shape)
+    z = np.zeros_like(xx,dtype='float')
+    ind = np.where(r<1)
+    z[ind] =  np.exp(1/(r[ind]-1))
+    z = z/np.sum(z.ravel())
+    return z
