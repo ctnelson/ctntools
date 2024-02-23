@@ -65,7 +65,7 @@ def bKernel2D(rdist, n=1, M=[[1,0],[0,1]]):
     M=np.array(M)
     if np.size(rdist)==1:
         rdist = [rdist,rdist]
-    rdistn = rmax.copy()
+    rdistn = rdist.copy()
     rdistn[0] = np.ceil((M[0,0]+M[0,1])*rdist[0]).astype('int')
     rdistn[1] = np.ceil((M[1,0]+M[1,1])*rdist[1]).astype('int')
     xv = np.arange(-rdistn[0],rdistn[0]+1)/rdist[0]
