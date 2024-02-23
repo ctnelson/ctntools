@@ -21,7 +21,7 @@ def gKernel1D(sig, rdist=None, rscalar=2, normalize=True):
       rdist = np.ceil(rscalar*sig)
     rdist = np.ceil(rdist).astype('int')
     #create guassian
-    xx, yy = np.arange(-rdist,rdist+1,1)
+    xx = np.arange(-rdist,rdist+1,1)
     outval = np.exp(-.5*(xx**2/sig**2))
     if normalize:
       outval = outval/np.sum(outval)
