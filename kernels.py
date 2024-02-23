@@ -1,13 +1,13 @@
 ######################################  Table of Contents  ##########################################
-#  gKernel1D    :    a 1D gaussian kernel   (normalized to have total area=1)
-#  gKernel2D    :    a 2D gaussian kernel    (normalized to have total volume=1)
+#  gKernel1D    :    a 1D gaussian kernel       (normalized to have total area=1)
+#  gKernel2D    :    a 2D gaussian kernel       (normalized to have total volume=1)
+#  bKernel2D    :    a 2D bump function kernel. Can apply an optional input transform [2,2] transforme matrix M. (normalized to have total volume=1)
 
 ######################################## Imports  ###################################################
 import numpy as np
 
-
 ######################################## 1D Gauss Kernel ############################################
-def gKernel2D(sig, rdist=None, rscalar=2, normalize=True):
+def gKernel1D(sig, rdist=None, rscalar=2, normalize=True):
     #creates a 1D guassian kernel of size rdist*2+1
     #inputs
     #sig      :  [1,] gaussian sigma
@@ -55,7 +55,7 @@ def gKernel2D(sig, rdist=None, rscalar=2, normalize=True):
 
 #########################################  2D Bump Function  ###########################################
 #2D bump function kernel (advantage as a constrained function)
-def bkernel(rdist, n=1, M=[[1,0],[0,1]]):
+def bKernel2D(rdist, n=1, M=[[1,0],[0,1]]):
     #Inputs:
     #rmax       :       distance cutoff
     #n          :       broadness variable, larger values increase flattening of the central plateau (defaults to 1)
