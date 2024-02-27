@@ -19,7 +19,7 @@ def gKernel1D(sig, rdist=None, rscalar=2, rstp=1, normalize=True):
     #set rdist
     if rdist is None:
       rdist = rscalar*sig
-    assert(np.mod(rdist/xstp,1)==0)
+    assert(np.mod(rdist/rstp,1)==0)
     #create guassian
     xx = np.arange(-rdist,rdist+rstp,rstp)
     z = np.exp(-.5*(xx**2/sig**2))
