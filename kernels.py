@@ -104,7 +104,7 @@ def bKernel2D(rdist, n=1, rstp=1, M=[[1,0],[0,1]], normalize=True):
     r = np.reshape(r,xx.shape)
     z = np.zeros_like(xx,dtype='float')
     ind = np.where(r<1)
-    z[ind] =  np.exp(1/(rstp*r[ind]-1))
+    z[ind] =  np.exp(1/(r[ind]-1))
     if normalize:
         z = z/np.sum(z.ravel())
     return z
