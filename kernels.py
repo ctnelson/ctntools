@@ -14,7 +14,7 @@ def gKernel1D(sig, rdist=None, rscalar=2, normalize=True):
     #rdist    :  [1,] distance from center to define. Must either be an integer or will be rounded up to one. If 'None', rdist will be based on a scalar of sigma (rscalar)
     #rscalar  :  scalar of sigma to determine rdist if rdist = None, otherwise ignored (default 2)
     #output
-    #outval   :  [rdist*2+1,] 1D gaussian centered at rdist
+    #z        :  [rdist*2+1,] 1D gaussian centered at rdist
 
     #set rdist
     if rdist is None:
@@ -22,10 +22,10 @@ def gKernel1D(sig, rdist=None, rscalar=2, normalize=True):
     rdist = np.ceil(rdist).astype('int')
     #create guassian
     xx = np.arange(-rdist,rdist+1,1)
-    outval = np.exp(-.5*(xx**2/sig**2))
+    z = np.exp(-.5*(xx**2/sig**2))
     if normalize:
-      outval = outval/np.sum(outval)
-    return outval
+      z = z/np.sum(z)
+    return z
 
 ######################################## 2D Gauss Kernel ############################################
 def gKernel2D(sig, rdist=None, rscalar=2, normalize=True):
@@ -35,7 +35,7 @@ def gKernel2D(sig, rdist=None, rscalar=2, normalize=True):
     #rdist    :  [1,] or [2,] distance from center to define. Must either be an integer or will be rounded up to one. If 'None', rdist will be based on a scalar of sigma (rscalar)
     #rscalar  :  scalar of sigma to determine rdist if rdist = None, otherwise ignored (default 2)
     #output
-    #outval   :  [rdist[0]*2+1, rdist[1]*2+1] 2D gaussian centered at rdist,rdist
+    #z        :  [rdist[0]*2+1, rdist[1]*2+1] 2D gaussian centered at rdist,rdist
 
     #set rdist
     sig = np.array(sig,dtype='float')
@@ -48,14 +48,14 @@ def gKernel2D(sig, rdist=None, rscalar=2, normalize=True):
     rdist = np.ceil(rdist).astype('int')
     #create guassian
     xx, yy = np.meshgrid(np.arange(-rdist[0],rdist[0]+1,1,dtype='float'),np.arange(-rdist[1],rdist[1]+1,1,dtype='float'))
-    outval = np.exp(-.5*(xx**2/sig[0]**2+yy**2/sig[1]**2))
+    z = np.exp(-.5*(xx**2/sig[0]**2+yy**2/sig[1]**2))
     if normalize:
-      outval = outval/np.sum(outval.ravel())
-    return outval
+      z = z/np.sum(z.ravel())
+    return z
 
 #########################################  2D Bump Function  ###########################################
 #2D bump function kernel (advantage as a constrained function)
-def bKernel2D(rdist, n=1, M=[[1,0],[0,1]]):
+def bKernel2D_old(rdist, n=1, M=[[1,0],[0,1]], normalize=True):
     #Inputs:
     #rmax       :       distance cutoff
     #n          :       broadness variable, larger values increase flattening of the central plateau (defaults to 1)
@@ -78,5 +78,33 @@ def bKernel2D(rdist, n=1, M=[[1,0],[0,1]]):
     z = np.zeros_like(xx,dtype='float')
     ind = np.where(r<1)
     z[ind] =  np.exp(1/(r[ind]-1))
-    z = z/np.sum(z.ravel())
+    if normalize:
+        z = z/np.sum(z.ravel())
+    return z
+
+def bKernel2D(rdist, n=1, rstp=1, M=[[1,0],[0,1]], normalize=True):
+    #Inputs:
+    #rmax       :       distance cutoff
+    #n          :       broadness variable, larger values increase flattening of the central plateau (defaults to 1)
+    #M          :       Transform matrix (defaults to identity)
+    #Outputs:
+    #z          :       bump kernel
+    M=np.array(M)
+    if np.size(rdist)==1:
+        rdist = [rdist,rdist]
+    rdistn = rdist.copy()
+    rdistn[0] = np.ceil((M[0,0]+M[0,1])*rdist[0]).astype('int')
+    rdistn[1] = np.ceil((M[1,0]+M[1,1])*rdist[1]).astype('int')
+    xv = np.arange(-rdistn[0],rdistn[0]+1)/rdist[0]
+    yv = np.arange(-rdistn[1],rdistn[1]+1)/rdist[1]
+    xx,yy = np.meshgrid(xv, yv)
+    xy = np.vstack((xx.ravel(),yy.ravel()))
+    xyn = np.linalg.inv(M)@xy
+    r = (xyn[0,:]**2+xyn[1,:]**2)**n
+    r = np.reshape(r,xx.shape)
+    z = np.zeros_like(xx,dtype='float')
+    ind = np.where(r<1)
+    z[ind] =  np.exp(1/(rstp*r[ind]-1))
+    if normalize:
+        z = z/np.sum(z.ravel())
     return z
