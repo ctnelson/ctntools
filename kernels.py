@@ -7,7 +7,7 @@
 import numpy as np
 
 ######################################## 1D Gauss Kernel ############################################
-def gKernel1D(sig, rdist=None, rscalar=2, normalize=True):
+def gKernel1D(sig, rdist=None, rscalar=2, rstp=1, normalize=True):
     #creates a 1D guassian kernel of size rdist*2+1
     #inputs
     #sig      :  [1,] gaussian sigma
@@ -18,10 +18,10 @@ def gKernel1D(sig, rdist=None, rscalar=2, normalize=True):
 
     #set rdist
     if rdist is None:
-      rdist = np.ceil(rscalar*sig)
-    rdist = np.ceil(rdist).astype('int')
+      rdist = rscalar*sig
+    assert(np.mod(rdist,rstp)==0)
     #create guassian
-    xx = np.arange(-rdist,rdist+1,1)
+    xx = np.arange(-rdist,rdist+rstp,rstp)
     z = np.exp(-.5*(xx**2/sig**2))
     if normalize:
       z = z/np.sum(z)
@@ -77,7 +77,7 @@ def bKernel2D_old(rdist, n=1, M=[[1,0],[0,1]], normalize=True):
     r = np.reshape(r,xx.shape)
     z = np.zeros_like(xx,dtype='float')
     ind = np.where(r<1)
-    z[ind] =  np.exp(1/(r[ind]-1))
+    z[ind] =  np.exp(-1/(r[ind]-1))
     if normalize:
         z = z/np.sum(z.ravel())
     return z
@@ -104,7 +104,7 @@ def bKernel2D(rdist, n=1, rstp=1, M=[[1,0],[0,1]], normalize=True):
     r = np.reshape(r,xx.shape)
     z = np.zeros_like(xx,dtype='float')
     ind = np.where(r<1)
-    z[ind] =  np.exp(1/(r[ind]-1))
+    z[ind] =  np.exp(-1/(r[ind]-1))
     if normalize:
         z = z/np.sum(z.ravel())
     return z
