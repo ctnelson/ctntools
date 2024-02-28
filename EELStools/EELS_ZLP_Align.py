@@ -3,6 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from tqdm import tqdm
 from ctntools.peakfitting import refinePeaks2D
+from ctntools.BaseSupportFunctions.FWHM import FWHM
 
 #Aligns the EELS zero loss peak of an n-dim EELS dataset.  
 #Requires the ZLP to be the maximum within a predefined window of the unaligned data.
@@ -107,19 +108,21 @@ def EELS_ZLP_Align(indata, zlpmethod='gaussian', Estep=1, i0=None, croptovalid=F
 
     #FWHM
     print('Measure FWHM')
-    #positive branch
     temp = EELS_aligned/np.repeat(EELS_aligned[:,xEs0][:,np.newaxis],EELS_aligned.shape[1],axis=1)
-    fwhmp = np.argmax(temp[:,xEs0:]<0.5,axis=1)
-    dyp = temp[tuple([np.arange(EELS_aligned.shape[0]),xEs0+fwhmp-1])] - temp[tuple([np.arange(EELS_aligned.shape[0]),xEs0+fwhmp])]
-    dxp = (temp[tuple([np.arange(EELS_aligned.shape[0]),xEs0+fwhmp-1])]-.5)/dyp * 1
-    fwhmp_fr = fwhmp+dxp-1
+    fwhm = FWHM(temp.T,ind0=xEs0)
+    
+    #positive branch
+    #fwhmp = np.argmax(temp[:,xEs0:]<0.5,axis=1)
+    #dyp = temp[tuple([np.arange(EELS_aligned.shape[0]),xEs0+fwhmp-1])] - temp[tuple([np.arange(EELS_aligned.shape[0]),xEs0+fwhmp])]
+    #dxp = (temp[tuple([np.arange(EELS_aligned.shape[0]),xEs0+fwhmp-1])]-.5)/dyp * 1
+    #fwhmp_fr = fwhmp+dxp-1
     #negative branch
-    fwhmn = np.argmax(np.flip(temp[:,:xEs0],axis=1)<0.5,axis=1) + 1
-    dyn = temp[tuple([np.arange(EELS_aligned.shape[0]),xEs0-fwhmn])] - temp[tuple([np.arange(EELS_aligned.shape[0]),xEs0-fwhmn+1])]
-    dxn = (temp[tuple([np.arange(EELS_aligned.shape[0]),xEs0-fwhmn+1])]-.5)/dyn * 1
-    fwhmn_fr = -fwhmn+dxn+1
+    #fwhmn = np.argmax(np.flip(temp[:,:xEs0],axis=1)<0.5,axis=1) + 1
+    #dyn = temp[tuple([np.arange(EELS_aligned.shape[0]),xEs0-fwhmn])] - temp[tuple([np.arange(EELS_aligned.shape[0]),xEs0-fwhmn+1])]
+    #dxn = (temp[tuple([np.arange(EELS_aligned.shape[0]),xEs0-fwhmn+1])]-.5)/dyn * 1
+    #fwhmn_fr = -fwhmn+dxn+1
     #total
-    fwhm = fwhmp_fr - fwhmn_fr
+    #fwhm = fwhmp_fr - fwhmn_fr
 
     zlp_params[:,0] = EELS_aligned[:,xEs0]
     zlp_params[:,1] = fwhm * Estep
