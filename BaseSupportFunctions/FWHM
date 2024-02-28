@@ -1,6 +1,6 @@
 import numpy as np
 
-def FWHM(inarray, ind0 = None):
+def FWHM(inarray, ind0 = None, cutoff=0.5):
     #FWHM measures the Full Width at Half Maximimum of a peak in 'inarray' which should be an [n,] vector or [n,m] array (if 2D, along axis 0). Determined as the first crossing of the halfway point of the normalized array (so recommend smoothing noisy data)
     ### Inputs ###
     #inarray            :       [n,] or [n,m] vector or array to find FWHM
@@ -24,13 +24,13 @@ def FWHM(inarray, ind0 = None):
         ind0 = np.nanargmax(np.nanmean(inarray,axis=1))
 
     #positive branch
-    fwhmp = np.nanargmax(inarray[ind0:,:]<0.5,axis=0)
+    fwhmp = np.nanargmax(inarray[ind0:,:]<cutoff,axis=0)
     dyp = inarray[tuple([ind0+fwhmp-1,np.arange(sz[1])])] - inarray[tuple([ind0+fwhmp,np.arange(sz[1])])]
     dxp = (inarray[tuple([ind0+fwhmp-1,np.arange(sz[1])])]-.5)/dyp * 1
     fwhmp_fr = fwhmp+dxp-1
 
     #negative branch
-    fwhmn = np.nanargmax(np.flip(inarray[:(ind0+1),:],axis=0)<0.5,axis=0)
+    fwhmn = np.nanargmax(np.flip(inarray[:(ind0+1),:],axis=0)<cutoff,axis=0)
     dyn = inarray[tuple([ind0-fwhmn,np.arange(sz[1])])] - inarray[tuple([ind0-fwhmn+1,np.arange(sz[1])])]
     dxn = (inarray[tuple([ind0-fwhmn+1,np.arange(sz[1])])]-.5)/dyn * 1
     fwhmn_fr = -fwhmn+dxn+1
