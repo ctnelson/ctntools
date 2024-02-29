@@ -1,12 +1,13 @@
 ######################################  Table of Contents  ##########################################
 #  gKernel1D    :    a 1D gaussian kernel       (normalized to have total area=1)
 #  gKernel2D    :    a 2D gaussian kernel       (normalized to have total volume=1)
+#  bKernel1D    :    a 1D bump function kernel. (normalized to have total area=1)
 #  bKernel2D    :    a 2D bump function kernel. Can apply an optional input transform [2,2] transforme matrix M. (normalized to have total volume=1)
 
 ######################################## Imports  ###################################################
 import numpy as np
 
-######################################## 1D Gauss Kernel ############################################
+######################################## 1D Gaussian Function ############################################
 def gKernel1D(sig, rdist=None, rscalar=2, rstp=1, normalize=True):
     #creates a 1D guassian kernel of size rdist*2+1
     #inputs
@@ -27,7 +28,7 @@ def gKernel1D(sig, rdist=None, rscalar=2, rstp=1, normalize=True):
       z = z/np.sum(z)
     return z
 
-######################################## 2D Gauss Kernel ############################################
+######################################## 2D Gaussian Function ############################################
 def gKernel2D(sig, rdist=None, rscalar=2, normalize=True):
     #creates a 2D guassian kernel of size rdist[0]*2+1 x rdist[1]*2+1
     #inputs
@@ -52,6 +53,56 @@ def gKernel2D(sig, rdist=None, rscalar=2, normalize=True):
     if normalize:
       z = z/np.sum(z.ravel())
     return z
+
+######################################## 1D Bump Function ############################################
+def bKernel1D(rdist, hwhm=None, rstp=1, normalize=True, normalize_withX=True, returngrid=False):
+    #broadness rescaling achieved with distance transform x -> x**n.  so n=1 for unadjusted linear
+    #Inputs:
+    #rdist                          :   distance cutoff
+    #hwhm               (optional)  :   broadness variable (the half width half max). Defaults to 'None' which will be set as 0.5 * rdist. Here there is no xscale adjustment.
+    #rstp               (optional)  :   interpolation grid stepsize
+    #normalize          (optional)  :   flag to normalize output
+    #normalize_withX    (optional)  :   normalize accounting for rstp (normalization grid step size)
+    #returngrid         (optional)  :   return normalization grid
+
+    #Outputs:
+    #z              :       bump kernel
+    #x  (optional)  :       interpolation grid
+
+    assert(np.mod(rdist/rstp,1)==0)
+    assert(hwhm<rdist)
+
+    #determine width / scaling
+    xc=0.5     
+    if hwhm is None:
+        hwhm = rdist/2
+    n = np.log(xc)/np.log(hwhm/rdist)
+    
+    #x
+    ind0 = np.int64(rdist/rstp)
+    x = np.arange(0,rdist+rstp,rstp)
+    x = np.hstack((-x[1:][::-1],x))
+    xx = np.linspace(0,1,ind0+1)
+    xx = np.hstack((-xx[1:][::-1],xx))
+    xadj = xx[ind0:]**n
+    xadj = np.hstack((-xadj[1:][::-1],xadj))
+    
+    #z
+    z = np.zeros_like(xadj,dtype='float')
+    ind = np.where((np.abs(xx)>0) & (np.abs(xx)<1))[0]
+    z[ind] = 1/(1 + np.exp((1-2*np.abs(xadj[ind])) / (xadj[ind]**2-np.abs(xadj[ind]))))
+    z[ind0] = 1
+    if normalize:
+        if normalize_withX:
+            zscalar = 1/np.sum((z[ind0:-1] + z[ind0+1:])*rstp) 
+        else:
+            zscalar = 1/np.sum(z.ravel())
+        z = z * zscalar
+
+    if returngrid:
+        return z, x
+    else:
+        return z
 
 #########################################  2D Bump Function  ###########################################
 #2D bump function kernel (advantage as a constrained function)
