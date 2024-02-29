@@ -99,6 +99,8 @@ def bKernel1D(rdist, hwhm=None, rstp=1, normalize=True, normalize_withX=True, re
             zscalar = 1/np.sum(z.ravel())
         z = z * zscalar
         print('normalizing by '+str(zscalar))
+        temp = np.sum((z[ind0:-1] + z[ind0+1:])*rstp)
+        print('new area: '+str(temp))
 
     if returngrid:
         return z, x
