@@ -2,7 +2,7 @@ from scipy import interpolate
 import numpy as np
 import matplotlib.pyplot as plt
 from tqdm import tqdm
-from ctntools.peakfitting import refinePeaks2D
+from ctntools.PeakFinding.peakfitting import refinePeaks2D
 from ctntools.BaseSupportFunctions.FWHM import FWHM
 
 #Aligns the EELS zero loss peak of an n-dim EELS dataset.  
