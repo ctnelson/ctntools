@@ -8,7 +8,7 @@
 import numpy as np
 
 ######################################## 1D Gaussian Function ############################################
-def gKernel1D(sig, rdist=None, rscalar=2, rstp=1, normalize=True):
+def gKernel1D(sig, rdist=None, rscalar=2, rstp=1, normalize=True, normalize_withX=True):
     #creates a 1D guassian kernel of size rdist*2+1
     #inputs
     #sig      :  [1,] gaussian sigma
@@ -25,7 +25,12 @@ def gKernel1D(sig, rdist=None, rscalar=2, rstp=1, normalize=True):
     xx = np.arange(-rdist,rdist+rstp,rstp)
     z = np.exp(-.5*(xx**2/sig**2))
     if normalize:
-        z = z/np.sum(z)
+        if normalize_withX:
+            ind0 = np.int64(rdist/rstp)
+            zscalar = 1/np.sum((z[ind0:-1] + z[ind0+1:])*rstp) 
+        else:
+            zscalar = 1/np.sum(z.ravel())
+        z = z*zscalar
     return z
 
 ######################################## 2D Gaussian Function ############################################
@@ -98,9 +103,6 @@ def bKernel1D(rdist, hwhm=None, rstp=1, normalize=True, normalize_withX=True, re
         else:
             zscalar = 1/np.sum(z.ravel())
         z = z * zscalar
-        print('normalizing by '+str(zscalar))
-        temp = np.sum((z[ind0:-1] + z[ind0+1:])*rstp)
-        print('new area: '+str(temp))
 
     if returngrid:
         return z, x
