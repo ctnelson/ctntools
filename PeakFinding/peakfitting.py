@@ -1,6 +1,6 @@
 #Fits a local minima/maxima of an image with a paraboloid. Creates a mask by thresholding to a boundary box further reduced to a convex hull (optional). 
 import numpy as np
-from ctntools.bboxthresh import bboxthresh
+from ctntools.PeakFinding.bboxthresh import bboxthresh
 from tqdm import tqdm
 
 def fit1peak(inim, ipkxy=np.array([]), ithresh=.7, calcCVHullMask=True, calcprediction=True, calcresidual=True, minHW=np.array([1,1],dtype=np.int8)):
