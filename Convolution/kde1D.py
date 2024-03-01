@@ -186,15 +186,15 @@ def kde1D(pts_x, pts_wt=None, x=None, s=1, k_rdist=None, k=None, kernel='Gauss',
 
     #create kernel array
     if (k is None) & (method!='exact'):
-        print('create kernel array '+kernel)
+        #print('create kernel array '+kernel)
         #get kernel
         if kernel=='Bump':
-            print('Bump')
+            #print('Bump')
             k = bKernel1D(k_rdist,hwhm=s*k_BumpHWHMScalar,normalize=False)
             scalar = 1/np.sum(k)
             k_offset=0.0
         elif kernel=='Gauss':
-            print('Gaussian')
+            #print('Gaussian')
             k = gKernel1D(s,rdist=k_rdist,normalize=False)
             k_offset = -np.min(k)
             scalar = 1/np.sum(k+k_offset)
@@ -202,7 +202,7 @@ def kde1D(pts_x, pts_wt=None, x=None, s=1, k_rdist=None, k=None, kernel='Gauss',
             raise ValueError('Unknown Kernel')
         k = (k+k_offset)*scalar
     elif not (k is None):
-        print('Kernel provided as input')
+        #print('Kernel provided as input')
         kernel='User Kernel'
 
     #if exact, loop needs to perform distance calculations, so pass s & k_rdist
@@ -221,10 +221,10 @@ def kde1D(pts_x, pts_wt=None, x=None, s=1, k_rdist=None, k=None, kernel='Gauss',
             #Execuate based on kernel type
             print(kernel)
             if kernel=='Bump':
-                print('exact Bump GPU')
+                #print('exact Bump GPU')
                 raise ValueError('method "exact" not implemented for Bump Function, switch to Gaussian kernel')
             elif kernel=='Gauss':
-                print('exact Gaussian GPU')
+                #print('exact Gaussian GPU')
                 kparms = np.array([s,k_rdist,k_offset,scalar],dtype=np.float32)
                 d_k = cuda.to_device(kparms)
                 gkde1Dexact_gpu[blockspergrid, tpb](d_x, d_wt, d_xgrid, d_k, rstat_enum.index(returnstat), d_y, d_dens)
@@ -241,7 +241,7 @@ def kde1D(pts_x, pts_wt=None, x=None, s=1, k_rdist=None, k=None, kernel='Gauss',
         x = np.round(x/xstp).astype('int64')
         pts_x = pts_x/xstp
         if processor=='gpu':
-            print(kernel+'_convolution_'+method+'_'+processor)
+            #print(kernel+'_convolution_'+method+'_'+processor)
             #transfer to gpu
             d_x = cuda.to_device(pts_x)
             d_wt = cuda.to_device(pts_wt)
@@ -259,7 +259,7 @@ def kde1D(pts_x, pts_wt=None, x=None, s=1, k_rdist=None, k=None, kernel='Gauss',
             #divide by density
             #y = y/dens
         else:
-            print(kernel+'_convolution_'+method+'_'+processor)
+            #print(kernel+'_convolution_'+method+'_'+processor)
             raise ValueError('CPU not yet coded')
         
     return y, dens, k
