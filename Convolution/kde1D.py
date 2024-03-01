@@ -209,7 +209,7 @@ def kde1D(pts_x, pts_wt=None, x=None, s=1, k_rdist=None, k=None, kernel='Gauss',
     if method == 'exact':
         scalar = 1/(2*np.pi)**.5/s  #normalization scalar for gaussian distribution
         if processor=='gpu':
-            print('exact gpu')
+            #print('exact gpu')
             #transfer to gpu
             d_x = cuda.to_device(pts_x)
             d_wt = cuda.to_device(pts_wt)
@@ -219,7 +219,7 @@ def kde1D(pts_x, pts_wt=None, x=None, s=1, k_rdist=None, k=None, kernel='Gauss',
             #Kernel memory 
             blockspergrid = np.ceil(x.size / tpb).astype('int')
             #Execuate based on kernel type
-            print(kernel)
+            #print(kernel)
             if kernel=='Bump':
                 #print('exact Bump GPU')
                 raise ValueError('method "exact" not implemented for Bump Function, switch to Gaussian kernel')
