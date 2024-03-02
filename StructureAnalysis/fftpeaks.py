@@ -3,7 +3,7 @@ from ctntools.PeakFinding.imregionalmax import imregionalmax
 from ctntools.BaseSupportFunctions.kernels import gKernel2D
 from ctntools.PeakFinding.peakfitting import refinePeaks
 from ctntools.Convolution.kde1D import kde1D
-from ctntools.StructureProfile.RadialProfile import radKDE
+from ctntools.StructureAnalysis.RadialProfile import radKDE
 from scipy.ndimage import convolve
 import numpy as np
 import matplotlib.pyplot as plt
