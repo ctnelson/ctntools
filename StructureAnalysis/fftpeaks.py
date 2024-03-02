@@ -96,4 +96,4 @@ def fftpeaks(inim, gaussSigma = 1, subpixelfit=True, thresh=0.15, normalize=True
     ax[1].set_ylim(ylim_)
     ax[1].set_title('SmoothedFFT & Peaks')
 
-  return rpk, xyv, rhist
+  return rpk, xyv, distr
