@@ -2,6 +2,7 @@
 from ctntools.PeakFinding.imregionalmax import imregionalmax
 from ctntools.BaseSupportFunctions.kernels import gKernel2D
 from ctntools.PeakFinding.peakfitting import refinePeaks
+from ctntools.Convolution.kde1D import kde1D
 from scipy.ndimage import convolve
 import numpy as np
 import matplotlib.pyplot as plt
@@ -44,8 +45,14 @@ def fftpeaks(inim, gaussSigma = 1, subpixelfit=True, thresh=0.15, normalize=True
   im_fft_sm = convolve(im_fft,k,mode='nearest')
 
   #histogram
-  rhist, rbins = radhist(im_fft, percentile=99, binwidth=1, trygpu=False)
-  rpk = rbins[np.nanargmax(rhist[rminexcl:])+rminexcl]
+  #rhist, rbins = radhist(im_fft, percentile=99, binwidth=1, trygpu=False)
+  #rpk = rbins[np.nanargmax(rhist[rminexcl:])+rminexcl]
+  x, distr, density, _, r = radKDE(im_fft_sm, rstp=.1, s=1, method='interp')
+  distr = distr/density
+  distrdx = np.gradient(distr)
+  ind = np.argmax(distrdx<0)              
+  ind = np.argmax(distrdx[ind:]>0)+ind
+  rpk = np.argmax(distrdx[ind:]<0)+ind
 
   #normalize
   im_fft_sm = (im_fft_sm - np.min(im_fft_sm))/np.ptp(im_fft_sm)
