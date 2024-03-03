@@ -8,25 +8,28 @@ from scipy.ndimage import convolve
 import numpy as np
 import matplotlib.pyplot as plt
 
-def fftpeaks(inim, gaussSigma = 1, subpixelfit=True, thresh=0.15, normalize=True, plotoutput = False, plotax=None):
+def fftpeaks(inim, gaussSigma = 1, subpixelfit=True, thresh=0.15, normalize=True, minRExclusionMethod = 'afterminima', principlepeakmethod = 'first', plotoutput = False, plotax=None):
   #Inputs
-  #inim                   :       input image
-  #gaussSigma(optional)   :       sigma for gaussian blur
-  #sub
-  #thresh                 :       Intensity threshold for peak finding
-  #normalize(optional)    :       flag to normalize input image
-  #plotoutput(optional)   :       flag to plot output
-  #plotax                 :       if plot=True, can define an [2,] axis to plot to. If None a new one is created. 
+  #inim                     :       input image
+  #gaussSigma           (optional)  :   sigma for gaussian blur
+  #subpixelfit          (optional)  :   flag to subpixel fit peaks as parabaloid (otherwise returns pixel maxima)
+  #thresh               (optional)  :   Intensity threshold for peak finding
+  #normalize            (optional)  :   flag to normalize input image
+  #minRExclusionMethod  (optional)  :   'afterminima' or #  :set a minimum radius exclusion. 'afterminima' (default) considers only peaks beyond an initial minimum. Provide a numeric input to set manually.
+  #principlepeakmethod  (optional)  :   'first' or 'max'    :How to select principle peak. 'first' is the longest frequency, 'max' is the largest value
+  #plotoutput           (optional)  :   flag to plot output
+  #plotax               (optional)  :   if plot=True, can define an [3,] axis to plot to. If None a new one is created. 
 
   #Outputs
-  #rpk                    :       radius of peak value
-  #xyv                    :       xy vectors of peaks
-  #rhist                  :       fft mean radial histogram
+  #rpk                      :       radius of peak value
+  #xyv                      :       xy vectors of peaks
+  #rdistr                   :       fft radial distribution
 
   #Manual Settings
-  rminexcl = 2          #set a minimum exclusion zone from zero freqeuncy to avoid strong signals from 0(non zero mean) and 1 (the hanning window)
   spfit_winsz = 3       #subpixel fitting window size (winsz*2+1,winsz*2+1)
   spfit_ithresh = .7    #subpixel fitting intensity threshold
+  scattersz = 20        #marker size for fit positions
+  kde1Dsigma = .5
   #Parameters
   inim_sz = np.array(inim.shape)
   xy0 = np.floor(inim_sz/2)
@@ -38,49 +41,68 @@ def fftpeaks(inim, gaussSigma = 1, subpixelfit=True, thresh=0.15, normalize=True
 
   #FFT
   hann = np.outer(np.hanning(inim_sz[0]),np.hanning(inim_sz[1]))
-  #im_fft = np.abs(np.fft.fftshift(np.fft.fft2(hann*inim-np.nanmean((inim*hann).ravel()))))
   im_fft = np.abs(np.fft.fftshift(np.fft.fft2(hann*inim)))
 
   #smooth
   k = gKernel2D(gaussSigma,rscalar=3)
   im_fft_sm = convolve(im_fft,k,mode='nearest')
 
-  #histogram
-  #rhist, rbins = radhist(im_fft, percentile=99, binwidth=1, trygpu=False)
-  #rpk = rbins[np.nanargmax(rhist[rminexcl:])+rminexcl]
-  x, distr, density, _, r = radKDE(im_fft_sm, rstp=.1, s=1, method='interp')
+  #Radial distribution
+  x, distr, density, _, _ = radKDE(im_fft_sm, rstp=.1, s=kde1Dsigma, method='interp')
   distr = distr/density
-  distrdx = np.gradient(distr)
-  ind = np.argmax(distrdx<0)              
-  ind = np.argmax(distrdx[ind:]>0)+ind
-  rpk = np.argmax(distrdx[ind:]<0)+ind
+  distr = np.vstack((x,distr,density))
+  print(distr.shape)
+
+  #find principle peak
+  distrdx = None
+  if minRExclusionMethod=='afterminima':
+    distrdx = np.gradient(distr[1,:])
+    ind = np.argmax(distrdx<0)              
+    minRind = np.argmax(distrdx[ind:]>0)+ind
+  elif np.isfinite(minRExclusionMethod):
+    minRind = np.round(minRExclusionMethod).astype('int')
+  else:
+    raise ValueError('unknown minRExclusionMethod, must be "afterminima" or a finite integer value')
+  if principlepeakmethod == 'max':
+    rpk = x[np.nanargmax(distr[1,minRind:])+minRind]
+  elif principlepeakmethod == 'first':
+    if distrdx is None:
+        distrdx = np.gradient(distr[1,:])
+    ind = np.argmax(distrdx[minRind:]<0)+minRind
+    rpk = x[ind]  
+  else:
+    raise ValueError('unknown principlepeakmethod, must be "first" or "max"')
 
   #normalize
   im_fft_sm = (im_fft_sm - np.min(im_fft_sm))/np.ptp(im_fft_sm)
 
   #peaks
   rmsk = im_fft_sm>thresh
-  im_fft_xy, mxpos, pkprom, msk = imregionalmax(im_fft_sm,rpk*.75,exclusionmode=False, insubmask=rmsk)
+  xy_fft = imregionalmax(im_fft_sm,rpk*.75,exclusionmode=False, insubmask=rmsk)[0]
 
   #refine peaks
   if subpixelfit:
      spfit_winsz = np.array([spfit_winsz,spfit_winsz],dtype='int')
-     im_fft_xy_sp = refinePeaks(im_fft_sm,im_fft_xy[[0,1],:].T,winsz=spfit_winsz,ithresh=spfit_ithresh)[:,:3].T
-  
-  xyv = im_fft_xy.copy()
-  dx = xyv[0,:]-xy0[0]
-  dy = xyv[1,:]-xy0[1]
+     xy_fft_sp = refinePeaks(im_fft_sm, xy_fft[[0,1],:].T, winsz=spfit_winsz, ithresh=spfit_ithresh)[:,:3].T
+     xy_v = xy_fft_sp.copy()
+  else:
+     xy_v = xy_fft.copy()
+ 
+  #convert to real space
+  dx = xy_v[0,:]-xy0[0]
+  dy = xy_v[1,:]-xy0[1]
   r = np.sqrt(dx**2+dy**2)
-  xyv[0,:] = inim_sz[0]/dx
-  xyv[1,:] = inim_sz[1]/dy
+  xy_v[0,:] = inim_sz[0]/dx
+  xy_v[1,:] = inim_sz[1]/dy
 
+  #Plot?
   if plotoutput:
     rng = 1.1 * np.max(r)
     xlim_ = [np.floor(im_fft.shape[0]/2-rng), np.ceil(im_fft.shape[0]/2+rng)]
     ylim_ = [np.floor(im_fft.shape[1]/2-rng), np.ceil(im_fft.shape[1]/2+rng)]
     
     if plotax is None:
-      fig, ax = plt.subplots(1, 2, figsize=(14, 7), dpi = 100)
+      fig, ax = plt.subplots(1, 3, figsize=(15, 5), dpi = 100)
     ax[0].imshow(im_fft,cmap='gray')
     ax[0].scatter(xy0[0],xy0[1],s=30,c='c',marker='+')
     ax[0].set_xlim(xlim_)
@@ -89,11 +111,24 @@ def fftpeaks(inim, gaussSigma = 1, subpixelfit=True, thresh=0.15, normalize=True
 
     ax[1].imshow(im_fft_sm,cmap='gray')
     ax[1].scatter(xy0[0],xy0[1],s=30,c='c',marker='+')
-    ax[1].scatter(im_fft_xy[0,:],im_fft_xy[1,:],s=5,c='r')
+    ax[1].scatter(xy_fft[0,:],xy_fft[1,:],s=scattersz,c='b',marker='+')
     if subpixelfit:
-      ax[1].scatter(im_fft_xy_sp[0,:],im_fft_xy_sp[1,:],s=5,c='c')
+      ax[1].scatter(xy_fft_sp[0,:],xy_fft_sp[1,:],s=scattersz,c='r',marker='x')
     ax[1].set_xlim(xlim_)
     ax[1].set_ylim(ylim_)
     ax[1].set_title('SmoothedFFT & Peaks')
 
-  return rpk, xyv, distr
+    ax[2].plot(x,distr[1,:],'-k')
+    #ax[2].scatter(x[minRind],distr[minRind],s=50,c='b')
+    #ax[2].text(x[minRind],distr[minRind],'exclusion radius',c='b',ha='left',va='top')
+    ax[2].text(x[minRind],0,'exclusion radius',c='b',ha='left',va='top')
+    ax[2].plot([x[minRind],x[minRind]],[0,np.nanmax(distr[1,:])],'-b')
+    ax[2].scatter(x[ind],distr[1,ind],s=50,c='r')
+    ax[2].text(x[ind],distr[1,ind],'principle peak',c='r',ha='left',va='bottom')
+    ax[2].set_title('FFT Radial Profile')
+
+  #Return
+  if subpixelfit:
+    xy_fft = xy_fft_sp
+
+  return xy_fft, xy_v, rpk, distr
