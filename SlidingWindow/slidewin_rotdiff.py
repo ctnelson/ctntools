@@ -195,7 +195,7 @@ def angarray_rotdiff(inim, stride=1, ixy0=None, irad=None, iang=None, mode = 0, 
   #normalize & find peaks
   rotdif = rotdif/np.nanmax(rotdif)
   rotdif = 1-rotdif
-  pk_ind, ht = find_peaks(rotdif,height=.2,width=5)
+  pk_ind, ht = find_peaks(rotdif,height=.1,width=5)
   ht = ht['peak_heights']
 
   #outputs
