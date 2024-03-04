@@ -77,7 +77,11 @@ def fftpeaks(inim, gaussSigma = 1, subpixelfit=True, thresh=0.15, normalize=True
   im_fft_sm = (im_fft_sm - np.min(im_fft_sm))/np.ptp(im_fft_sm)
 
   #peaks
-  rmsk = im_fft_sm>thresh
+  xx,yy = np.meshgrid(np.arange(inim_sz[0]),np.arange(inim_sz[1]))
+  dx = xx-xy0[0]
+  dy = yy-xy0[1]
+  r = np.sqrt(dx**2+dy**2)
+  rmsk = (im_fft_sm>thresh) & (r>x[minRind])
   xy_fft = imregionalmax(im_fft_sm,rpk*.75,exclusionmode=False, insubmask=rmsk)[0]
 
   #refine peaks
