@@ -134,4 +134,4 @@ def fftpeaks(inim, gaussSigma = 1, subpixelfit=True, thresh=0.15, normalize=True
   if subpixelfit:
     xy_fft = xy_fft_sp
 
-  return xy_fft, xy_v, rpk, distr
+  return xy_fft, xy_v, rpk, distr, im_fft
