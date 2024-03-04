@@ -51,7 +51,6 @@ def fftpeaks(inim, gaussSigma = 1, subpixelfit=True, thresh=0.15, normalize=True
   x, distr, density, _, _ = radKDE(im_fft_sm, rstp=.1, s=kde1Dsigma, method='interp')
   distr = distr/density
   distr = np.vstack((x,distr,density))
-  print(distr.shape)
 
   #find principle peak
   distrdx = None
