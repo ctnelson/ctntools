@@ -1,7 +1,7 @@
 import numpy as np
 from ctntools.Convolution.kde1D import kde1D
 
-#Creates a radial profile via kde1D. This function is a simple wrapper that feeds 
+#Creates a radial profile via kde1D. This function is wrapper feed the GPU function kde1D 
 def radKDE(inim, xy0 = None, rmax = None, rstp=1, **kwargs):
     ### Inputs ###
     #inim                   :       Input image
