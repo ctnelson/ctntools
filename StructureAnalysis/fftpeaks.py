@@ -120,7 +120,7 @@ def fftpeaks(inim, gaussSigma = 1, subpixelfit=True, thresh=0.15, normalize=True
     inax[1].set_title('SmoothedFFT & Peaks')
 
   if ~(inax[2] is None):
-    ax[2].plot(x,distr[1,:],'-k')
+    inax[2].plot(x,distr[1,:],'-k')
     #inax[2].scatter(x[minRind],distr[minRind],s=50,c='b')
     #inax[2].text(x[minRind],distr[minRind],'exclusion radius',c='b',ha='left',va='top')
     inax[2].text(x[minRind],0,'exclusion radius',c='b',ha='left',va='top')
