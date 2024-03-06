@@ -8,7 +8,7 @@ from scipy.ndimage import convolve
 import numpy as np
 import matplotlib.pyplot as plt
 
-def fftpeaks(inim, gaussSigma = 1, subpixelfit=True, thresh=0.15, normalize=True, minRExclusionMethod = 'afterminima', principlepeakmethod = 'first', plotoutput = False, plotax=None):
+def fftpeaks(inim, gaussSigma = 1, subpixelfit=True, thresh=0.15, normalize=True, minRExclusionMethod = 'afterminima', principlepeakmethod = 'first', plotoutput = False, inax=[None]*3):
   #Inputs
   #inim                     :       input image
   #gaussSigma           (optional)  :   sigma for gaussian blur
@@ -17,8 +17,7 @@ def fftpeaks(inim, gaussSigma = 1, subpixelfit=True, thresh=0.15, normalize=True
   #normalize            (optional)  :   flag to normalize input image
   #minRExclusionMethod  (optional)  :   'afterminima' or #  :set a minimum radius exclusion. 'afterminima' (default) considers only peaks beyond an initial minimum. Provide a numeric input to set manually.
   #principlepeakmethod  (optional)  :   'first' or 'max'    :How to select principle peak. 'first' is the longest frequency, 'max' is the largest value
-  #plotoutput           (optional)  :   flag to plot output
-  #plotax               (optional)  :   if plot=True, can define an [3,] axis to plot to. If None a new one is created. 
+  #inax                 (optional)  :   list of 3 axis to plot to. If None, no plotting. 
 
   #Outputs
   #rpk                      :       radius of peak value
@@ -99,36 +98,36 @@ def fftpeaks(inim, gaussSigma = 1, subpixelfit=True, thresh=0.15, normalize=True
   xy_v[1,:] = inim_sz[1]/dy
 
   #Plot?
-  if plotoutput:
-    rng = 1.1 * np.max(r)
-    xlim_ = [np.floor(im_fft.shape[0]/2-rng), np.ceil(im_fft.shape[0]/2+rng)]
-    ylim_ = [np.floor(im_fft.shape[1]/2-rng), np.ceil(im_fft.shape[1]/2+rng)]
+  rng = 1.1 * np.max(r)
+  xlim_ = [np.floor(im_fft.shape[0]/2-rng), np.ceil(im_fft.shape[0]/2+rng)]
+  ylim_ = [np.floor(im_fft.shape[1]/2-rng), np.ceil(im_fft.shape[1]/2+rng)]
     
-    if plotax is None:
-      fig, ax = plt.subplots(1, 3, figsize=(15, 5), dpi = 100)
-    ax[0].imshow(im_fft,cmap='gray')
-    ax[0].scatter(xy0[0],xy0[1],s=30,c='c',marker='+')
-    ax[0].set_xlim(xlim_)
-    ax[0].set_ylim(ylim_)
-    ax[0].set_title('Image FFT')
+  if ~(inax[0] is None):
+    inax[0].imshow(im_fft,cmap='gray')
+    inax[0].scatter(xy0[0],xy0[1],s=30,c='c',marker='+')
+    inax[0].set_xlim(xlim_)
+    inax[0].set_ylim(ylim_)
+    inax[0].set_title('Image FFT')
 
-    ax[1].imshow(im_fft_sm,cmap='gray')
-    ax[1].scatter(xy0[0],xy0[1],s=30,c='c',marker='+')
-    ax[1].scatter(xy_fft[0,:],xy_fft[1,:],s=scattersz,c='b',marker='+')
+  if ~(inax[1] is None):
+    inax[1].imshow(im_fft_sm,cmap='gray')
+    inax[1].scatter(xy0[0],xy0[1],s=30,c='c',marker='+')
+    inax[1].scatter(xy_fft[0,:],xy_fft[1,:],s=scattersz,c='b',marker='+')
     if subpixelfit:
-      ax[1].scatter(xy_fft_sp[0,:],xy_fft_sp[1,:],s=scattersz,c='r',marker='x')
-    ax[1].set_xlim(xlim_)
-    ax[1].set_ylim(ylim_)
-    ax[1].set_title('SmoothedFFT & Peaks')
+      inax[1].scatter(xy_fft_sp[0,:],xy_fft_sp[1,:],s=scattersz,c='r',marker='x')
+    inax[1].set_xlim(xlim_)
+    inax[1].set_ylim(ylim_)
+    inax[1].set_title('SmoothedFFT & Peaks')
 
+  if ~(inax[2] is None):
     ax[2].plot(x,distr[1,:],'-k')
-    #ax[2].scatter(x[minRind],distr[minRind],s=50,c='b')
-    #ax[2].text(x[minRind],distr[minRind],'exclusion radius',c='b',ha='left',va='top')
-    ax[2].text(x[minRind],0,'exclusion radius',c='b',ha='left',va='top')
-    ax[2].plot([x[minRind],x[minRind]],[0,np.nanmax(distr[1,:])],'-b')
-    ax[2].scatter(x[ind],distr[1,ind],s=50,c='r')
-    ax[2].text(x[ind],distr[1,ind],'principle peak',c='r',ha='left',va='bottom')
-    ax[2].set_title('FFT Radial Profile')
+    #inax[2].scatter(x[minRind],distr[minRind],s=50,c='b')
+    #inax[2].text(x[minRind],distr[minRind],'exclusion radius',c='b',ha='left',va='top')
+    inax[2].text(x[minRind],0,'exclusion radius',c='b',ha='left',va='top')
+    inax[2].plot([x[minRind],x[minRind]],[0,np.nanmax(distr[1,:])],'-b')
+    inax[2].scatter(x[ind],distr[1,ind],s=50,c='r')
+    inax[2].text(x[ind],distr[1,ind],'principle peak',c='r',ha='left',va='bottom')
+    inax[2].set_title('FFT Radial Profile')
 
   #Return
   if subpixelfit:
