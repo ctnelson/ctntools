@@ -1,6 +1,6 @@
 import numpy as np
 
-def FWHM(inarray, ind0 = None, cutoff=0.5):
+def FWHM(inarray, ind0 = None, cutoff=0.5, normalize=True):
     #FWHM measures the Full Width at Half Maximimum of a peak in 'inarray' which should be an [n,] vector or [n,m] array (if 2D, along axis 0). Determined as the first crossing of the halfway point of the normalized array (so recommend smoothing noisy data)
     ### Inputs ###
     #inarray            :       [n,] or [n,m] vector or array to find FWHM
@@ -15,9 +15,10 @@ def FWHM(inarray, ind0 = None, cutoff=0.5):
     sz = np.array(inarray.shape,dtype='int')
 
     #normalize
-    iamin = np.repeat(np.nanmin(inarray,axis=0,keepdims=True),sz[0],axis=0)
-    iamax = np.repeat(np.nanmin(inarray,axis=0,keepdims=True),sz[0],axis=0)
-    inarray = (inarray-iamin) - (iamax-iamin)
+    if normalize:
+        iamin = np.repeat(np.nanmin(inarray,axis=0,keepdims=True),sz[0],axis=0)
+        iamax = np.repeat(np.nanmin(inarray,axis=0,keepdims=True),sz[0],axis=0)
+        inarray = (inarray-iamin) - (iamax-iamin)
 
     #center point
     if ind0 is None:
