@@ -77,7 +77,7 @@ def Gauss2DAFun(dx,dy,M=None):
 
 ###########################################
 ##### 2D Bump Function (w/ Transform) #####
-def Bump2DAFun(dx,dy,M=np.array([[1,0],[0,1]]),rdist=None, hwhm=None):
+def Bump2DAFun(dx,dy,M=None,rdist=None, hwhm=None):
     ###  Inputs  ###
     #dx                 :   x values (relative to kernel center)
     #dy                 :   y values (relative to kernel center)
@@ -109,6 +109,10 @@ def Bump2DAFun(dx,dy,M=np.array([[1,0],[0,1]]),rdist=None, hwhm=None):
         if rdist.size==1:
             rdist = np.array([rdist,rdist],dtype='float') 
     #Transform
+    if M is None:
+        M=np.array([[1.,0.],[0.,1.]])
+    else:
+        M=np.array(M)
     if np.ndim(M)==2:
         M=M[:,:,np.newaxis]
     M = np.dstack((M1,M))
@@ -141,7 +145,7 @@ def Bump2DAFun(dx,dy,M=np.array([[1,0],[0,1]]),rdist=None, hwhm=None):
 
 ################################
 ##### 2D Gaussian Creation #####
-def gKernel2D(sig, rdist=None, rscalar=2, M = np.array([[1,0],[0,1]]), rstp=1, normMethod = None): 
+def gKernel2D(sig, rdist=None, rscalar=2, M = None, rstp=1, normMethod = None): 
     ###  Inputs  ###
     #sig                      :  [1,] or [2,] gaussian sigma
     #rdist        (optional)  :  [1,] or [2,] distance from center to sample. (rdist/rstp) Must either be an integer or will be rounded up to one. If 'None', rdist will be based on a scalar of sigma (rscalar)
@@ -159,6 +163,10 @@ def gKernel2D(sig, rdist=None, rscalar=2, M = np.array([[1,0],[0,1]]), rstp=1, n
     else:
         M1 = np.array([[sig, 0],[0,sig]])
     #Transform M
+    if M is None:
+        M=np.array([[1.,0.],[0.,1.]])
+    else:
+        M=np.array(M)
     if np.ndim(M)==2:
         M=M[:,:,np.newaxis]
     M = np.dstack((M1,M))
@@ -201,7 +209,7 @@ def gKernel2D(sig, rdist=None, rscalar=2, M = np.array([[1,0],[0,1]]), rstp=1, n
 
 ############################
 ##### 2D Bump Creation #####
-def bKernel2D(hwhm, rdist=None, M = np.array([[1,0],[0,1]]), rstp=1, normMethod = None): 
+def bKernel2D(hwhm, rdist=None, M=None, rstp=1, normMethod = None): 
     ###  Inputs  ###
     #hwhm                       :  [1,] or [2,] half width half max
     #rdist        (optional)    :  [1,] or [2,] outer distance
@@ -229,6 +237,10 @@ def bKernel2D(hwhm, rdist=None, M = np.array([[1,0],[0,1]]), rstp=1, normMethod 
             rdist = np.array([rdist,rdist],dtype='float')   
 
     #Transform M
+    if M is None:
+        M=np.array([[1.,0.],[0.,1.]])
+    else:
+        M=np.array(M)
     if np.ndim(M)==2:
         M=M[:,:,np.newaxis]
     M2 = np.dstack((M1,M))
