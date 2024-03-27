@@ -1,8 +1,14 @@
 ######################################  Table of Contents  ##########################################
-#  gKernel1D    :    a 1D gaussian kernel       (normalized to have total area=1)
-#  gKernel2D    :    a 2D gaussian kernel       (normalized to have total volume=1)
-#  bKernel1D    :    a 1D bump function kernel. (normalized to have total area=1)
-#  bKernel2D    :    a 2D bump function kernel. Can apply an optional input transform [2,2] transforme matrix M. (normalized to have total volume=1)
+#functions
+#  GaussFun     :    Funtion, value of gaussian at r,sig
+#  BumpFun      :    Funtion, value of Bump function at r, r nonzero on interval [0->1)
+#  Gauss2DAFun  :    Funtion, value of gaussian at x,y,sig (allows xy transform matrix M)
+#  Bump2DAFun   :    Funtion, value of Bump function at x,y,rdist and/or hwhm (allows xy transform matrix M)
+#creation
+#  gKernel1D    :    create a 1D gaussian kernel       
+#  bKernel1D    :    create a 1D bump function kernel. 
+#  gKernel2D    :    create a 2D gaussian kernel. Can apply an optional input transform [2,2] transform matrix M.
+#  bKernel2D    :    create a 2D bump function kernel. Can apply an optional input transform [2,2] transform matrix M.
 
 ######################################## Imports  ###################################################
 import numpy as np
@@ -211,7 +217,7 @@ def gKernel2D(sig, rdist=None, rscalar=2, M = None, rstp=1, normMethod = None):
 ##### 2D Bump Creation #####
 def bKernel2D(hwhm, rdist=None, M=None, rstp=1, normMethod = None): 
     ###  Inputs  ###
-    #hwhm                       :  [1,] or [2,] half width half max
+    #hwhm                       :  [1,] or [2,] half width half max, distance at which function crosses 0.5
     #rdist        (optional)    :  [1,] or [2,] outer distance
     #M            (optional)    :  transformation matrix (or matrices, and applied in order) [2,2], [2,2,1], or [2,2,n]
     #normMethod   (optional)    :  None, 'Sum' or 'Integrate'. 'Sum' ignores the r stepsize, 'Integrate' includes it.
