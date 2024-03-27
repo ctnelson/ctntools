@@ -46,7 +46,7 @@ def BumpFun(r):
 
 ######################################
 ##### 2D Gaussian (w/ Transform) #####
-def Gauss2DAFun(dx,dy,M=np.array([[1,0],[0,1]])):
+def Gauss2DAFun(dx,dy,M=[[1,0],[0,1]]):
     ###  Inputs  ###
     #dx                 :   x values (relative to kernel center)
     #dy                 :   y values (relative to kernel center)
@@ -56,6 +56,7 @@ def Gauss2DAFun(dx,dy,M=np.array([[1,0],[0,1]])):
     #z                  :   output kernel values
 
     ###  Main  ###
+    M=np.array(M)
     if np.ndim(M)==2:
         M=M[:,:,np.newaxis]
     Mn = M.shape[2]
