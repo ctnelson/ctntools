@@ -1,5 +1,5 @@
 #A GPU enabled version of Kernel Density Estimation. Useful if cannot be achieved by convolution such as non-uniform sampling grids or unique kernels for different datapoints
-
+#still to do: intensity weights
 ######################################  Table of Contents  ##########################################
 #Support Functions
 #  GaussFun_gpu                 :   GPU Funtion, value of gaussian at r,sig
