@@ -104,8 +104,8 @@ def kdeGauss2d_Radial_core_gpu(X,Y,kx,ky,kwt,M,PerBnds,scutoff,samplingMode,kdeD
         dx = kx[i]-x
         dy = ky[i]-y
         if PerBnds[0]!=np.inf:
-            dx = dMinPeriodic(dx,bounds[0])
-            dy = dMinPeriodic(dy,bounds[1])
+            dx = dMinPeriodic(dx,PerBnds[0])
+            dy = dMinPeriodic(dy,PerBnds[1])
         if (abs(dx)>M*scutoff) or (abs(dy)>M*scutoff):
             continue
             
@@ -165,8 +165,8 @@ def kdeGauss2d_MTransf_core_gpu(X,Y,kx,ky,kwt,M,estRng,PerBnds,scutoff,samplingM
         dx = kx[i]-x
         dy = ky[i]-y
         if PerBnds[0]!=np.inf:
-            dx = dMinPeriodic(dx,bounds[0])
-            dy = dMinPeriodic(dy,bounds[1])
+            dx = dMinPeriodic(dx,PerBnds[0])
+            dy = dMinPeriodic(dy,PerBnds[1])
         #Transform
         if Md==3:       #all datapoints share M transform(s)
             if ((dx<-estRng[0]) or (dx>estRng[0]) or (dy<-estRng[1]) or (dy>estRng[1])):    #a quick square boundary cutoff to save doing additional calculations
