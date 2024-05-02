@@ -427,7 +427,7 @@ def GenerateDatasetRand(bounds=[0,512,0,256], num=None, minR=10, edge=1, params=
     return kdeVal, samplingXY, sXY, pts, params, dN, minR, samplingMeshStep
   
 ########################################### Generate Dataset ##########################################################
-def CreateDataset(method='Grid', samplingMeshStep=None, countsPerUnit=0, baseNoiseRng=0, discretize=False, verbose=False, **kwargs):
+def createDataset(method='Grid', samplingMeshStep=None, countsPerUnit=0, baseNoiseRng=0, discretize=False, verbose=False, **kwargs):
     ###  Inputs  ###
     #method                     :   'Grid' or 'Random'
     #samplingMeshStep           :   [2,] or None. If samplingXY is a meshgrid this is the stepsize and used to reshape the output into an array.
