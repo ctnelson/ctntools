@@ -1,6 +1,7 @@
 import numpy as np
 from tqdm import tqdm
 import time
+from ctntools.Convolution.kde2D_gpu import kdeGauss2d_gpu, kdeGauss2d_SRtransf_gpu
 
 ########################################### Table of Contents #########################################################
 #Support:
