@@ -203,7 +203,7 @@ def kdeGauss2d_gpu(sX, sY, kx, ky, kwt, M=1, samplingMode=0, PerBnds=np.array([n
     ###  Inputs  ###
     #sX & sY                    :   [3,] start,stop,step parameters if grid. Otherwise array of sampling positions (shape ignored, will be flattened)
     #kx & ky                    :   [n,] datapoint xy positions
-    #kwt                        :   [n,] datapoint value
+    #kwt                        :   [n,] or scalar, datapoint value. If single value, will be formed into an array.
     #samplingMode   (optional)  :   0=Grid, or 1=Manual
     #PerBnds        (optional)  :   none or [2,] max xy boundaries (dx dy translations occur on these values). If none, periodic boundaries not considered
     #M              (optional)  :   [1,], [2,2,m], or [n,2,2,m] transform matrix for gausian kernel. If m>1, [2,2] transform is iterated over m. If None, M default to identity matrix (a round sigma=1 gaussian)
@@ -315,7 +315,7 @@ def kdeGauss2d_SRtransf_gpu(sX, sY, kx, ky, kwt, S, R, **kwargs):
     ###  Inputs  ###
     #sX & sY    :   sampling point xy positions
     #kx & ky    :   [n,] datapoint xy positions
-    #kwt        :   [n,] datapoint value
+    #kwt        :   [n,] or scalar, datapoint value. If single value, will be formed into an array.
     #S          :   [1,], [2,], [n,1] or [n,2] xy scalar
     #R          :   [1,] or [n,] rotation (radians)
     ### for optional variables see kdeGauss2d_gpu ###
