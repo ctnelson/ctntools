@@ -217,6 +217,8 @@ def kdeGauss2d_gpu(sX, sY, kx, ky, kwt, M=1, samplingMode=0, PerBnds=np.array([n
 
     ###  Main  ###
     tic = time.perf_counter()
+    if np.array(kwt).size==1:
+        kwt = np.ones((kx.shape),dtype=np.float32)*kwt
     #Determine output size & preallocate
     if samplingMode==0:
         if ((sX.size==3) and (sY.size==3)):     #check correct size input. If not, will assume manual sampling points were provided instead.
@@ -340,7 +342,7 @@ def kdeGauss2d_SRtransf_gpu(sX, sY, kx, ky, kwt, S, R, **kwargs):
         M[1,1,1] = np.cos(R)
     #S & R values unique for all datapoints
     else:
-        assert(n == kwt.size)
+        assert(n == kx.size)
         #Scaling
         M = np.zeros((n,2,2,2))
         if np.ndim(S)==1:
