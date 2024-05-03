@@ -36,8 +36,8 @@ def convKDE2arr(ival,isampling,isampMesh):
     if not (isampMesh is None):
         #sz = np.array([(sbounds[1]-sbounds[0])/meshstep[0]+1,(sbounds[3]-sbounds[2])/meshstep[1]+1],dtype='int')
         sz = np.array([(isampMesh[1]-isampMesh[0])/isampMesh[2],(isampMesh[4]-isampMesh[3])/isampMesh[5]],dtype='int')
-        print(sz)
-        outval = np.flip(np.reshape(ival.copy(),sz[[1,0]]),axis=0)
+        #outval = np.flip(np.reshape(ival.copy(),sz[[1,0]]),axis=0)
+        outval = np.reshape(ival.copy(),sz[[1,0]])
         xx,yy = np.meshgrid(np.arange(isampMesh[0],isampMesh[1],isampMesh[2]),np.arange(isampMesh[3],isampMesh[4],isampMesh[5]))
     else:
         raise ValueError('isampMesh not provided')
