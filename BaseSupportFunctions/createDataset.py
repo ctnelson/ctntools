@@ -236,7 +236,7 @@ def GenerateDatasetUCArray(bounds=[0,512,0,256], a=[10,1], b=[-1,10], xy0=[0,0],
     if samplingXY is None:
         if sampMesh is None:
             #samplingMeshStep = meshstepdefault
-            sampMesh = np.array([bounds[0],bounds[1],meshstepdefault,bounds[0],bounds[1],meshstepdefault])
+            sampMesh = np.array([bounds[0],bounds[1],meshstepdefault,bounds[2],bounds[3],meshstepdefault])
         #sX = np.array([0,bounds[1]-samplingMeshStep,samplingMeshStep])
         #sY = np.array([bounds[3]-samplingMeshStep,0,-samplingMeshStep])
         sX = np.array([sampMesh[0],sampMesh[1],sampMesh[2]])
