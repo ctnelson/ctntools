@@ -35,10 +35,10 @@ def convKDE2arr(ival,isampling,isampMesh):
     ### Main ###
     if not (isampMesh is None):
         #sz = np.array([(sbounds[1]-sbounds[0])/meshstep[0]+1,(sbounds[3]-sbounds[2])/meshstep[1]+1],dtype='int')
-        sz = np.array([(isampMesh[1]-isampMesh[0])/isampMesh[2]+1,(isampMesh[4]-isampMesh[3])/isampMesh[5]+1],dtype='int')
+        sz = np.array([(isampMesh[1]-isampMesh[0])/isampMesh[2],(isampMesh[4]-isampMesh[3])/isampMesh[5]],dtype='int')
         print(sz)
         outval = np.flip(np.reshape(ival.copy(),sz[[1,0]]),axis=0)
-        xx,yy = np.meshgrid(np.arange(isampMesh[0],isampMesh[1]+isampMesh[2],isampMesh[2]),np.arange(isampMesh[3],isampMesh[4]+isampMesh[5],isampMesh[5]))
+        xx,yy = np.meshgrid(np.arange(isampMesh[0],isampMesh[1],isampMesh[2]),np.arange(isampMesh[3],isampMesh[4],isampMesh[5]))
     else:
         raise ValueError('isampMesh not provided')
         
@@ -379,7 +379,7 @@ def GenerateDatasetRand(bounds=[0,512,0,256], num=None, minR=10, edge=1, params=
     if samplingXY is None:
         if sampMesh is None:
             #samplingMeshStep = meshstepdefault
-            sampMesh = np.array([bounds[0],bounds[1],meshstepdefault,bounds[0],bounds[1],meshstepdefault])
+            sampMesh = np.array([bounds[0],bounds[1],meshstepdefault,bounds[2],bounds[3],meshstepdefault])
         #sX = np.array([0,bounds[1]-samplingMeshStep,samplingMeshStep])
         #sY = np.array([bounds[3]-samplingMeshStep,0,-samplingMeshStep])
         sX = np.array([sampMesh[0],sampMesh[1],sampMesh[2]])
