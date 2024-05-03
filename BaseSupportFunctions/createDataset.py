@@ -319,6 +319,7 @@ def GenerateDatasetRand(bounds=[0,512,0,256], num=None, minR=10, edge=1, params=
     #edge               edge exclusion distance
     #params             [4,] gauss kernel parameters [A,s1,s2,theta]
     #samplingXY         [n,2] xy sampling points. Will default to a meshgrid of the bounds.
+    #samplingMeshStep   meshgrid sampling step of samplingXY (or None if not a meshgrid)
     #verbose            flag to display execution information
     #noise parameters:
     #pRandType          [6,] Flag for noise type applied to each parameter in primitive. True for normal dist, False for uniform
@@ -334,7 +335,8 @@ def GenerateDatasetRand(bounds=[0,512,0,256], num=None, minR=10, edge=1, params=
     #params             [sN,6] or [pN,6] datapoint gaussian parameters [x, y, A, s1, s2, theta]
     #minR
     #dN                 [sN,6] or [pN,2] noise applied to gaussian parameters
-    
+
+    print(samplingMeshStep)
     ### Initial Parameters
     meshstepdefault = 0.25
     bounds = np.array(bounds,dtype='float')
