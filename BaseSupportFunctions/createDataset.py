@@ -239,8 +239,8 @@ def GenerateDatasetUCArray(bounds=[0,512,0,256], a=[10,1], b=[-1,10], xy0=[0,0],
             sampMesh = np.array([bounds[0],bounds[1],meshstepdefault,bounds[0],bounds[1],meshstepdefault])
         #sX = np.array([0,bounds[1]-samplingMeshStep,samplingMeshStep])
         #sY = np.array([bounds[3]-samplingMeshStep,0,-samplingMeshStep])
-        sX = np.array(sampMesh[0],sampMesh[1],sampMesh[2])
-        sY = np.array(sampMesh[3],sampMesh[4],sampMesh[5])
+        sX = np.array([sampMesh[0],sampMesh[1],sampMesh[2]])
+        sY = np.array([sampMesh[3],sampMesh[4],sampMesh[5]])
         if verbose:
             #print('Generating default sampling grid, X[{:.2f}:{:.2f}:{:.2f}], Y[{:.2f}:{:.2f}:{:.2f}]'.format(bounds[0],samplingMeshStep,bounds[1],bounds[2],samplingMeshStep,bounds[3]))
             print('Generating default sampling grid, X[{:.2f}:{:.2f}:{:.2f}], Y[{:.2f}:{:.2f}:{:.2f}]'.format(sampMesh[0],sampMesh[2],sampMesh[1],sampMesh[3],sampMesh[5],sampMesh[4]))
@@ -382,8 +382,8 @@ def GenerateDatasetRand(bounds=[0,512,0,256], num=None, minR=10, edge=1, params=
             sampMesh = np.array([bounds[0],bounds[1],meshstepdefault,bounds[0],bounds[1],meshstepdefault])
         #sX = np.array([0,bounds[1]-samplingMeshStep,samplingMeshStep])
         #sY = np.array([bounds[3]-samplingMeshStep,0,-samplingMeshStep])
-        sX = np.array(sampMesh[0],sampMesh[1],sampMesh[2])
-        sY = np.array(sampMesh[3],sampMesh[4],sampMesh[5])
+        sX = np.array([sampMesh[0],sampMesh[1],sampMesh[2]])
+        sY = np.array([sampMesh[3],sampMesh[4],sampMesh[5]])
         if verbose:
             #print('Generating default sampling grid, X[{:.2f}:{:.2f}:{:.2f}], Y[{:.2f}:{:.2f}:{:.2f}]'.format(bounds[0],samplingMeshStep,bounds[1],bounds[2],samplingMeshStep,bounds[3]))
             print('Generating default sampling grid, X[{:.2f}:{:.2f}:{:.2f}], Y[{:.2f}:{:.2f}:{:.2f}]'.format(sampMesh[0],sampMesh[2],sampMesh[1],sampMesh[3],sampMesh[5],sampMesh[4]))
