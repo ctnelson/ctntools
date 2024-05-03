@@ -175,6 +175,7 @@ def GenerateDatasetUCArray(bounds=[0,512,0,256], a=[10,1], b=[-1,10], xy0=[0,0],
     #xy0                [2,] xy origin
     #primitive          [pN,6] Atom Parameters [a, b, A, s1, s2, theta] for each atom in the unit cell. a and b are fractional position coordinates, A the weight, s1 & s2 the widths, and theta the rotation (radians) of the major axis (if s1!=s2)
     #samplingXY         [n,2] xy sampling points. Will default to a meshgrid of the bounds.
+    #samplingMeshStep   meshgrid sampling step of samplingXY (or None if not a meshgrid)
     #verbose            flag to display execution information
     #noise parameters:
     #pRandType          [6,] Flag for noise type applied to each parameter in primitive. True for normal dist, False for uniform
@@ -192,7 +193,8 @@ def GenerateDatasetUCArray(bounds=[0,512,0,256], a=[10,1], b=[-1,10], xy0=[0,0],
     #b                  [2,]    returns b basis vector used
     #primitive          [pN,6] returns primitive used
     #dN                 [sN,6] or [pN,2] noise applied to gaussian parameters
-    
+
+    print(samplingMeshStep)
     ### Initial Parameters
     meshstepdefault = 0.25
     bounds = np.array(bounds,dtype='float')
@@ -336,7 +338,6 @@ def GenerateDatasetRand(bounds=[0,512,0,256], num=None, minR=10, edge=1, params=
     #minR
     #dN                 [sN,6] or [pN,2] noise applied to gaussian parameters
 
-    print(samplingMeshStep)
     ### Initial Parameters
     meshstepdefault = 0.25
     bounds = np.array(bounds,dtype='float')
