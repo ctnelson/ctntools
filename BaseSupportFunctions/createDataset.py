@@ -20,7 +20,32 @@ from ctntools.Convolution.kde2D_gpu import kdeGauss2d_gpu, kdeGauss2d_SRtransf_g
 
 ########################################### Support ##########################################################
 ### Convert flattened meshgrid to array ### 
-def convKDE2arr(ival,isampling,imeshstep):
+def convKDE2arr(ival,isampling,isampMesh):
+    #converts input vector to array. Predicated on vector being in a meshgrid sampled order.
+    ### Inputs ###
+    #ival       :   [n,]    vector of input values
+    #isampling  :   [n,2]   array of xy sampling points
+    #isampMesh  :   [6,]    If samplingXY is an nominal meshgrid array [xstart,xstop,xstep,ystart,ystop,ystep]
+    ### Outputs ###
+    #outval     :   reshaped ival
+    #xx         :   x positions
+    #yy         :   y positions
+    #meshstep   :   step of meshgrid (either the calculated version or imeshstep is passed through)
+
+    ### Main ###
+    if not (isampMesh is None):
+        #sz = np.array([(sbounds[1]-sbounds[0])/meshstep[0]+1,(sbounds[3]-sbounds[2])/meshstep[1]+1],dtype='int')
+        sz = np.array([(isampMesh[1]-isampMesh[0])/isampMesh[2]+1,(isampMesh[4]-isampMesh[3])/isampMesh[5]+1],dtype='int')
+        print(sz)
+        outval = np.flip(np.reshape(ival.copy(),sz[[1,0]]),axis=0)
+        xx,yy = np.meshgrid(np.arange(sbounds[0],sbounds[1]+meshstep[0],meshstep[0]),np.arange(sbounds[2],sbounds[3]+meshstep[1],meshstep[1]))
+    else:
+        raise ValueError('isampMesh not provided')
+        
+    return outval, xx, yy, isampMesh
+    
+### Convert flattened meshgrid to array ### 
+def convKDE2arr_old(ival,isampling,imeshstep):
     #converts input vector to array. Predicated on vector being in a meshgrid sampled order.
     ### Inputs ###
     #ival       :   [n,]    vector of input values
@@ -162,7 +187,7 @@ def CreateRandArray(bounds, num=None, minR=None, edge = 0, verbose=False, **kwar
 
 ########################################### Sample Gaussian Kernel at Datapoints ##########################################################
 ### Lattice ###
-def GenerateDatasetUCArray(bounds=[0,512,0,256], a=[10,1], b=[-1,10], xy0=[0,0], primitive=[[0,0,1,1.5,1.5,0],[.5,.5,.5,1,1,0]], samplingXY=None, samplingMeshStep=None, verbose=False, pRandType=[1,1,1,1,1,1], pRandRng=[0,0,0,0,0,0], sRandType=True, sRandRng=[0,0]):
+def GenerateDatasetUCArray(bounds=[0,512,0,256], a=[10,1], b=[-1,10], xy0=[0,0], primitive=[[0,0,1,1.5,1.5,0],[.5,.5,.5,1,1,0]], samplingXY=None, sampMesh=None, verbose=False, pRandType=[1,1,1,1,1,1], pRandRng=[0,0,0,0,0,0], sRandType=True, sRandRng=[0,0]):
     ### Creates a dataset of Gaussians from a repeated unit cell sampled at given 'samplingXY' points
     
     ### Notes ###
@@ -175,7 +200,7 @@ def GenerateDatasetUCArray(bounds=[0,512,0,256], a=[10,1], b=[-1,10], xy0=[0,0],
     #xy0                [2,] xy origin
     #primitive          [pN,6] Atom Parameters [a, b, A, s1, s2, theta] for each atom in the unit cell. a and b are fractional position coordinates, A the weight, s1 & s2 the widths, and theta the rotation (radians) of the major axis (if s1!=s2)
     #samplingXY         [n,2] xy sampling points. Will default to a meshgrid of the bounds.
-    #samplingMeshStep   meshgrid sampling step of samplingXY (or None if not a meshgrid)
+    #sampMesh           [6,] or None. If samplingXY is an nominal meshgrid array [xstart,xstop,xstep,ystart,ystop,ystep].
     #verbose            flag to display execution information
     #noise parameters:
     #pRandType          [6,] Flag for noise type applied to each parameter in primitive. True for normal dist, False for uniform
@@ -194,7 +219,6 @@ def GenerateDatasetUCArray(bounds=[0,512,0,256], a=[10,1], b=[-1,10], xy0=[0,0],
     #primitive          [pN,6] returns primitive used
     #dN                 [sN,6] or [pN,2] noise applied to gaussian parameters
 
-    print(samplingMeshStep)
     ### Initial Parameters
     meshstepdefault = 0.25
     bounds = np.array(bounds,dtype='float')
@@ -210,12 +234,16 @@ def GenerateDatasetUCArray(bounds=[0,512,0,256], a=[10,1], b=[-1,10], xy0=[0,0],
     radialFlag = (primitive[:,3]==primitive[:,4])
     #Sampling Points (if not supplied)
     if samplingXY is None:
-        if samplingMeshStep is None:
-            samplingMeshStep = meshstepdefault
-        sX = np.array([0,bounds[1]-samplingMeshStep,samplingMeshStep])
-        sY = np.array([bounds[3]-samplingMeshStep,0,-samplingMeshStep])
+        if sampMesh is None:
+            #samplingMeshStep = meshstepdefault
+            sampMesh = np.array([bounds[0],bounds[1],meshstepdefault,bounds[0],bounds[1],meshstepdefault])
+        #sX = np.array([0,bounds[1]-samplingMeshStep,samplingMeshStep])
+        #sY = np.array([bounds[3]-samplingMeshStep,0,-samplingMeshStep])
+        sX = np.array(sampMesh[0],sampMesh[1],sampMesh[2])
+        sY = np.array(sampMesh[3],sampMesh[4],sampMesh[5])
         if verbose:
-            print('Generating default sampling grid, X[{:.2f}:{:.2f}:{:.2f}], Y[{:.2f}:{:.2f}:{:.2f}]'.format(bounds[0],samplingMeshStep,bounds[1],bounds[2],samplingMeshStep,bounds[3]))
+            #print('Generating default sampling grid, X[{:.2f}:{:.2f}:{:.2f}], Y[{:.2f}:{:.2f}:{:.2f}]'.format(bounds[0],samplingMeshStep,bounds[1],bounds[2],samplingMeshStep,bounds[3]))
+            print('Generating default sampling grid, X[{:.2f}:{:.2f}:{:.2f}], Y[{:.2f}:{:.2f}:{:.2f}]'.format(sampMesh[0],sampMesh[2],sampMesh[1],sampMesh[3],sampMesh[5],sampMesh[4]))
         xx,yy = np.meshgrid(np.arange(sX[0],sX[1]+sX[2],sX[2]),np.arange(sY[0],sY[1]+sY[2],sY[2]))
         samplingXY = np.vstack((xx.ravel(),yy.ravel())).T
     sN = samplingXY.shape[0]
@@ -308,7 +336,7 @@ def GenerateDatasetUCArray(bounds=[0,512,0,256], a=[10,1], b=[-1,10], xy0=[0,0],
     return kdeVal, samplingXY, sXY, pts, params, dN, a, b, primitive, samplingMeshStep
 
 ### Random ###
-def GenerateDatasetRand(bounds=[0,512,0,256], num=None, minR=10, edge=1, params=[1.,1.,1.,0.], samplingXY=None, samplingMeshStep=None, verbose=False, pRandType=[1,1,1,1,1,1], pRandRng=[0,0,0,0,0,0], sRandType=True, sRandRng=[0,0]):
+def GenerateDatasetRand(bounds=[0,512,0,256], num=None, minR=10, edge=1, params=[1.,1.,1.,0.], samplingXY=None, sampMesh=None, verbose=False, pRandType=[1,1,1,1,1,1], pRandRng=[0,0,0,0,0,0], sRandType=True, sRandRng=[0,0]):
     ### Creates a dataset of Gaussians from a repeated unit cell sampled at given 'samplingXY' points
     
     ### Notes ###
@@ -321,7 +349,7 @@ def GenerateDatasetRand(bounds=[0,512,0,256], num=None, minR=10, edge=1, params=
     #edge               edge exclusion distance
     #params             [4,] gauss kernel parameters [A,s1,s2,theta]
     #samplingXY         [n,2] xy sampling points. Will default to a meshgrid of the bounds.
-    #samplingMeshStep   meshgrid sampling step of samplingXY (or None if not a meshgrid)
+    #sampMesh           [6,] or None. If samplingXY is an nominal meshgrid array [xstart,xstop,xstep,ystart,ystop,ystep].
     #verbose            flag to display execution information
     #noise parameters:
     #pRandType          [6,] Flag for noise type applied to each parameter in primitive. True for normal dist, False for uniform
@@ -349,12 +377,16 @@ def GenerateDatasetRand(bounds=[0,512,0,256], num=None, minR=10, edge=1, params=
     
     #Sampling Points (if not supplied)
     if samplingXY is None:
-        if samplingMeshStep is None:
-            samplingMeshStep = meshstepdefault
-        sX = np.array([0,bounds[1]-samplingMeshStep,samplingMeshStep])
-        sY = np.array([bounds[3]-samplingMeshStep,0,-samplingMeshStep])
+        if sampMesh is None:
+            #samplingMeshStep = meshstepdefault
+            sampMesh = np.array([bounds[0],bounds[1],meshstepdefault,bounds[0],bounds[1],meshstepdefault])
+        #sX = np.array([0,bounds[1]-samplingMeshStep,samplingMeshStep])
+        #sY = np.array([bounds[3]-samplingMeshStep,0,-samplingMeshStep])
+        sX = np.array(sampMesh[0],sampMesh[1],sampMesh[2])
+        sY = np.array(sampMesh[3],sampMesh[4],sampMesh[5])
         if verbose:
-            print('Generating default sampling grid, X[{:.2f}:{:.2f}:{:.2f}], Y[{:.2f}:{:.2f}:{:.2f}]'.format(bounds[0],samplingMeshStep,bounds[1],bounds[2],samplingMeshStep,bounds[3]))
+            #print('Generating default sampling grid, X[{:.2f}:{:.2f}:{:.2f}], Y[{:.2f}:{:.2f}:{:.2f}]'.format(bounds[0],samplingMeshStep,bounds[1],bounds[2],samplingMeshStep,bounds[3]))
+            print('Generating default sampling grid, X[{:.2f}:{:.2f}:{:.2f}], Y[{:.2f}:{:.2f}:{:.2f}]'.format(sampMesh[0],sampMesh[2],sampMesh[1],sampMesh[3],sampMesh[5],sampMesh[4]))
         xx,yy = np.meshgrid(np.arange(sX[0],sX[1]+sX[2],sX[2]),np.arange(sY[0],sY[1]+sY[2],sY[2]))
         samplingXY = np.vstack((xx.ravel(),yy.ravel())).T
     sN = samplingXY.shape[0]
@@ -428,13 +460,13 @@ def GenerateDatasetRand(bounds=[0,512,0,256], num=None, minR=10, edge=1, params=
             kdeVal,_ = kdeGauss2d_SRtransf_gpu(sX, sY, pts[:,0], pts[:,1], params[:,0], params[:,[1,2]], params[:,3], samplingMode=1, verbose=verbose)
 
     sXY = np.vstack((sX,sY)).T
-    return kdeVal, samplingXY, sXY, pts, params, dN, minR, samplingMeshStep
+    return kdeVal, samplingXY, sXY, pts, params, dN, minR, sampMesh
   
 ########################################### Generate Dataset ##########################################################
-def createDataset(method='Grid', samplingMeshStep=None, countsPerUnit=0, baseNoiseRng=0, discretize=False, verbose=False, **kwargs):
+def createDataset(method='Grid', sampMesh=None, countsPerUnit=0, baseNoiseRng=0, discretize=False, verbose=False, **kwargs):
     ###  Inputs  ###
     #method                     :   'Grid' or 'Random'
-    #samplingMeshStep           :   [2,] or None. If samplingXY is a meshgrid this is the stepsize and used to reshape the output into an array.
+    #sampMesh                   :   [6,] or None. If samplingXY is an nominal meshgrid array [xstart,xstop,xstep,ystart,ystop,ystep]. Used to reshaped and dose for shotnoise.
     #shotNoise_countsPerUnit    :   If grid & sampled meshgrid = counts/primitive. If random & sampled meshgrid = counts/minR_circle. If not sampled meshgrid = totalcounts.
     #baseNoiseRng               :
     
@@ -469,27 +501,25 @@ def createDataset(method='Grid', samplingMeshStep=None, countsPerUnit=0, baseNoi
 
     ### Main ###
     # Get sampled Kernel
-    print(samplingMeshStep)
     if method=='Grid':
-        Vals, samplingXY, sXY, pts, params, dN, a, b, primitive, samplingMeshStep = GenerateDatasetUCArray(samplingMeshStep=samplingMeshStep,verbose=verbose,**kwargs)
+        Vals, samplingXY, sXY, pts, params, dN, a, b, primitive, sampMesh = GenerateDatasetUCArray(sampMesh=sampMesh,verbose=verbose,**kwargs)
     elif method=='Random':
-        Vals, samplingXY, sXY, pts, params, dN, minR, samplingMeshStep = GenerateDatasetRand(samplingMeshStep=samplingMeshStep,verbose=verbose,**kwargs)
+        Vals, samplingXY, sXY, pts, params, dN, minR, sampMesh = GenerateDatasetRand(sampMesh=sampMesh,verbose=verbose,**kwargs)
     else:
         raise ValueError('method must be "Grid" or "Random"')
     
     #Convert to array?
-    print(samplingMeshStep)
-    if not(samplingMeshStep is None):
+    if not(sampMesh is None):
         if verbose:
             print('reshaping as meshgrid array')
-        Vals,sxx,syy,samplingMeshStep = convKDE2arr(Vals,samplingXY,samplingMeshStep)
+        Vals,sxx,syy,sampMesh = convKDE2arr(Vals,samplingXY,sampMesh)
 
     #Shot Noise?
     if countsPerUnit>0:
         if verbose:
             print('Incorporating Shot Noise by drawing from Poisson Distribution')
         Valsnorm = Vals/np.sum(Vals.ravel())        #divide by sum to convert to a probability distribution
-        if not(samplingMeshStep is None):
+        if not(sampMesh is None):
             if (method=='Grid'):
                 a = np.array(a)
                 b = np.array(b)
@@ -498,7 +528,7 @@ def createDataset(method='Grid', samplingMeshStep=None, countsPerUnit=0, baseNoi
                 pArea = 2*np.pi*minR**2
             else:
                 raise ValueError('invalid method')
-            gArea = (Vals.shape[1]*samplingMeshStep[0]) * (Vals.shape[0]*samplingMeshStep[1])
+            gArea = (Vals.shape[1]*sampMesh[2]) * (Vals.shape[0]*sampMesh[5])
             numP = gArea/pArea
             totCounts = numP*countsPerUnit          #expected counts
             Vals = Valsnorm*totCounts               #expected value
@@ -524,4 +554,4 @@ def createDataset(method='Grid', samplingMeshStep=None, countsPerUnit=0, baseNoi
             print('Discretizing Output')
         Vals = np.round(Vals).astype(np.int32)
 
-    return Vals, samplingXY, sXY, pts, params, dN, samplingMeshStep
+    return Vals, samplingXY, sXY, pts, params, dN, sampMesh
