@@ -475,6 +475,8 @@ def createDataset(method='Grid', samplingMeshStep=None, countsPerUnit=0, baseNoi
     
     #Convert to array?
     if not(samplingMeshStep is None):
+        if verbose:
+            print('reshaping as meshgrid array')
         Vals,sxx,syy,samplingMeshStep = convKDE2arr(Vals,samplingXY,samplingMeshStep)
 
     #Shot Noise?
