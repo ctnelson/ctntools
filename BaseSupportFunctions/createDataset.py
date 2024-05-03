@@ -466,6 +466,7 @@ def createDataset(method='Grid', samplingMeshStep=None, countsPerUnit=0, baseNoi
 
     ### Main ###
     # Get sampled Kernel
+    print(samplingMeshStep)
     if method=='Grid':
         Vals, samplingXY, sXY, pts, params, dN, a, b, primitive, samplingMeshStep = GenerateDatasetUCArray(verbose=verbose,**kwargs)
     elif method=='Random':
@@ -474,6 +475,7 @@ def createDataset(method='Grid', samplingMeshStep=None, countsPerUnit=0, baseNoi
         raise ValueError('method must be "Grid" or "Random"')
     
     #Convert to array?
+    print(samplingMeshStep)
     if not(samplingMeshStep is None):
         if verbose:
             print('reshaping as meshgrid array')
