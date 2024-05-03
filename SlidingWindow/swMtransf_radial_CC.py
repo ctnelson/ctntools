@@ -392,7 +392,7 @@ def swMtransf_radial_CC(im, M, irad, calc='ZeroNormCrossCorr', ijBounds=None, tp
     n = 1
     M = M[:,:,np.newaxis]
   elif nd==3:
-    n = M.shape
+    n = M.shape[2]
   else:
     raise ValueError('M transform matrix must be [2,2,n] in size')
   assert((msz[0]==2) & (msz[1]==2))
