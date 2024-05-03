@@ -471,9 +471,9 @@ def createDataset(method='Grid', samplingMeshStep=None, countsPerUnit=0, baseNoi
     # Get sampled Kernel
     print(samplingMeshStep)
     if method=='Grid':
-        Vals, samplingXY, sXY, pts, params, dN, a, b, primitive, samplingMeshStep = GenerateDatasetUCArray(verbose=verbose,**kwargs)
+        Vals, samplingXY, sXY, pts, params, dN, a, b, primitive, samplingMeshStep = GenerateDatasetUCArray(samplingMeshStep=samplingMeshStep,verbose=verbose,**kwargs)
     elif method=='Random':
-        Vals, samplingXY, sXY, pts, params, dN, minR, samplingMeshStep = GenerateDatasetRand(verbose=verbose,**kwargs)
+        Vals, samplingXY, sXY, pts, params, dN, minR, samplingMeshStep = GenerateDatasetRand(samplingMeshStep=samplingMeshStep,verbose=verbose,**kwargs)
     else:
         raise ValueError('method must be "Grid" or "Random"')
     
