@@ -333,7 +333,7 @@ def GenerateDatasetUCArray(bounds=[0,512,0,256], a=[10,1], b=[-1,10], xy0=[0,0],
             kdeVal,_ = kdeGauss2d_SRtransf_gpu(sX, sY, params[:,0], params[:,1], params[:,2], params[:,[3,4]], params[:,5], samplingMode=1, verbose=verbose)
 
     sXY = np.vstack((sX,sY)).T
-    return kdeVal, samplingXY, sXY, pts, params, dN, a, b, primitive, samplingMeshStep
+    return kdeVal, samplingXY, sXY, pts, params, dN, a, b, primitive, sampMesh
 
 ### Random ###
 def GenerateDatasetRand(bounds=[0,512,0,256], num=None, minR=10, edge=1, params=[1.,1.,1.,0.], samplingXY=None, sampMesh=None, verbose=False, pRandType=[1,1,1,1,1,1], pRandRng=[0,0,0,0,0,0], sRandType=True, sRandRng=[0,0]):
