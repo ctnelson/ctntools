@@ -75,7 +75,7 @@ def fftpeaks(inim, gaussSigma = 1, subpixelfit=True, thresh=0.15, normalize=True
   im_fft_sm = (im_fft_sm - np.min(im_fft_sm))/np.ptp(im_fft_sm)
 
   #peaks
-  xx,yy = np.meshgrid(np.arange(inim_sz[0]),np.arange(inim_sz[1]))
+  xx,yy = np.meshgrid(np.arange(inim_sz[1]),np.arange(inim_sz[0]))
   dx = xx-xy0[0]
   dy = yy-xy0[1]
   r = np.sqrt(dx**2+dy**2)
@@ -102,14 +102,14 @@ def fftpeaks(inim, gaussSigma = 1, subpixelfit=True, thresh=0.15, normalize=True
   xlim_ = [np.floor(im_fft.shape[0]/2-rng), np.ceil(im_fft.shape[0]/2+rng)]
   ylim_ = [np.floor(im_fft.shape[1]/2-rng), np.ceil(im_fft.shape[1]/2+rng)]
     
-  if ~(inax[0] is None):
+  if not (inax[0] is None):
     inax[0].imshow(im_fft,cmap='gray')
     inax[0].scatter(xy0[0],xy0[1],s=30,c='c',marker='+')
     inax[0].set_xlim(xlim_)
     inax[0].set_ylim(ylim_)
     inax[0].set_title('Image FFT')
 
-  if ~(inax[1] is None):
+  if not (inax[1] is None):
     inax[1].imshow(im_fft_sm,cmap='gray')
     inax[1].scatter(xy0[0],xy0[1],s=30,c='c',marker='+')
     inax[1].scatter(xy_fft[0,:],xy_fft[1,:],s=scattersz,c='b',marker='+')
@@ -119,7 +119,7 @@ def fftpeaks(inim, gaussSigma = 1, subpixelfit=True, thresh=0.15, normalize=True
     inax[1].set_ylim(ylim_)
     inax[1].set_title('SmoothedFFT & Peaks')
 
-  if ~(inax[2] is None):
+  if not (inax[2] is None):
     inax[2].plot(x,distr[1,:],'-k')
     #inax[2].scatter(x[minRind],distr[minRind],s=50,c='b')
     #inax[2].text(x[minRind],distr[minRind],'exclusion radius',c='b',ha='left',va='top')
