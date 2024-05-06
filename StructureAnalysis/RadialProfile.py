@@ -2,12 +2,13 @@ import numpy as np
 from ctntools.Convolution.kde1D import kde1D
 
 #Creates a radial profile via kde1D. This function is wrapper feed the GPU function kde1D 
-def radKDE(inim, xy0 = None, rmax = None, rstp=1, **kwargs):
+def radKDE(inim, xy0 = None, rmax = None, rstp=1, xyunits=[1,1], **kwargs):
     ### Inputs ###
     #inim                   :       Input image
     #xy0    (optional)      :       center point (will default to center)
     #rmax   (optional)      :       Outer radius (data beyond is ignored)
     #rstp   (optional)      :       stepsize
+    #xyunits(optional)      :       xy and y axis stepsizes
 
     ### kwargs - passed thru to KDE ###   
     #s              (optional)      :       sigma of gaussian (or approximation thereof for bump function)
@@ -41,9 +42,11 @@ def radKDE(inim, xy0 = None, rmax = None, rstp=1, **kwargs):
     #convert to polar coords
     xx,yy = np.meshgrid(np.arange(0,inim_sz[0]),np.arange(0,inim_sz[1]))
     xy0 = xy0
-    rx = xx-xy0[0]
-    ry = yy-xy0[1]
-    r = ((rx)**2+(ry)**2)**.5
+    dx = xx-xy0[0]
+    dy = yy-xy0[1]
+    dx = dx*xyunits[0]
+    dy = dy*xyunits[1]
+    r = ((dx)**2+(dy)**2)**.5
 
     #get r vector to interpolate on
     rv = np.arange(0,rmax,rstp)
