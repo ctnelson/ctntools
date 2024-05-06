@@ -49,6 +49,10 @@ def radKDE(inim, xy0 = None, rmax = None, rstp=1, xyscale=[1,1], **kwargs):
     dy = dy*xyscale[1]
     r = ((dx)**2+(dy)**2)**.5
 
+    fig, ax = plt.subplots(1, 1, figsize=(6, 6), dpi = 100)
+    ax.scatter(dx.ravel(),dy.ravel(),s=1,c=inim.ravel())
+    ax.set_aspect(1)
+
     #get r vector to interpolate on
     rv = np.arange(0,rmax,rstp)
 
