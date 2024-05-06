@@ -35,7 +35,8 @@ def radKDE(inim, xy0 = None, rmax = None, rstp=1, xyscale=[1,1], **kwargs):
 
     #apply defaults to optional parameters
     if xy0==None:
-        xy0 = np.floor(inim_sz/2)
+        #xy0 = np.floor(inim_sz/2)
+        xy0 = np.floor(inim_sz/2)[[1,0]]
     if rmax==None:
         rmax = np.min(np.floor(np.array(inim_sz/2))) 
 
