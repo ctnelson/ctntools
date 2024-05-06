@@ -5,12 +5,12 @@
 
 ########################################### Table of Contents ############################
 #gpu kernels:
-#swAffine_IJradial_Mean_gpu    :  gpu kernel to calculate sw mean
-#swAffine_IJradial_Var_gpu     :  gpu kernel to calculate sw var
-#swAffine_IJradial_CC_gpu      :  gpu kernel to calculate zero normalized cross correlation
+#swMtransf_IJradial_Mean_gpu    :  gpu kernel to calculate sw mean
+#swMtransf_IJradial_Var_gpu     :  gpu kernel to calculate sw var
+#swMtransf_IJradial_CC_gpu      :  gpu kernel to calculate zero normalized cross correlation
 #calling functions:
-#swAffine_IJradial_Mean        :  get sliding window Mean
-#swAffine_IJradial_Var         :  get sliding window Var
+#swMtransf_IJradial_Mean        :  get sliding window Mean
+#swMtransf_IJradial_Var         :  get sliding window Var
 #swMtransf_radial_CC           :  perform the sliding window CC
 
 ###########################################################################################
@@ -20,7 +20,7 @@ import numpy as np
 ############################################   Mean   #####################################
 @cuda.jit
 #GPU core routine of sliding window transform comparison. This function asserts the search points are i,j image coordinates. 
-def swAffine_IJradial_Mean_gpu(im, M, ijBounds, irad, result_counts, result_mean, stride):
+def swMtransf_IJradial_Mean_gpu(im, M, ijBounds, irad, result_counts, result_mean, stride):
   ### Inputs ###
   #im             :   source image / array of data
   #M              :   [2,2] Transform matrix for symmetry operator (e.g. for inversion M=[[-1,0],[0,-1]])
@@ -111,7 +111,7 @@ def swAffine_IJradial_Mean_gpu(im, M, ijBounds, irad, result_counts, result_mean
 ############################################   Variance   #####################################
 @cuda.jit
 #GPU core routine of sliding window transform comparison. This function asserts the search points are i,j image coordinates. 
-def swAffine_IJradial_Var_gpu(im, M, ijBounds, irad, iMean, result_counts, result_var, stride):
+def swMtransf_IJradial_Var_gpu(im, M, ijBounds, irad, iMean, result_counts, result_var, stride):
   ### Inputs ###
   #im             :   source image / array of data
   #M              :   [2,2] Transform matrix for symmetry operator (e.g. for inversion M=[[-1,0],[0,-1]])
@@ -203,7 +203,7 @@ def swAffine_IJradial_Var_gpu(im, M, ijBounds, irad, iMean, result_counts, resul
 ############################################   Cross Correlation   #####################################
 @cuda.jit
 #GPU core routine of sliding window transform comparison. This function asserts the search points are i,j image coordinates. 
-def swAffine_IJradial_CC_gpu(im, M, ijBounds, irad, method, iMean, iVar, result_counts, result_CC, stride):
+def swMtransf_IJradial_CC_gpu(im, M, ijBounds, irad, method, iMean, iVar, result_counts, result_CC, stride):
   ### Inputs ###
   #im             :   source image / array of data
   #M              :   [2,2] Transform matrix for symmetry operator (e.g. for inversion M=[[-1,0],[0,-1]])
@@ -301,7 +301,7 @@ def swAffine_IJradial_CC_gpu(im, M, ijBounds, irad, method, iMean, iVar, result_
   result_counts[iic,jjc] = step
 
 ##################################### Mean Function to Call ##########################################  
-def swAffine_IJradial_Mean(im, M, irad, ijBounds=None, stride=1, tpb=(16,16)):
+def swMtransf_IJradial_Mean(im, M, irad, ijBounds=None, stride=1, tpb=(16,16)):
   ### Inputs ###
   #im                   :   source image / array of data
   #M                    :   [2,2] Transform matrix for symmetry operator (e.g. for inversion M=[[-1,0],[0,-1]])
@@ -323,12 +323,12 @@ def swAffine_IJradial_Mean(im, M, irad, ijBounds=None, stride=1, tpb=(16,16)):
   blockspergrid_i = math.ceil(imsz[0] / tpb[0])
   blockspergrid_j = math.ceil(imsz[1] / tpb[1])
   blockspergrid = (blockspergrid_i, blockspergrid_j)
-  swAffine_IJradial_Mean_gpu[blockspergrid, tpb](im, M, ijBounds, irad, swCounts, swMean, stride)
+  swMtransf_IJradial_Mean_gpu[blockspergrid, tpb](im, M, ijBounds, irad, swCounts, swMean, stride)
 
   return swMean, swCounts
 
 ##################################### Variance Function to Call ##########################################
-def swAffine_IJradial_Var(im, M, irad, ijBounds=None, swMean=None, stride=1, tpb=(16,16)):
+def swMtransf_IJradial_Var(im, M, irad, ijBounds=None, swMean=None, stride=1, tpb=(16,16)):
   ### Inputs ###
   #im                   :   source image / array of data
   #M                    :   [2,2] Transform matrix for symmetry operator (e.g. for inversion M=[[-1,0],[0,-1]])
@@ -364,11 +364,11 @@ def swAffine_IJradial_Var(im, M, irad, ijBounds=None, swMean=None, stride=1, tpb
   if swMean is None:
     swMean = np.ones((imsz[0],imsz[1],2),np.float32)*np.nan
     d_Mean = cuda.to_device(swMean)
-    swAffine_IJradial_Mean_gpu[blockspergrid, tpb](d_im, d_M, d_ijbnd, irad, d_Counts, d_Mean, stride)
-    swAffine_IJradial_Var_gpu[blockspergrid, tpb](d_im, d_M, d_ijbnd, irad, d_Mean, d_Counts, d_Var, stride)
+    swMtransf_IJradial_Mean_gpu[blockspergrid, tpb](d_im, d_M, d_ijbnd, irad, d_Counts, d_Mean, stride)
+    swMtransf_IJradial_Var_gpu[blockspergrid, tpb](d_im, d_M, d_ijbnd, irad, d_Mean, d_Counts, d_Var, stride)
   else:
     d_Mean = cuda.to_device(swMean)
-    swAffine_IJradial_Var_gpu[blockspergrid, tpb](d_im, d_M, d_ijbnd, irad, d_Mean, d_Counts, d_Var, stride)
+    swMtransf_IJradial_Var_gpu[blockspergrid, tpb](d_im, d_M, d_ijbnd, irad, d_Mean, d_Counts, d_Var, stride)
   
   #return to host
   swVar = d_Var.copy_to_host()
@@ -378,7 +378,7 @@ def swAffine_IJradial_Var(im, M, irad, ijBounds=None, swMean=None, stride=1, tpb
   return swVar, swMean, swCounts
 
 ##################################### Transform Cross Correlation Function to Call ##########################################
-def swAffine_IJradial_CC(im, M, irad, calc='ZeroNormCrossCorr', ijBounds=None, stride=1, tpb=(16,16)):
+def swMtransf_IJradial_CC(im, M, irad, calc='ZeroNormCrossCorr', ijBounds=None, stride=1, tpb=(16,16)):
   ### Inputs ###
   #im                   :   source image / array of data
   #M                    :   [2,2] Transform matrix for symmetry operator(s) (e.g. for inversion M=[[-1,0],[0,-1]])
@@ -424,8 +424,8 @@ def swAffine_IJradial_CC(im, M, irad, calc='ZeroNormCrossCorr', ijBounds=None, s
       swVar = np.ones((imsz[0],imsz[1],2),np.float32)*np.nan
       d_Mean = cuda.to_device(swMean)
       d_Var = cuda.to_device(swVar)
-      swAffine_IJradial_Mean_gpu[blockspergrid, tpb](d_im, M, d_ijbnd, irad, d_Counts, d_Mean, stride)        #calculate sliding window mean
-      swAffine_IJradial_Var_gpu[blockspergrid, tpb](d_im, M, d_ijbnd, irad, d_Mean, d_Counts, d_Var, stride)  #calculate sliding window variance
+      swMtransf_IJradial_Mean_gpu[blockspergrid, tpb](d_im, M, d_ijbnd, irad, d_Counts, d_Mean, stride)        #calculate sliding window mean
+      swMtransf_IJradial_Var_gpu[blockspergrid, tpb](d_im, M, d_ijbnd, irad, d_Mean, d_Counts, d_Var, stride)  #calculate sliding window variance
       method = 0
   elif calc=='MeanAbsDiff':
     #sets Mean to zero and Variance to 1
@@ -437,7 +437,7 @@ def swAffine_IJradial_CC(im, M, irad, calc='ZeroNormCrossCorr', ijBounds=None, s
   else:
     raise ValueError('calc must be either "ZeroNormCrossCorr" or "MeanAbsDiff"')
   #Calculation
-  swAffine_IJradial_CC_gpu[blockspergrid, tpb](d_im, M, d_ijbnd, irad, method, d_Mean, d_Var, d_Counts, d_CC, stride)       #calculate sliding window cross-correlation
+  swMtransf_IJradial_CC_gpu[blockspergrid, tpb](d_im, M, d_ijbnd, irad, method, d_Mean, d_Var, d_Counts, d_CC, stride)       #calculate sliding window cross-correlation
   swCC = d_CC.copy_to_host()
   
   #return to host
