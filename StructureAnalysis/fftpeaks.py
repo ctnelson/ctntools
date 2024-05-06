@@ -31,7 +31,7 @@ def fftpeaks(inim, gaussSigma = 1, subpixelfit=True, thresh=0.15, normalize=True
   kde1Dsigma = .5
   #Parameters
   inim_sz = np.array(inim.shape)
-  xy0 = np.floor(inim_sz/2)
+  xy0 = np.floor(inim_sz/2)[[1,0]]
   
   #Normalize
   if normalize:
