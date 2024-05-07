@@ -44,7 +44,7 @@ def radKDE(inim, xy0 = None, rmax = None, rstp=1, xyscale=[1,1], **kwargs):
         #rmax = np.min(np.floor(np.array(inim_sz/2)))  
 
     #convert to polar coords
-    xx,yy = np.meshgrid(np.arange(0,inim_sz[0]),np.arange(0,inim_sz[1]))
+    xx,yy = np.meshgrid(np.arange(0,inim_sz[1]),np.arange(0,inim_sz[0]))
     xy0 = xy0
     dx = xx-xy0[0]
     dy = yy-xy0[1]
