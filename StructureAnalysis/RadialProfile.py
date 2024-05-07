@@ -38,7 +38,10 @@ def radKDE(inim, xy0 = None, rmax = None, rstp=1, xyscale=[1,1], **kwargs):
         #xy0 = np.floor(inim_sz/2)
         xy0 = np.floor(inim_sz/2)[[1,0]]
     if rmax==None:
-        rmax = np.min(np.floor(np.array(inim_sz/2))) 
+        rmax = inim_sz[[1,0]]/2
+        rmax = rmax*xyscale
+        rmax = np.min(np.floor(rmax)) 
+        #rmax = np.min(np.floor(np.array(inim_sz/2)))  
 
     #convert to polar coords
     xx,yy = np.meshgrid(np.arange(0,inim_sz[0]),np.arange(0,inim_sz[1]))
@@ -48,10 +51,6 @@ def radKDE(inim, xy0 = None, rmax = None, rstp=1, xyscale=[1,1], **kwargs):
     dx = dx*xyscale[0]
     dy = dy*xyscale[1]
     r = ((dx)**2+(dy)**2)**.5
-
-    fig, ax = plt.subplots(1, 1, figsize=(6, 6), dpi = 100)
-    ax.scatter(dx.ravel(),dy.ravel(),s=1,c=inim.ravel())
-    ax.set_aspect(1)
 
     #get r vector to interpolate on
     rv = np.arange(0,rmax,rstp)
