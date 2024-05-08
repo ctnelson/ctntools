@@ -1,38 +1,38 @@
 import numpy as np
 
-#finds regional maximum values (pixel-level)
-def imregionalmax(inim, exclRadius, insubmask=np.empty([0],dtype='bool'), prominence=0, normalmode=0, exclusionmode=0, verbose=False):
+#finds regional maximum values (pixel-level) with options for exclusion radius, prominence requirement, and masking.
+def imregionalmax(inim, exclRadius=0, insubmask=None, prominenceThresh=0, normalizationMode=1, localMaxRequired=False, xyscale=[1,1], verbose=False):
     ### Inputs ###
-    #inim                     :   input image
-    #exclRadius               :   radius of exclusion range
-    #insubmask (optional)     :   mask of potential peak regions
-    #prominence (optional)    :   normalized (set to 0 to ignore), required prominence of peak
-    #normalmode (optional)    :   normalization mode (0=full range, 1=percentile & crop)
-    #exclusionmode (optional) :   0=requires value to be peak value within radius, 1=not required to be peak
+    #inim                         :   input image
+    #exclRadius                   :   radius of exclusion range
+    #insubmask (optional)         :   mask of potential peak regions
+    #prominenceThresh (optional)  :   normalized (set to 0 to ignore), required prominence of peak
+    #normalizationMode (optional) :   normalization mode (0=None, 1=full range, 2=percentile & crop)
+    #localMaxRequired (optional)  :   0=requires value to be peak value within radius, 1=not required to be peak
+    #xyscale (optional)           :   [2,] scale of x & y axis. default is [1,1].
     ### Outputs ###
-    #pks                      :   found maxima [3,n] [x,y,value]
-    #pkindex                  :   corresponding maxima indices (flattened)
-    #pkprominence             :   maxima prominence (measured against min within exclRadius)
-    #zoneAssigned             :   image of the sequence of ROI assignments
+    #pks                          :   found maxima [3,n] [x,y,value] of #n peaks
+    #pkindex                      :   [n,] corresponding maxima indices (flattened)
+    #pkprominence                 :   [n,] maxima prominence (measured against min within exclRadius)
+    #zoneAssigned                 :   image of the sequence of ROI assignments. Same size as inim.
 
-    #mask
-    if len(insubmask.flatten())==0 or not np.all(np.shape(inim)==np.shape(insubmask)):
+    #initialize the zone assignments. Where the incoming mask (if provided) is zero/false these regions are locked out. Otherwise initialize to 0 and will later be assigned
+    if (insubmask is None) or (not np.all(np.shape(inim)==np.shape(insubmask))):
         submask = np.zeros_like(inim, dtype='int')
     else:
         submask = -(np.logical_not(np.copy(insubmask).astype('bool'))).astype('int')
     #
     exclRadius=np.round(exclRadius).astype('int')
 
-    #Allocate outputs
-    outxyval = []                                 #peak x,y,value array
+    #Preallocate outputs
     pkindex = np.empty([0],dtype='int')           #index position of maxima
     pkprominence = np.empty([0],dtype='int')      #prominence of peak
 
-    #Normalize
-    if normalmode==0:   #full range
+    #Normalize?
+    if normalizationMode==1:   #full range
         inim = inim-np.nanmin(inim.flatten())
         inim = inim/np.nanmax(inim.flatten())
-    elif normalmode==1: #percentile
+    elif normalizationMode==2: #percentile
         inim = inim-np.nanpercentile(inim.flatten(),1)
         inim = inim/np.nanpercentile(inim.flatten(),99)
 
@@ -48,7 +48,7 @@ def imregionalmax(inim, exclRadius, insubmask=np.empty([0],dtype='bool'), promin
 
     #relative radial indices
     dx,dy = np.meshgrid(np.arange(-exclRadius,exclRadius+1), np.arange(-exclRadius,exclRadius+1))
-    r = (dx.ravel()**2+dy.ravel()**2)**.5
+    r = ((dx*xyscale[0]).ravel()**2+(dy*xyscale[1]).ravel()**2)**.5
     ind = np.where(r<=exclRadius)[0]
     dx = dx.ravel()[ind]
     dy = dy.ravel()[ind]
@@ -77,7 +77,7 @@ def imregionalmax(inim, exclRadius, insubmask=np.empty([0],dtype='bool'), promin
                 continue
 
             #local max test
-            if exclusionmode==0:
+            if localMaxRequired:
                 if np.any(val[ind]>=val[currpos]):    #check if max within radius
                     if verbose:
                         print(str(ii)+': not regional max:')
