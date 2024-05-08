@@ -208,7 +208,7 @@ def angarray_rotdiff(inim, stride=1, ixy0=None, irad=None, iang=None, mode = 0, 
     inax.scatter(np.rad2deg(pks[:,0]),pks[:,1],s=100,c='r',marker='o')
     for i in np.arange(pks.shape[0]):
       #inax.text(np.rad2deg(pks[i,0]),pks[i,1],str(i)+':'+str(pks[i,1]),va='bottom')
-      inax.text(np.rad2deg(pks[i,0]),pks[i,1],'{:d}: {:.3f}'.format(i,pks[i,1]),va='bottom'
+      inax.text(np.rad2deg(pks[i,0]),pks[i,1],'{:d}: {:.3f}'.format(i,pks[i,1]),va='bottom')
     inax.set_xlim([0,180])
     inax.set_xlabel('Angle (Degrees)')
     inax.set_ylabel('Self Similarity')
