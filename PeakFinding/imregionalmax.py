@@ -1,7 +1,102 @@
 import numpy as np
 
 #finds regional maximum values (pixel-level)
-def imregionalmax(inim, windowsize, insubmask = np.empty([0],dtype='bool'), prominence=0, normalmode=0, exclusionmode=0):
+def imregionalmax(inim, exclRadius, insubmask=np.empty([0],dtype='bool'), prominence=0, normalmode=0, exclusionmode=0, verbose=False):
+    ### Inputs ###
+    #inim                     :   input image
+    #exclRadius               :   radius of exclusion range
+    #insubmask (optional)     :   mask of potential peak regions
+    #prominence (optional)    :   normalized (set to 0 to ignore), required prominence of peak
+    #normalmode (optional)    :   normalization mode (0=full range, 1=percentile & crop)
+    #exclusionmode (optional) :   0=requires value to be peak value within radius, 1=not required to be peak
+    ### Outputs ###
+    #pks                      :   found maxima [3,n] [x,y,value]
+    #pkindex                  :   corresponding maxima indices (flattened)
+    #pkprominence             :   maxima prominence (measured against min within exclRadius)
+    #zoneAssigned             :   image of the sequence of ROI assignments
+
+    #mask
+    if len(insubmask.flatten())==0 or not np.all(np.shape(inim)==np.shape(insubmask)):
+        submask = np.zeros_like(inim, dtype='int')
+    else:
+        submask = -(np.logical_not(np.copy(insubmask).astype('bool'))).astype('int')
+    #
+    exclDist=np.round(exclDist).astype('int')
+
+    #Allocate outputs
+    outxyval = []                                 #peak x,y,value array
+    pkindex = np.empty([0],dtype='int')           #index position of maxima
+    pkprominence = np.empty([0],dtype='int')      #prominence of peak
+
+    #Normalize
+    if normalmode==0:   #full range
+        inim = inim-np.nanmin(inim.flatten())
+        inim = inim/np.nanmax(inim.flatten())
+    elif normalmode==1: #percentile
+        inim = inim-np.nanpercentile(inim.flatten(),1)
+        inim = inim/np.nanpercentile(inim.flatten(),99)
+
+    #Local variables
+    imsz=np.array(inim.shape)
+    xx, yy = np.meshgrid(np.arange(np.shape(inim)[1]), np.arange(np.shape(inim)[0]))
+    xx = xx.flatten()                   #x position
+    yy = yy.flatten()                   #y position
+    val = inim.flatten()                #image value
+    zoneAssigned = submask.flatten()    #tracks the ROI for each peak assignment. Also used as the test flag to continue to iterate
+    valmasked = np.where(submask.ravel()==False,val,np.min(val))
+    sortind = np.flip(np.argsort(valmasked))  #pre-sort by descending value 
+
+    #relative radial indices
+    dx,dy = np.meshgrid(np.arange(-exclDist,exclDist+1), np.arange(-exclDist,exclDist+1))
+    r = (dx.ravel()**2+dy.ravel()**2)**.5
+    ind = np.where(r<=exclDist)[0]
+    dx = dx.ravel()[ind]
+    dy = dy.ravel()[ind]
+
+    #Loop
+    n=0
+    for ii in np.arange(len(val)):
+        if zoneAssigned[sortind[ii]]==False:
+            #current point
+            currpos = sortind[ii]
+            cx = xx[sortind[ii]]
+            cy = yy[sortind[ii]]
+
+            #get valid relative indices
+            ind = np.where((cx+dx>=0) & (cx+dx<imsz[1]) & (cy+dy>=0) & (cy+dy<imsz[0]))[0]  
+            x=dx[ind]+cx
+            y=dy[ind]+cy
+            yx = np.vstack([y,x])
+            ind = np.ravel_multi_index(yx, np.shape(inim))
+
+            #prominence test
+            pk_p = val[currpos]-np.nanmin(val[ind])
+            if  pk_p < prominence:
+                if verbose:
+                    print(str(ii)+': prominence failure ('+str(pk_p))
+                continue
+
+            #local max test
+            if exclusionmode==0:
+                if np.any(val[ind]>=val[currpos]):    #check if max within radius
+                    if verbose:
+                        print(str(ii)+': not regional max:')
+                    continue
+            
+            tfind = np.where(zoneAssigned[ind]==0)[0]
+            zoneAssigned[ind[tfind]]=n+1
+
+            pkindex = np.append(pkindex,currpos)
+            pkprominence = np.append(pkprominence, pk_p)
+
+            n+=1
+            
+    zoneAssigned = np.reshape(zoneAssigned,inim.shape)
+    pks = np.array([xx[pkindex],yy[pkindex],val[pkindex]])
+    return pks, pkindex, pkprominence, zoneAssigned
+
+#Legacy version (and flawed)
+def imregionalmax_legacy(inim, windowsize, insubmask = np.empty([0],dtype='bool'), prominence=0, normalmode=0, exclusionmode=0):
     #Variables
     #inim :                       input image
     #windowsize :                 radius of exclusion range
