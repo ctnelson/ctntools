@@ -21,7 +21,7 @@ def imregionalmax(inim, exclRadius, insubmask=np.empty([0],dtype='bool'), promin
     else:
         submask = -(np.logical_not(np.copy(insubmask).astype('bool'))).astype('int')
     #
-    exclDist=np.round(exclDist).astype('int')
+    exclRadius=np.round(exclRadius).astype('int')
 
     #Allocate outputs
     outxyval = []                                 #peak x,y,value array
@@ -47,9 +47,9 @@ def imregionalmax(inim, exclRadius, insubmask=np.empty([0],dtype='bool'), promin
     sortind = np.flip(np.argsort(valmasked))  #pre-sort by descending value 
 
     #relative radial indices
-    dx,dy = np.meshgrid(np.arange(-exclDist,exclDist+1), np.arange(-exclDist,exclDist+1))
+    dx,dy = np.meshgrid(np.arange(-exclRadius,exclRadius+1), np.arange(-exclRadius,exclRadius+1))
     r = (dx.ravel()**2+dy.ravel()**2)**.5
-    ind = np.where(r<=exclDist)[0]
+    ind = np.where(r<=exclRadius)[0]
     dx = dx.ravel()[ind]
     dy = dy.ravel()[ind]
 
