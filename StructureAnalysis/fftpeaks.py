@@ -85,7 +85,8 @@ def fftpeaks(inim, gaussSigma = 1, subpixelfit=True, thresh=0.15, normalize=True
   dy = dy*normXYscale[1]
   r = np.sqrt(dx**2+dy**2)
   rmsk = (im_fft_sm>thresh) & (r>x[minRind])
-  xy_fft = imregionalmax(im_fft_sm,rpk*.75,exclusionmode=False, insubmask=rmsk)[0]
+  #xy_fft,_,_,temp = imregionalmax(im_fft_sm,rpk*.75,exclusionmode=0, insubmask=rmsk)
+  xy_fft,_,_,temp = imregionalmax(im_fft_sm, rpk*.75, insubmask=rmsk, xyscale=normXYscale)
   
   #refine peaks
   if subpixelfit:
