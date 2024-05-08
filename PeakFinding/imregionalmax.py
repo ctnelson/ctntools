@@ -71,7 +71,7 @@ def imregionalmax(inim, exclRadius=0, insubmask=None, prominenceThresh=0, normal
 
             #prominence test
             pk_p = val[currpos]-np.nanmin(val[ind])
-            if  pk_p < prominence:
+            if  pk_p < prominenceThresh:
                 if verbose:
                     print(str(ii)+': prominence failure ('+str(pk_p))
                 continue
