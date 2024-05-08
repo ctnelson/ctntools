@@ -14,7 +14,7 @@ def imregionalmax(inim, exclRadius=0, insubmask=None, prominenceThresh=0, normal
     #pks                          :   found maxima [3,n] [x,y,value] of #n peaks
     #pkindex                      :   [n,] corresponding maxima indices (flattened)
     #pkprominence                 :   [n,] maxima prominence (measured against min within exclRadius)
-    #zoneAssigned                 :   image of the sequence of ROI assignments. Same size as inim.
+    #zoneAssigned                 :   image of the sequence of ROI assignments. Same size as inim. some values -1=ignored by initial mask, -2=failed prominence test, -3=failed local Max test, 0=unfit (shouldn't appear so if you see this there is a bug to find), 1+ the exclusion zone around each peak#
 
     #initialize the zone assignments. Where the incoming mask (if provided) is zero/false these regions are locked out. Otherwise initialize to 0 and will later be assigned
     if (insubmask is None) or (not np.all(np.shape(inim)==np.shape(insubmask))):
@@ -72,6 +72,7 @@ def imregionalmax(inim, exclRadius=0, insubmask=None, prominenceThresh=0, normal
             #prominence test
             pk_p = val[currpos]-np.nanmin(val[ind])
             if  pk_p < prominenceThresh:
+                zoneAssigned[currpos]=-2
                 if verbose:
                     print(str(ii)+': prominence failure ('+str(pk_p))
                 continue
@@ -79,6 +80,7 @@ def imregionalmax(inim, exclRadius=0, insubmask=None, prominenceThresh=0, normal
             #local max test
             if localMaxRequired:
                 if np.any(val[ind]>val[currpos]):    #check if max within radius
+                    zoneAssigned[currpos]=-3
                     if verbose:
                         print(str(ii)+': not regional max:')
                     continue
