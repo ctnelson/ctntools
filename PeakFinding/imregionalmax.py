@@ -78,7 +78,7 @@ def imregionalmax(inim, exclRadius=0, insubmask=None, prominenceThresh=0, normal
 
             #local max test
             if localMaxRequired:
-                if np.any(val[ind]>=val[currpos]):    #check if max within radius
+                if np.any(val[ind]>val[currpos]):    #check if max within radius
                     if verbose:
                         print(str(ii)+': not regional max:')
                     continue
