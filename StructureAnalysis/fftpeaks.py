@@ -8,7 +8,7 @@ from scipy.ndimage import convolve
 import numpy as np
 import matplotlib.pyplot as plt
 
-def fftpeaks(inim, gaussSigma = 1, subpixelfit=True, thresh=0.15, normalize=True, minRExclusionMethod = 'afterminima', principlepeakmethod = 'first', plotoutput = False, inax=[None]*3, verbose=False):
+def fftpeaks(inim, gaussSigma = 1, subpixelfit=True, thresh=0.15, normalize=True, minRExclusionMethod = 'afterminima', principlePeakMethod = 'first', plotoutput = False, inax=[None]*3, verbose=False):
   #Inputs
   #inim                     :       input image
   #gaussSigma           (optional)  :   sigma for gaussian blur
@@ -16,7 +16,7 @@ def fftpeaks(inim, gaussSigma = 1, subpixelfit=True, thresh=0.15, normalize=True
   #thresh               (optional)  :   Intensity threshold for peak finding
   #normalize            (optional)  :   flag to normalize input image
   #minRExclusionMethod  (optional)  :   'afterminima' or #  :set a minimum radius exclusion. 'afterminima' (default) considers only peaks beyond an initial minimum. Provide a numeric input to set manually.
-  #principlepeakmethod  (optional)  :   'first' or 'max'    :How to select principle peak. 'first' is the longest frequency, 'max' is the largest value
+  #principlePeakMethod  (optional)  :   'first' or 'max'    :How to select principle peak. 'first' is the longest frequency, 'max' is the largest value
   #inax                 (optional)  :   list of 3 axis to plot to. If None, no plotting. 
   #verbose              (optional)  :   flag to display details of execution
 
@@ -64,16 +64,16 @@ def fftpeaks(inim, gaussSigma = 1, subpixelfit=True, thresh=0.15, normalize=True
       minRind = np.round(minRExclusionMethod).astype('int')
   else:
       raise ValueError('unknown minRExclusionMethod, must be "afterminima" or a finite integer value')
-  if principlepeakmethod == 'max':
+  if principlePeakMethod == 'max':
       ind = np.nanargmax(distr[1,minRind:])+minRind
       rpk = x[ind]
-  elif principlepeakmethod == 'first':
+  elif principlePeakMethod == 'first':
       if distrdx is None:
           distrdx = np.gradient(distr[1,:])
       ind = np.argmax(distrdx[minRind:]<0)+minRind
       rpk = x[ind]  
   else:
-      raise ValueError('unknown principlepeakmethod, must be "first" or "max"')
+      raise ValueError('unknown principlePeakMethod, must be "first" or "max"')
   
   #normalize
   im_fft_sm = (im_fft_sm - np.min(im_fft_sm))/np.ptp(im_fft_sm)
