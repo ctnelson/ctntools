@@ -8,7 +8,7 @@ from scipy.ndimage import convolve
 import numpy as np
 import matplotlib.pyplot as plt
 
-def fftpeaks(inim, gaussSigma = 1, subpixelfit=True, thresh=0.15, normalize=True, minRExclusionMethod = 'afterminima', principlepeakmethod = 'first', plotoutput = False, inax=[None]*3):
+def fftpeaks(inim, gaussSigma = 1, subpixelfit=True, thresh=0.15, normalize=True, minRExclusionMethod = 'afterminima', principlepeakmethod = 'first', plotoutput = False, inax=[None]*3, verbose=False):
   #Inputs
   #inim                     :       input image
   #gaussSigma           (optional)  :   sigma for gaussian blur
@@ -18,6 +18,7 @@ def fftpeaks(inim, gaussSigma = 1, subpixelfit=True, thresh=0.15, normalize=True
   #minRExclusionMethod  (optional)  :   'afterminima' or #  :set a minimum radius exclusion. 'afterminima' (default) considers only peaks beyond an initial minimum. Provide a numeric input to set manually.
   #principlepeakmethod  (optional)  :   'first' or 'max'    :How to select principle peak. 'first' is the longest frequency, 'max' is the largest value
   #inax                 (optional)  :   list of 3 axis to plot to. If None, no plotting. 
+  #verbose              (optional)  :   flag to display details of execution
 
   #Outputs
   #rpk                      :       radius of peak value
@@ -85,13 +86,12 @@ def fftpeaks(inim, gaussSigma = 1, subpixelfit=True, thresh=0.15, normalize=True
   dy = dy*normXYscale[1]
   r = np.sqrt(dx**2+dy**2)
   rmsk = (im_fft_sm>thresh) & (r>x[minRind])
-  #xy_fft,_,_,temp = imregionalmax(im_fft_sm,rpk*.75,exclusionmode=0, insubmask=rmsk)
   xy_fft,_,_,temp = imregionalmax(im_fft_sm, rpk*.75, insubmask=rmsk, xyscale=normXYscale)
   
   #refine peaks
   if subpixelfit:
       spfit_winsz = np.array([spfit_winsz,spfit_winsz],dtype='int')
-      xy_fft_sp = refinePeaks(im_fft_sm, xy_fft[[0,1],:].T, winsz=spfit_winsz, ithresh=spfit_ithresh)[:,:3].T
+      xy_fft_sp = refinePeaks(im_fft_sm, xy_fft[[0,1],:].T, winsz=spfit_winsz, ithresh=spfit_ithresh, verbose=verbose)[:,:3].T
       xy_v = xy_fft_sp.copy()
   else:
       xy_v = xy_fft.copy()
