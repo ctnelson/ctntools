@@ -91,7 +91,7 @@ def fftpeaks(inim, gaussSigma = 1, subpixelfit=True, thresh=0.15, normalize=True
   #refine peaks
   if subpixelfit:
       spfit_winsz = np.array([spfit_winsz,spfit_winsz],dtype='int')
-      xy_fft_sp = refinePeaks(im_fft_sm, xy_fft[[0,1],:].T, winsz=spfit_winsz, ithresh=spfit_ithresh, verbose=verbose)[:,:3].T
+      xy_fft_sp = refinePeaks(im_fft_sm, xy_fft[[0,1],:].T, winsz=spfit_winsz, ithresh=spfit_ithresh, progressDescr='Fitting peaks in FFT', verbose=verbose)[:,:3].T
       xy_v = xy_fft_sp.copy()
   else:
       xy_v = xy_fft.copy()
