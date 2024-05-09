@@ -3,7 +3,7 @@ import numpy as np
 from ctntools.PeakFinding.bboxthresh import bboxthresh
 from tqdm import tqdm
 
-def fit1peak(inim, ipkxy=np.array([]), ithresh=.7, calcCVHullMask=True, calcprediction=True, calcresidual=True, minHW=np.array([1,1],dtype=np.int8)):
+def fit1peak(inim, ipkxy=np.array([]), ithresh=.7, calcCVHullMask=True, calcprediction=True, calcresidual=True, minHW=np.array([1,1], dtype=np.int8)):
     #Inputs:
     #inim               :           input image
     #ipkxy(optional)    :           [2,1] guess of xy location, will default to peak value
@@ -53,15 +53,16 @@ def fit1peak(inim, ipkxy=np.array([]), ithresh=.7, calcCVHullMask=True, calcpred
 
 
 #Performs subpixel fitting of local maxima/minima with least square fit to parabaloids. Meant as a refinement, requires initial guesses as an input.
-def refinePeaks(inim, ipkxy, winsz=[], ithresh=.5, minHW=np.array([1,1],dtype=np.int8), verbose=True):
-    #Inputs:
+def refinePeaks(inim, ipkxy, winsz=[], ithresh=.5, minHW=np.array([1,1],dtype=np.int8), progressDescription='Peak Fitting...', verbose=0):
+    #### Inputs ###
     #inim           :           input image
     #ipkxy          :           [n x 2] array of local maxima guesses
     #winsz          :           [1,], [2,1], or [n,2] array of cropping window to use around each guess point
     #ithresh        :           intensity threshold to crop around peak
     #minHW          :           minimum half distance of crop to peak center (assures a minimum image size)
-
-    #Outpus:
+    #progressDescr  :           string to display on progress bar (if enable by verbose>0)      
+    #verbose        :           variable to determine progress details, 0=none, 1=progressbar, 2=detailed (e.g. peak fit failures)
+    ### Outputs ###
     #outparams      :           returns [n x 5] array of parameters [x, y, maximum/minimum, rotation, elipticity]
 
     if ipkxy.ndim==1:
@@ -77,7 +78,7 @@ def refinePeaks(inim, ipkxy, winsz=[], ithresh=.5, minHW=np.array([1,1],dtype=np
     winsz = np.ceil(winsz).astype('int')
     
 
-    for i in tqdm(range(ipkxy.shape[0])):
+    for i in tqdm(range(ipkxy.shape[0]),progressDescription, disable=(verbose==0)):
         try:
             if winsz.size==2:
                 winsz_lp = winsz
@@ -92,7 +93,7 @@ def refinePeaks(inim, ipkxy, winsz=[], ithresh=.5, minHW=np.array([1,1],dtype=np
             outparams[i,:] = fit1peak(inim[ymin_:ymax_,xmin_:xmax_], ipkxy=pkxy_lp, ithresh=ithresh, calcCVHullMask=True, calcprediction=False, calcresidual=False, minHW=minHW)[0]
             outparams[i,:2] += np.array([xmin_,ymin_])
         except:
-            if verbose:
+            if verbose>1:
                 print('Peak#'+str(i)+'failure')
             continue
         
