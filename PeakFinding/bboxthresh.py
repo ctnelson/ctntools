@@ -15,6 +15,7 @@ def bboxthresh(inim, ptxy=[], thr=.5, normalize=True, convexhullmask=True, minHW
     #ROI                :           Boundary Box [xmin, xmax, ymin, ymax]
     #thrmsk             :           Threshold mask within boundary box. Default is simple threshold
 
+    ptxy=np.array(ptxy)
     if ptxy.size==0:
         ptxy = np.array([np.argmax(np.max(inim,axis=0)),np.argmax(np.max(inim,axis=1))],dtype=np.int32)
     else:
