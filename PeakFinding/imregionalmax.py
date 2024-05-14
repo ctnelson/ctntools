@@ -60,6 +60,7 @@ def imregionalmax(inim, exclRadius=0, insubmask=None, maxPeaks=None, prominenceT
         maxn = maxPeaks
     else:
         maxn = len(val)
+    print(maxn)
     for ii in np.arange(maxn):
         if zoneAssigned[sortind[ii]]==False:
             #current point
