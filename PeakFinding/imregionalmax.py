@@ -1,11 +1,12 @@
 import numpy as np
 
 #finds regional maximum values (pixel-level) with options for exclusion radius, prominence requirement, and masking.
-def imregionalmax(inim, exclRadius=0, insubmask=None, prominenceThresh=0, normalizationMode=1, localMaxRequired=False, xyscale=[1,1], verbose=False):
+def imregionalmax(inim, exclRadius=0, insubmask=None, maxPeaks=None, prominenceThresh=0, normalizationMode=1, localMaxRequired=False, xyscale=[1,1], verbose=False):
     ### Inputs ###
     #inim                         :   input image
     #exclRadius                   :   radius of exclusion range
     #insubmask (optional)         :   mask of potential peak regions
+    #maxPeaks (optional)          :   maximum number of peaks to find
     #prominenceThresh (optional)  :   normalized (set to 0 to ignore), required prominence of peak
     #normalizationMode (optional) :   normalization mode (0=None, 1=full range, 2=percentile & crop)
     #localMaxRequired (optional)  :   0=requires value to be peak value within radius, 1=not required to be peak
@@ -55,7 +56,11 @@ def imregionalmax(inim, exclRadius=0, insubmask=None, prominenceThresh=0, normal
 
     #Loop
     n=0
-    for ii in np.arange(len(val)):
+    if not(maxPeaks is None):
+        maxn = maxPeaks
+    else:
+        maxn = len(val)
+    for ii in np.arange(maxn):
         if zoneAssigned[sortind[ii]]==False:
             #current point
             currpos = sortind[ii]
