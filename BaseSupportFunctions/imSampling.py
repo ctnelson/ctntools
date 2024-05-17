@@ -6,6 +6,7 @@
 
 #Imports
 import numpy as np
+from tqdm import tqdm
 from skimage.measure import block_reduce
 from scipy.interpolate import RegularGridInterpolator                      
 from ctntools.Geometry.pointInPolygon import pointInPoly   
