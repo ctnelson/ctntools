@@ -49,4 +49,5 @@ def pointInPoly(tp,poly):
     sets = tri.simplices
     for i in range(sets.shape[0]):
         output += pointInTriangle(tp,poly[sets[i,:],:])
+    output = np.clip(output,0,1)
     return output, sets
