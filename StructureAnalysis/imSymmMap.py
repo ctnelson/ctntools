@@ -3,7 +3,7 @@ from ctntools.SlidingWindow.swMtransf_radial_CC import swMtransf_IJradial_CC, ma
 #Maps given symmetries (defined by given [2,2] transform matrix) via a sliding window analysis
 
 #wrapper function to running the radial sliding window symmetry calc swMtransf_IJradial_CC for a given (series of) transformation(s)
-def imSymmMap(inim, iM, swRad, symmCalc='ZeroNormCrossCorr', inax=None, verbose=False):
+def imSymmMap(inim, iM, swRad, symmCalc='ZeroNormCrossCorr', inax=None, verbose=False, **kwargs):
     ### Inputs ###
     #inim           :   input image
     #iM             :   Dictionary of symmetries to apply. Example: {'i':0,'r':[90,120]} creates a [2,2,3] stack of inversion, 90deg rot and 120deg rot. More details in def makeMtransf() description
