@@ -1,3 +1,5 @@
+### NOTE ### KDE not coded for getUCStack
+
 #### Image sampling functions ###
 #condDownsample    :    Performs a conditional downsampling (using block_reduce) based on comparison of a ref to given dimension
 #getUCStack        :    Creates a 3D stack of subimages from a given image, array of reference points, & basis vectors
@@ -5,6 +7,7 @@
 #Imports
 import numpy as np
 from skimage.measure import block_reduce
+from scipy.interpolate import RegularGridInterpolator                      
 from ctntools.Geometry.pointInPolygon import pointInPoly   
 
 ########################################### condDownsample ###################################################
