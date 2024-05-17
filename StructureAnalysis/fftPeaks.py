@@ -8,7 +8,7 @@ from scipy.ndimage import convolve
 import numpy as np
 import matplotlib.pyplot as plt
 
-def fftpeaks(inim, gaussSigma = 1, subpixelfit=True, thresh=0.15, normalize=True, minRExclusionMethod = 'afterminima', principlePeakMethod = 'first', plotoutput = False, inax=[None]*3, verbose=False):
+def fftPeaks(inim, gaussSigma = 1, subpixelfit=True, thresh=0.15, normalize=True, minRExclusionMethod = 'afterminima', principlePeakMethod = 'first', plotoutput = False, inax=[None]*3, verbose=False, **kwargs):
   #Inputs
   #inim                     :       input image
   #gaussSigma           (optional)  :   sigma for gaussian blur
