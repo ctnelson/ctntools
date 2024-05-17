@@ -53,7 +53,7 @@ def fit1peak(inim, ipkxy=np.array([]), ithresh=.7, calcCVHullMask=True, calcpred
 
 
 #Performs subpixel fitting of local maxima/minima with least square fit to parabaloids. Meant as a refinement, requires initial guesses as an input.
-def refinePeaks(inim, ipkxy, winsz=[], ithresh=.5, minHW=np.array([1,1],dtype=np.int8), progressDescr='Peak Fitting...', verbose=0):
+def refinePeaks(inim, ipkxy, winsz=[], ithresh=.5, minHW=np.array([1,1],dtype=np.int8), progressDescr='Peak Fitting...', verbose=0, **kwargs):
     #### Inputs ###
     #inim           :           input image
     #ipkxy          :           [n x 2] array of local maxima guesses
