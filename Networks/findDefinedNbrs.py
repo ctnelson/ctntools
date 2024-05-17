@@ -2,7 +2,7 @@ import numpy as np
 
 #Finds closest neighbor to all xy points in given set. Allows a defined relative offset, for example to find closest to expected neighbor location(s).
 #This function uses a large datacubes [n,n,m], probably not ideal if [n,2] array is a significant fraction of memory
-def nbrByDist(ixy, RelativeOffsets=[0,0], minDist=0, maxDist=np.inf, missingVal=np.nan):
+def nbrByDist(ixy, RelativeOffsets=[0,0], minDist=0, maxDist=np.inf, missingVal=np.nan, **kwargs):
     ### Inputs ###
     #ixy                            :   input xy positions [n,2]
     #RelativeOffsets    (optional)  :   xy postions of nbr locations [m, 2]
