@@ -37,8 +37,12 @@ def imSymmMap(inim, iM, swRad, symmCalc='ZeroNormCrossCorr', inax=None, verbose=
 
     #Plots
     if not (inax is None):
-        for i in range(n):
-            inax[i].imshow(swSymm[:,:,i], origin='lower')
-            inax[i].set_title(Mlbls[i])
+        if n>1:
+            for i in range(n):
+                inax[i].imshow(swSymm[:,:,i], origin='lower')
+                inax[i].set_title(Mlbls[i])
+        else:
+            inax.imshow(swSymm[:,:,i], origin='lower')
+            inax.set_title(Mlbls[i])
 
     return swSymm, swCounts, Mlbls
