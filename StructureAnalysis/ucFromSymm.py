@@ -31,7 +31,7 @@ def get_ax_size(ifig,iax):
     return width, height
 
 ############################################# Main ########################################
-def ucFromSymm(im, M, abUCoffset=[.5,.5], swRadiusScalar=1.1, Mwt=None, symmCalc='ZeroNormCrossCorr', alphaGuess=120, rExclScalar=.75, edgeExclScalar=1., pxlprUC=20, downsampleFlag=True, principlePeakMethod='max', UCstackMethod='interp', ClassNaNMethod='random', verbose=1, **kwargs):
+def ucFromSymm(im, M, abUCoffset=[.5,.5], swRadiusScalar=1.1, Mwt=None, symmCalc='ZeroNormCrossCorr', alphaGuess=120, rExclScalar=.85, edgeExclScalar=1., pxlprUC=20, downsampleFlag=True, principlePeakMethod='max', UCstackMethod='interp', ClassNaNMethod='random', verbose=1, **kwargs):
     ### Required Input ###
     #im                                 :   2D image
     #M                  (Symmetry)      :   {Dict} Symmetries to apply. 'i' inversion, 'r' rotation, 'm' mirror. example format:{'i':0,'r':[60,120]}
