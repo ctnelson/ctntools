@@ -45,7 +45,6 @@ def makeMtransf(iDict, verbose=False):
                 oMlbls.append('Rotation ({:.2f} deg)'.format(dictValue[i]))
                 n+=1
         elif key=='m':  #mirror
-            raise ValueError('mirror not yet coded')
             mn = dictValue.size
             for i in range(mn):
                 if verbose:
