@@ -10,11 +10,8 @@ from ctntools.StructureAnalysis.fftPeaks import fftPeaks                        
 from ctntools.StructureAnalysis.RadialProfile import radKDE                                 #Reduces 2D to a radial profile
 from ctntools.SlidingWindow.slidewin_imdiff import slidewin_imdiff                          #a sliding window self-similarity analysis
 from ctntools.SlidingWindow.slidewin_rotdiff import angarray_rotdiff                        #looks for rotation symmetry
-from ctntools.BaseSupportFunctions.imSampling import condDownsample
-
-### Notes ### replace with findPeaks?
-from ctntools.PeakFinding.imregionalmax import imregionalmax
-from ctntools.PeakFinding.peakfitting import refinePeaks
+from ctntools.BaseSupportFunctions.imSampling import condDownsample                         #conditional downsampling
+from ctntools.PeakFinding.findPeaks import findPeaks                                        #peak finding protocol
 
 
 ################################## select basis vectors for an xy list of scored candidates #############################
