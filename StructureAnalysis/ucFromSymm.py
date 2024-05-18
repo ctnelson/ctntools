@@ -3,6 +3,7 @@
 #Imports
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib.gridspec as gridspec
 import warnings
 #Custom Imports
 from ctntools.BaseSupportFunctions.imSampling import condDownsample, getUCStack             #downsampling & creating stack of UC subimages
@@ -144,7 +145,7 @@ def ucFromSymm(im, M, abUCoffset=[.5,.5], swRadiusScalar=1.1, Mwt=None, symmCalc
     if verbose>0:
         color = plt.cm.brg(np.linspace(0, 1, ucn))
         figUCs = plt.figure(tight_layout=True,figsize=(fsz_, fsz_/(ucn+1)), dpi = 100)
-        gs = plt.gridspec.GridSpec(2, ucn+1)
+        gs = gridspec.GridSpec(2, ucn+1)
         ax0 = figUCs.add_subplot(gs[:, 0])
         axUCs = [None]*ucn
         axUCsMasked = [None]*ucn
