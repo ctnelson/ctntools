@@ -130,8 +130,8 @@ def ucFromSymm(im, M, abUCoffset=[.5,.5], swRadiusScalar=1.1, Mwt=None, symmCalc
 
     ### Create UC stacks & class averaged of symmetry images
     UCSymmStack, UCSymmMask = getUCStack(swSymm[:,:,0], pks_sp[:,:2]/ds, a/ds, b/ds, abUCoffset=abUCoffset, method=UCstackMethod, verbose=verbose)
+    UCSymmStack = np.repeat(UCSymmStack[:,:,:,np.newaxis],n,axis=3)
     if n>1:
-        UCSymmStack = np.repeat(UCSymmStack[:,:,:,np.newaxis],n,axis=3)
         for i in range(1,n):
             UCSymmStack[:,:,:,i] = getUCStack(swSymm[:,:,i], pks_sp[:,:2]/ds, a/ds, b/ds, abUCoffset=abUCoffset, method=UCstackMethod, verbose=verbose)[0]
     UCSymmAvg = np.ones((UCSymmStack.shape[0],UCSymmStack.shape[1],ucn,n))*np.NaN
