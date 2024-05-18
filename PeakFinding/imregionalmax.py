@@ -1,11 +1,11 @@
 import numpy as np
 
 #finds regional maximum values (pixel-level) with options for exclusion radius, prominence requirement, and masking.
-def imregionalmax(inim, exclRadius=0, insubmask=None, maxPeaks=None, prominenceThresh=0, normalizationMode=1, localMaxRequired=False, xyscale=[1,1], verbose=False):
+def imregionalmax(inim, exclRadius=0, imask=None, maxPeaks=None, prominenceThresh=0, normalizationMode=1, localMaxRequired=False, xyscale=[1,1], verbose=False):
     ### Inputs ###
     #inim                         :   input image
     #exclRadius                   :   radius of exclusion range
-    #insubmask (optional)         :   mask of potential peak regions
+    #imask (optional)              :   mask of potential peak regions
     #maxPeaks (optional)          :   maximum number of peaks to find
     #prominenceThresh (optional)  :   normalized (set to 0 to ignore), required prominence of peak
     #normalizationMode (optional) :   normalization mode (0=None, 1=full range, 2=percentile & crop)
@@ -18,10 +18,10 @@ def imregionalmax(inim, exclRadius=0, insubmask=None, maxPeaks=None, prominenceT
     #zoneAssigned                 :   image of the sequence of ROI assignments. Same size as inim. some values -1=ignored by initial mask, -2=failed prominence test, -3=failed local Max test, 0=unfit (shouldn't appear so if you see this there is a bug to find), 1+ the exclusion zone around each peak#
 
     #initialize the zone assignments. Where the incoming mask (if provided) is zero/false these regions are locked out. Otherwise initialize to 0 and will later be assigned
-    if (insubmask is None) or (not np.all(np.shape(inim)==np.shape(insubmask))):
-        submask = np.zeros_like(inim, dtype='int')
+    if (imask is None) or (not np.all(np.shape(inim)==np.shape(imask))):
+        mask = np.zeros_like(inim, dtype='int')
     else:
-        submask = -(np.logical_not(np.copy(insubmask).astype('bool'))).astype('int')
+        mask = -(np.logical_not(np.copy(imask).astype('bool'))).astype('int')
     #
     exclRadius=np.round(exclRadius).astype('int')
 
@@ -43,8 +43,8 @@ def imregionalmax(inim, exclRadius=0, insubmask=None, maxPeaks=None, prominenceT
     xx = xx.flatten()                   #x position
     yy = yy.flatten()                   #y position
     val = inim.flatten()                #image value
-    zoneAssigned = submask.flatten()    #tracks the ROI for each peak assignment. Also used as the test flag to continue to iterate
-    valmasked = np.where(submask.ravel()==False,val,np.min(val))
+    zoneAssigned = mask.flatten()    #tracks the ROI for each peak assignment. Also used as the test flag to continue to iterate
+    valmasked = np.where(mask.ravel()==False,val,np.min(val))
     sortind = np.flip(np.argsort(valmasked))  #pre-sort by descending value 
 
     #relative radial indices
