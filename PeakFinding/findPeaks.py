@@ -13,10 +13,10 @@ from ctntools.BaseSupportFunctions.kernels import gKernel2D                     
 from ctntools.PeakFinding.imregionalmax import imregionalmax                                #coarse finds peaks by local maxima
 from ctntools.PeakFinding.peakfitting import refinePeaks                                    #refines peaks by parabaloid fit
 
-
-def findPeaks(inim, pFsig=1, pkExclRadius=1, edgeExcl=0, pkRefineWinsz=[3,3],  inax=None, verbose=False, **kwargs):
+def findPeaks(inim, imask=None, pFsig=1, pkExclRadius=1, edgeExcl=0, pkRefineWinsz=[3,3],  inax=None, verbose=False, **kwargs):
     ### Inputs ###
     #inim           :   input image
+    #imask          :   mask out regions for peak finding
     #pFsig          :   pre-smoothing sigma
     #pkExclRadius   :   exclusion radius of intial peak search
     #edgeExcl       :   exclusion at edges
@@ -31,6 +31,8 @@ def findPeaks(inim, pFsig=1, pkExclRadius=1, edgeExcl=0, pkRefineWinsz=[3,3],  i
     pkExclRadius = np.ceil(np.array(pkExclRadius)).astype('int')
     edgeExcl = np.ceil(np.array(edgeExcl)).astype('int')
     pkRefineWinsz = np.ceil(np.array(pkRefineWinsz)).astype('int')
+    if imask is None:
+        imask = np.ones_like(inim,dtype='bool')
 
     #Smooth?
     if pFsig>0:
@@ -50,9 +52,10 @@ def findPeaks(inim, pFsig=1, pkExclRadius=1, edgeExcl=0, pkRefineWinsz=[3,3],  i
         Esubmask[edgeExcl:-edgeExcl,edgeExcl:-edgeExcl] = True
     else:
         Esubmask = np.ones_like(inim,dtype='bool')
-    mask = np.logical_and(Lsubmask,Esubmask)
+    #mask = np.logical_and(Lsubmask,Esubmask)
+    mask = imask & Lsubmask & Esubmask
     #Coarse find peaks (pixel level)
-    pks = imregionalmax(im_sm, pkExclRadius, localMaxRequired=False, insubmask=mask)[0].T
+    pks = imregionalmax(im_sm, pkExclRadius, localMaxRequired=False, imask=mask)[0].T
     #Peak Refine (parabaloid fit)
     pks_sp = refinePeaks(im_sm, pks[:,:2], pkRefineWinsz, verbose=verbose, **kwargs)[:,:3]
     #crop for valid & in-bounds
