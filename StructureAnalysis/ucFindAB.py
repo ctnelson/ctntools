@@ -96,8 +96,7 @@ def ucFindAB(im, imMask=None, ucScaleGuess=None, swUCScalar=4.1, pxlprUC=20, dow
     #inax           (optional)  :   axes to plot on [3x]
 
     #initial settings
-    ithresh = .15               #normalized threshold for subpixel parabaloid fitting
-    s = 1
+    radKDE_stp = .1
 
     #set outside mask to NaN
     if not (imMask is None):    
@@ -144,7 +143,7 @@ def ucFindAB(im, imMask=None, ucScaleGuess=None, swUCScalar=4.1, pxlprUC=20, dow
         inax[0].set_title('Image sliding window MeanAbsDiff')
 
     #Radial distribution
-    x, distr, density, _, _ = radKDE(swImDiff, rstp=.1, s=s, method='interp', xyscale=xyscale)
+    x, distr, density, _, _ = radKDE(swImDiff, rstp=radKDE_stp, method='interp', xyscale=xyscale)
     distr = distr/density
     distr = np.vstack((x,distr,density))
     #Find first minima
@@ -177,16 +176,9 @@ def ucFindAB(im, imMask=None, ucScaleGuess=None, swUCScalar=4.1, pxlprUC=20, dow
     xx = xx-xy0[0]
     yy = yy-xy0[1]
     r = np.sqrt(xx**2+yy**2)
-    rmsk = (swImDiff>ithresh) & (r>exclDist)
-    pks = imregionalmax(swImDiff, exclDist, localMaxRequired=False, insubmask=rmsk)[0].T
-    #edge removal
-    ind = np.where((pks[:,0]>=rdistmin) & (pks[:,0]<=swImDiff.shape[1]-rdistmin-1) & (pks[:,1]>=rdistmin) & (pks[:,1]<=swImDiff.shape[0]-rdistmin-1))[0] 
-    pks = pks[ind,:]
-    #Peak Refine (parabaloid fit)
-    winsz = np.array([rdistmin, rdistmin])/2
-    pks = refinePeaks(swImDiff, pks[:,:2], winsz=winsz, ithresh=ithresh, progressDescr='Fitting peaks in swMAD', verbose=verbose)[:,:3]
-    ind = np.where(np.isfinite(pks[:,0]))[0]
-    pks = pks[ind,:]
+    rmsk = r>exclDist
+    #rmsk = (swImDiff>ithresh) & (r>exclDist)
+    pks,_ = findPeaks(swImDiff, imask=rmsk, pkExclRadius=exclDist, edgeExcl=rdistmin, pkRefineWinsz=np.array([rdistmin, rdistmin])/2, progressDescr='Fitting swImDIff Peaks...', verbose=verbose, **kwargs)
 
     #select a- and b-vector candidates
     if alphaGuess is None:
