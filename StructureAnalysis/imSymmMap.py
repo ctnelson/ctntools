@@ -1,5 +1,6 @@
 import numpy as np
-from ctntools.SlidingWindow.swMtransf_radial_CC import swMtransf_IJradial_CC, makeMtransf   
+from ctntools.SlidingWindow.swMtransf_radial_CC import swMtransf_IJradial_CC
+from ctntools.BaseSupportFunctions.matTransf import makeMtransf   
 #Maps given symmetries (defined by given [2,2] transform matrix) via a sliding window analysis
 
 #wrapper function to running the radial sliding window symmetry calc swMtransf_IJradial_CC for a given (series of) transformation(s)
