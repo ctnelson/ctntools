@@ -12,6 +12,24 @@ from ctntools.StructureAnalysis.Classify import subImStackKMeans                
 from ctntools.PeakFinding.findPeaks import findPeaks                                        #peak finding protocol
 from ctntools.Networks.findDefinedNbrs import nbrByDist                                     #finding closest neighbor
 
+############################################# Support Functions ###############################
+#counts the number of items in dictionary
+def DictItemNum(iDict):
+    n=0
+    for key, value in iDict.items():
+        value=np.array(value)
+        n+=value.size
+    return n
+
+#gets plotted axis size
+def get_ax_size(ax):
+    bbox = ax.get_window_extent().transformed(fig.dpi_scale_trans.inverted())
+    width, height = bbox.width, bbox.height
+    width *= fig.dpi
+    height *= fig.dpi
+    return width, height
+
+############################################# Main ########################################
 def ucFromSymm(im, M, abUCoffset=[.5,.5], swRadiusScalar=1.1, Mwt=None, symmCalc='ZeroNormCrossCorr', alphaGuess=120, rExclScalar=.75, edgeExclScalar=1., pxlprUC=20, downsampleFlag=True, principlePeakMethod='max', UCstackMethod='interp', ClassNaNMethod='random', verbose=1, **kwargs):
     ### Required Input ###
     #im                                 :   2D image
