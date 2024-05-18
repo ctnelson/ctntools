@@ -144,7 +144,7 @@ def ucFromSymm(im, M, abUCoffset=[.5,.5], swRadiusScalar=1.1, Mwt=None, symmCalc
     if verbose>0:
         color = plt.cm.brg(np.linspace(0, 1, ucn))
         figUCs = plt.figure(tight_layout=True,figsize=(fsz_, fsz_/(ucn+1)), dpi = 100)
-        gs = gridspec.GridSpec(2, ucn+1)
+        gs = plt.gridspec.GridSpec(2, ucn+1)
         ax0 = figUCs.add_subplot(gs[:, 0])
         axUCs = [None]*ucn
         axUCsMasked = [None]*ucn
