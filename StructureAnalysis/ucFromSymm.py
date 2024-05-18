@@ -23,11 +23,11 @@ def DictItemNum(iDict):
     return n
 
 #gets plotted axis size
-def get_ax_size(ax):
-    bbox = ax.get_window_extent().transformed(fig.dpi_scale_trans.inverted())
+def get_ax_size(ifig,iax):
+    bbox = iax.get_window_extent().transformed(ifig.dpi_scale_trans.inverted())
     width, height = bbox.width, bbox.height
-    width *= fig.dpi
-    height *= fig.dpi
+    width *= ifig.dpi
+    height *= ifig.dpi
     return width, height
 
 ############################################# Main ########################################
@@ -151,7 +151,7 @@ def ucFromSymm(im, M, abUCoffset=[.5,.5], swRadiusScalar=1.1, Mwt=None, symmCalc
         axUCsMasked = [None]*ucn
         #scatter datapoint scaling
         pkspacing = np.percentile(nbrByDist(pks_sp[:,:2])[:,0,2],50)
-        axsz = get_ax_size(ax0)                 #axis plot size
+        axsz = get_ax_size(figUCs,ax0)                 #axis plot size
         s_ax = pkspacing/np.array(im.shape)     #spacing in percent of axis
         s_ = np.min(s_ax*axsz)
         s_ = np.max([s_**2*.9,1])               #set minimum size to 1
