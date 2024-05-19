@@ -50,7 +50,7 @@ def makeMtransf(iDict, verbose=False):
                 if verbose:
                     print('{:d} Adding Mirror Symmetry {:.2f} degrees'.format(n,dictValue[i]))
                 mirang=np.deg2rad(dictValue[i])                   #mirror angle
-                tM = np.array([[np.cos(rotang*2),np.sin(rotang*2)],[np.sin(rotang*2),-np.cos(rotang*2)]])
+                tM = np.array([[np.cos(mirang*2),np.sin(mirang*2)],[np.sin(mirang*2),-np.cos(mirang*2)]])
                 if n==0:
                     oM=tM.copy()[:,:,np.newaxis]
                 else:
