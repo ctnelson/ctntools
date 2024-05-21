@@ -124,23 +124,23 @@ def ucFindAB(im, imMask=None, ucScaleGuess=None, swUCScalar=4.1, pxlprUC=20, dow
     rangeGuess = np.ceil(ucScaleGuess*swUCScalar/np.min(ds)).astype('int')
 
     #Real space self-similarity (a sliding window mean abs difference)
-    swImDiff = slidewin_imdiff(im,rangeGuess)                       #Sliding Window Image difference
+    swid = swImDiff(im,rangeGuess)                       #Sliding Window Image difference
     imsz = rangeGuess*2+1
 
     #Normalize (replaces 0 center point with a nearest neighbor average, normalize in 0-1 range, inverts)
-    xy0 = [np.floor(swImDiff.shape[1]/2).astype('int'),np.floor(swImDiff.shape[0]/2).astype('int')]
-    swImDiff[xy0[0],xy0[1]] = (swImDiff[xy0[0]-1,xy0[1]] + swImDiff[xy0[0],xy0[1]-1] + swImDiff[xy0[0]+1,xy0[1]] + swImDiff[xy0[0],xy0[1]+1])/4
-    swImDiff = (swImDiff - np.nanmin(swImDiff.ravel())) / (np.nanmax(swImDiff.ravel())-np.nanmin(swImDiff.ravel()))
-    swImDiff = 1-swImDiff
+    xy0 = [np.floor(swid.shape[1]/2).astype('int'),np.floor(swid.shape[0]/2).astype('int')]
+    swid[xy0[0],xy0[1]] = (swid[xy0[0]-1,xy0[1]] + swid[xy0[0],xy0[1]-1] + swid[xy0[0]+1,xy0[1]] + swid[xy0[0],xy0[1]+1])/4
+    swid = (swid - np.nanmin(swid.ravel())) / (np.nanmax(swid.ravel())-np.nanmin(swid.ravel()))
+    swid = 1-swid
 
     #Display progress
     if not (inax[0] is None):
         inax[0].clear() 
-        inax[0].imshow(swImDiff,cmap='gray',origin='lower',vmin=np.nanmin(swImDiff.ravel()),vmax=np.nanmax(swImDiff.ravel()))
+        inax[0].imshow(swid,cmap='gray',origin='lower',vmin=np.nanmin(swid.ravel()),vmax=np.nanmax(swid.ravel()))
         inax[0].set_title('Image sliding window MeanAbsDiff')
 
     #Radial distribution
-    x, distr, density, _, _ = radKDE(swImDiff, rstp=radKDE_stp, method='interp', xyscale=xyscale)
+    x, distr, density, _, _ = radKDE(swid, rstp=radKDE_stp, method='interp', xyscale=xyscale)
     distr = distr/density
     distr = np.vstack((x,distr,density))
     #Find first minima
