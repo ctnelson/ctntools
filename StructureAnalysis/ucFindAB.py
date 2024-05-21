@@ -169,18 +169,18 @@ def ucFindAB(im, imMask=None, ucScaleGuess=None, swUCScalar=4.1, pxlprUC=20, dow
 
     #Find Peaks
     #Peaks (pixel)
-    xx,yy = np.meshgrid(np.arange(swImDiff.shape[0]),np.arange(swImDiff.shape[1]))
+    xx,yy = np.meshgrid(np.arange(swid.shape[0]),np.arange(swid.shape[1]))
     xx = xx-xy0[0]
     yy = yy-xy0[1]
     r = np.sqrt(xx**2+yy**2)
     rmsk = r>exclDist
-    #rmsk = (swImDiff>ithresh) & (r>exclDist)
-    pks,_ = findPeaks(swImDiff, imask=rmsk, pkExclRadius=exclDist, edgeExcl=rdistmin, pkRefineWinsz=np.array([rdistmin, rdistmin])/2, progressDescr='Fitting swImDIff Peaks...', verbose=verbose, **kwargs)
+    #rmsk = (swid>ithresh) & (r>exclDist)
+    pks,_ = findPeaks(swid, imask=rmsk, pkExclRadius=exclDist, edgeExcl=rdistmin, pkRefineWinsz=np.array([rdistmin, rdistmin])/2, progressDescr='Fitting swImDIff Peaks...', verbose=verbose, **kwargs)
 
     #select a- and b-vector candidates
     if alphaGuess is None:
         #Angular self similarity
-        _, rotpks = angarray_rotdiff(swImDiff, inax=inax[2])
+        _, rotpks = angarray_rotdiff(swid, inax=inax[2])
         alphaGuess = np.rad2deg(rotpks[0,0])
         if not (inax[2] is None):
             inax[2].set_title('swMAD Angular Self-Similarity')
