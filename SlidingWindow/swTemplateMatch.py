@@ -14,7 +14,7 @@
 #calling functions:
 #swMtransf_matchT_IJ_Mean        :  get sliding window Mean
 #swMtransf_matchT_IJ_Var         :  get sliding window Var
-#swMtransf_matchTemplate         :  perform the sliding window template match
+#swTemplateMatch                 :  perform the sliding window template match
 
 ###########################################################################################
 from numba import cuda
@@ -358,7 +358,7 @@ def swMtransf_matchT_IJ_Var(im, templArr, templArriijj=None, wt=None, ijBounds=N
   return swVar, swMean, swCounts
 
 ##################################### Transform Cross Correlation Function to Call ##########################################
-def swMtransf_matchTemplate(im, templArr, templArriijj=None, wt=None, calc='ZeroNormCrossCorr', ijBounds=None, stride=1, tpb=(16,16)):
+def swTemplateMatch(im, templArr, templArriijj=None, wt=None, calc='ZeroNormCrossCorr', ijBounds=None, stride=1, tpb=(16,16)):
     ### Inputs ###
     #im                         :   source image
     #templArr                   :   [w,h] or [n,] template image or array
