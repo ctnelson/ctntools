@@ -8,8 +8,8 @@ import matplotlib.pyplot as plt
 #Custom Imoports
 from ctntools.StructureAnalysis.fftPeaks import fftPeaks                                    #performs FFT and finds peaks
 from ctntools.StructureAnalysis.RadialProfile import radKDE                                 #Reduces 2D to a radial profile
-from ctntools.SlidingWindow.slidewin_imdiff import slidewin_imdiff                          #a sliding window self-similarity analysis
-from ctntools.SlidingWindow.slidewin_rotdiff import angarray_rotdiff                        #looks for rotation symmetry
+from ctntools.SlidingWindow.swImDiff import swImDiff                                        #a sliding window self-similarity analysis
+from ctntools.SlidingWindow.Rot_imDiff import angarray_rotdiff                              #looks for rotation symmetry
 from ctntools.BaseSupportFunctions.imSampling import condDownsample                         #conditional downsampling
 from ctntools.PeakFinding.findPeaks import findPeaks                                        #peak finding protocol
 
