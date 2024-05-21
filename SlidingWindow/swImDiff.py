@@ -1,7 +1,11 @@
+#Performs a sliding window self-similarity analysis via mean absolute difference.
+#Sliding parameters can be bounded
+
 from numba import cuda
 import math
 import numpy as np
 
+######################################### GPU Core Function  #############################################
 @cuda.jit
 def swid_rng_GPU(inimage, lpx, lpy, xx, yy, outval): 
     ii,jj = cuda.grid(2)
@@ -77,7 +81,8 @@ def swid_rng_CPU(inimage, lpx, lpy, xx, yy):
           result[j,i] = np.nanmean(np.abs(inimage[yy+pdsz[1][0]+y,xx+pdsz[0][0]+x]-inimage[yy+pdsz[1][0],xx+pdsz[0][0]]).ravel())
   return result
 
-def slidewin_imdiff(inimage, inrng, stride=1, trygpu=True):
+######################################### Sliding Window Image Difference #############################################
+def swImDiff(inimage, inrng, stride=1, trygpu=True):
   lpx = np.arange(-inrng[0], inrng[0]+1, stride, dtype='int64')
   lpy = np.arange(-inrng[1], inrng[1]+1, stride, dtype='int64')
   xx,yy = np.meshgrid(np.arange(0,np.shape(inimage)[1],dtype='int64'), np.arange(0,np.shape(inimage)[0],dtype='int64'))
