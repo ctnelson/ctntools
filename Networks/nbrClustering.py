@@ -4,7 +4,7 @@ from sklearn.neighbors import NearestNeighbors
 from sklearn.cluster import AgglomerativeClustering
 
 #Function categorizes nearest neighbors of points. Approach is Nearest neighbors -> agglomerative clustering -> sorting
-def nbrclustering(ixy, inum, mintol=.2):
+def nbrClustering(ixy, inum, mintol=.2):
     #Inputs
     #ixy      :     input xy points [n, 2]
     #inum     :     number of neighbors to return
