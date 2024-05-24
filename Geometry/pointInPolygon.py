@@ -56,9 +56,9 @@ def pointInPoly(tp,poly):
 ################################################### Return Image indices in Polygon #######################################
 #This function is a wrapper for in-polygon testing function 'pointInPoly' made to return indices of a 2D image within a polygon. 
 #It's principle function is a speedupt by initially cropping the test points with a bounding box before testing with pointInPoly.
-def imIndInPoly(inim,vrts,ixx=None,iyy=None):
+def imIndInPoly(im,vrts,ixx=None,iyy=None):
     ### Inputs ###
-    #inim   :   input image
+    #im     :   input image
     #vrts   :   [n,2] polygon vertices
     ### Output ###
     #ind    :   indices of points within polygon
@@ -69,9 +69,9 @@ def imIndInPoly(inim,vrts,ixx=None,iyy=None):
     bnds = np.array([np.floor(np.min(vrts[:,0])), np.ceil(np.max(vrts[:,0])), np.floor(np.min(vrts[:,1])), np.ceil(np.max(vrts[:,1]))],dtype='int')
     #valid bounds
     xxl = np.max([bnds[0],0])
-    xxh = np.min([bnds[1],inim.shape[1]-1])+1
+    xxh = np.min([bnds[1],im.shape[1]-1])+1
     yyl = np.max([bnds[2],0])
-    yyh = np.min([bnds[3],inim.shape[0]-1])+1
+    yyh = np.min([bnds[3],im.shape[0]-1])+1
     #crop index to just test the bounding box
     ind = np.ravel_multi_index((iyy[yyl:yyh,xxl:xxh],ixx[yyl:yyh,xxl:xxh]),im.shape)
     #in polygon test
