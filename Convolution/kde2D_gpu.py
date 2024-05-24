@@ -180,15 +180,15 @@ def kdeGauss2d_MTransf_core_gpu(X,Y,kx,ky,kwt,M,estRng,PerBnds,scutoff,samplingM
         elif Md==4:      #each datapoint has unique M transform(s)
             #normalize?
             if kScalar==-1:
-                A = M[:,:,0].copy()
-                for i in range(1,Mn):
-                    tM = A.copy()
-                    A[0,0]=tM[0,0]*M[0,0,i]+tM[0,1]*M[1,0,i]
-                    A[0,1]=tM[0,0]*M[0,1,i]+tM[0,1]*M[1,1,i]
-                    A[1,0]=tM[1,0]*M[0,0,i]+tM[1,1]*M[1,0,i]
-                    A[1,1]=tM[1,0]*M[0,1,i]+tM[1,1]*M[1,1,i]
-                kwtS = 1/np.sqrt(np.linalg.det(2*np.pi*A@A.T))
-                kwt[i] = kwt[i]*kwtS
+                #A = M[:,:,0].copy()
+                #for i in range(1,Mn):
+                #    tM = A.copy()
+                #    A[0,0]=tM[0,0]*M[0,0,i]+tM[0,1]*M[1,0,i]
+                #    A[0,1]=tM[0,0]*M[0,1,i]+tM[0,1]*M[1,1,i]
+                #    A[1,0]=tM[1,0]*M[0,0,i]+tM[1,1]*M[1,0,i]
+                #    A[1,1]=tM[1,0]*M[0,1,i]+tM[1,1]*M[1,1,i]
+                #kwtS = 1/np.sqrt(np.linalg.det(2*np.pi*A@A.T))
+                #kwt[i] = kwt[i]*kwtS
             #calc inv M transform
             for j in range(Mn-1,-1,-1):
                 Minv00, Minv01, Minv10, Minv11 = M22inv(M[i,:,:,j])
