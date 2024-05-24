@@ -213,7 +213,7 @@ def kdeGauss2d_MTransf_core_gpu(X,Y,kx,ky,kwt,M,estRng,PerBnds,scutoff,samplingM
 #Can use provided matrix transforms for scaling and non-radial kernels. Boundaries can be periodic if given boundary values PerBnds.
 #Kernel normalization is available via 'normKernel' flag to approximately preserve mass. It is an analytical scalar so discrete sampling and the 'scutoff' sigma cropping will deviate.
 #Except for unique at each point, this normalization is not yet implemented so mass is not conserved.
-def kdeGauss2d_gpu(sX, sY, kx, ky, kwt, M=1, samplingMode=0, PerBnds=np.array([np.inf,np.inf],dtype=np.float32), scutoff=3, normKernel=True, tpb=64, verbose=False):
+def kdeGauss2d_gpu(sX, sY, kx, ky, kwt, M=1, samplingMode=0, PerBnds=np.array([np.inf,np.inf],dtype=np.float32), scutoff=3, normKernel=True, tpb=64, verbose=False, **kwargs):
     ###  Inputs  ###
     #sX & sY                    :   [3,] start,stop,step parameters if grid. Otherwise array of sampling positions (shape ignored, will be flattened)
     #kx & ky                    :   [n,] datapoint xy positions
