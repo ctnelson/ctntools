@@ -179,7 +179,7 @@ def kdeGauss2d_MTransf_core_gpu(X,Y,kx,ky,kwt,M,estRng,PerBnds,scutoff,samplingM
                 dy = yn
         elif Md==4:      #each datapoint has unique M transform(s)
             #normalize?
-            if zScalar==-1:
+            if kScalar==-1:
                 A = M[:,:,0]
                 for i in range(1,Mn):
                     A = A@M[:,:,i]
