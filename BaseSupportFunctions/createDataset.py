@@ -187,7 +187,7 @@ def CreateRandArray(bounds, num=None, minR=None, edge = 0, verbose=False, **kwar
 
 ########################################### Sample Gaussian Kernel at Datapoints ##########################################################
 ### Lattice ###
-def GenerateDatasetUCArray(bounds=[0,512,0,256], a=[10,1], b=[-1,10], xy0=[0,0], primitive=[[0,0,1,1.5,1.5,0],[.5,.5,.5,1,1,0]], samplingXY=None, sampMesh=None, verbose=False, pRandType=[1,1,1,1,1,1], pRandRng=[0,0,0,0,0,0], sRandType=True, sRandRng=[0,0]):
+def GenerateDatasetUCArray(bounds=[0,512,0,256], a=[10,1], b=[-1,10], xy0=[0,0], primitive=[[0,0,1,1.5,1.5,0],[.5,.5,.5,1,1,0]], samplingXY=None, sampMesh=None, verbose=False, pRandType=[1,1,1,1,1,1], pRandRng=[0,0,0,0,0,0], sRandType=True, sRandRng=[0,0], **kwargs):
     ### Creates a dataset of Gaussians from a repeated unit cell sampled at given 'samplingXY' points
     
     ### Notes ###
@@ -292,11 +292,11 @@ def GenerateDatasetUCArray(bounds=[0,512,0,256], a=[10,1], b=[-1,10], xy0=[0,0],
             if radialFlag[i]:       #use simplest radial kernel
                 if verbose:
                     print('Primitive atom# {:d} radial kernel executed, no Parameter Noise'.format(i))
-                tkdeVal,_ = kdeGauss2d_gpu(sX,sY,tpts[:,0],tpts[:,1],params[i,0], M=params[i,1], samplingMode=1, verbose=verbose)
+                tkdeVal,_ = kdeGauss2d_gpu(sX,sY,tpts[:,0],tpts[:,1],params[i,0], M=params[i,1], samplingMode=1, verbose=verbose, **kwargs)
             else:                   #use a shared transform kernel
                 if verbose:
                     print('Primitive atom# {:d} shared M transform kernel executed, no Parameter Noise'.format(i))
-                tkdeVal,_ = kdeGauss2d_SRtransf_gpu(sX,sY,tpts[:,0],tpts[:,1],params[i,0], params[i,[1,2]], params[i,3], samplingMode=1, verbose=verbose)
+                tkdeVal,_ = kdeGauss2d_SRtransf_gpu(sX,sY,tpts[:,0],tpts[:,1],params[i,0], params[i,[1,2]], params[i,3], samplingMode=1, verbose=verbose, **kwargs)
             if i>0:
                 kdeVal +=tkdeVal
                 pts = np.append(pts,tpts,axis=0)
@@ -327,17 +327,17 @@ def GenerateDatasetUCArray(bounds=[0,512,0,256], a=[10,1], b=[-1,10], xy0=[0,0],
         if np.all(pRandRng[3:]==0):     #if noise only on weights
             if verbose:
                 print('shared M transform kernel executed, Parameter Noise on Weights')
-            kdeVal,_ = kdeGauss2d_SRtransf_gpu(sX, sY, params[:,0], params[:,1], params[:,2], params[0,[3,4]], params[0,5], samplingMode=1, verbose=verbose)
+            kdeVal,_ = kdeGauss2d_SRtransf_gpu(sX, sY, params[:,0], params[:,1], params[:,2], params[0,[3,4]], params[0,5], samplingMode=1, verbose=verbose, **kwargs)
         else:
             if verbose:
                 print('Unique M transform kernel executed due for added Parameter Noise')
-            kdeVal,_ = kdeGauss2d_SRtransf_gpu(sX, sY, params[:,0], params[:,1], params[:,2], params[:,[3,4]], params[:,5], samplingMode=1, verbose=verbose)
+            kdeVal,_ = kdeGauss2d_SRtransf_gpu(sX, sY, params[:,0], params[:,1], params[:,2], params[:,[3,4]], params[:,5], samplingMode=1, verbose=verbose, **kwargs)
 
     sXY = np.vstack((sX,sY)).T
     return kdeVal, samplingXY, sXY, pts, params, dN, a, b, primitive, sampMesh
 
 ### Random ###
-def GenerateDatasetRand(bounds=[0,512,0,256], num=None, minR=10, edge=1, params=[1.,1.,1.,0.], samplingXY=None, sampMesh=None, verbose=False, pRandType=[1,1,1,1,1,1], pRandRng=[0,0,0,0,0,0], sRandType=True, sRandRng=[0,0]):
+def GenerateDatasetRand(bounds=[0,512,0,256], num=None, minR=10, edge=1, params=[1.,1.,1.,0.], samplingXY=None, sampMesh=None, verbose=False, pRandType=[1,1,1,1,1,1], pRandRng=[0,0,0,0,0,0], sRandType=True, sRandRng=[0,0], **kwargs):
     ### Creates a dataset of Gaussians from a repeated unit cell sampled at given 'samplingXY' points
     
     ### Notes ###
@@ -432,11 +432,11 @@ def GenerateDatasetRand(bounds=[0,512,0,256], num=None, minR=10, edge=1, params=
         if radialFlag:       #use simplest radial kernel
             if verbose:
                 print('radial kernel executed, no Parameter Noise')
-            kdeVal,_ = kdeGauss2d_gpu(sX,sY,pts[:,0],pts[:,1],params[0], M=params[1], samplingMode=1, verbose=verbose)
+            kdeVal,_ = kdeGauss2d_gpu(sX,sY,pts[:,0],pts[:,1],params[0], M=params[1], samplingMode=1, verbose=verbose, **kwargs)
         else:                #use a shared transform kernel
             if verbose:
                 print('shared M transform kernel executed, no Parameter Noise')
-            kdeVal,_ = kdeGauss2d_SRtransf_gpu(sX,sY,pts[:,0],pts[:,1],params[0], params[[1,2]], params[3], samplingMode=1, verbose=verbose)
+            kdeVal,_ = kdeGauss2d_SRtransf_gpu(sX,sY,pts[:,0],pts[:,1],params[0], params[[1,2]], params[3], samplingMode=1, verbose=verbose, **kwargs)
         dN = dXY
     else:                                                       #add atom parameter noise, result in each being unique and a slower kernel
         #add parameter noise
@@ -455,11 +455,11 @@ def GenerateDatasetRand(bounds=[0,512,0,256], num=None, minR=10, edge=1, params=
         if np.all(pRandRng[3:]==0):     #if noise only on weights
             if verbose:
                 print('shared M transform kernel executed, Parameter Noise on Weights')
-            kdeVal,_ = kdeGauss2d_SRtransf_gpu(sX, sY, pts[:,0], pts[:,1], params[:,0], params[0,[1,2]], params[0,3], samplingMode=1, verbose=verbose)
+            kdeVal,_ = kdeGauss2d_SRtransf_gpu(sX, sY, pts[:,0], pts[:,1], params[:,0], params[0,[1,2]], params[0,3], samplingMode=1, verbose=verbose, **kwargs)
         else:
             if verbose:
                 print('Unique M transform kernel executed due for added Parameter Noise')
-            kdeVal,_ = kdeGauss2d_SRtransf_gpu(sX, sY, pts[:,0], pts[:,1], params[:,0], params[:,[1,2]], params[:,3], samplingMode=1, verbose=verbose)
+            kdeVal,_ = kdeGauss2d_SRtransf_gpu(sX, sY, pts[:,0], pts[:,1], params[:,0], params[:,[1,2]], params[:,3], samplingMode=1, verbose=verbose, **kwargs)
 
     sXY = np.vstack((sX,sY)).T
     return kdeVal, samplingXY, sXY, pts, params, dN, minR, sampMesh
