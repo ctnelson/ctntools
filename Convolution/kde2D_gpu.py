@@ -211,8 +211,8 @@ def kdeGauss2d_MTransf_core_gpu(X,Y,kx,ky,kwt,M,estRng,PerBnds,scutoff,samplingM
 
 #Calculates Gaussian 'radial' basis functions located at the given k datapoints at sampling points. GPU enabled
 #Can use provided matrix transforms for scaling and non-radial kernels. Boundaries can be periodic if given boundary values PerBnds.
-#(outdated)Note, kernel is not normalized so mass is not conserved. If this is needed, appropriate scalars should be applied to weights 'kwt'.
 #Kernel normalization is available via 'normKernel' flag to approximately preserve mass. It is an analytical scalar so discrete sampling and the 'scutoff' sigma cropping will deviate.
+#Except for unique at each point, this normalization is not yet implemented so mass is not conserved.
 def kdeGauss2d_gpu(sX, sY, kx, ky, kwt, M=1, samplingMode=0, PerBnds=np.array([np.inf,np.inf],dtype=np.float32), scutoff=3, normKernel=True, tpb=64, verbose=False):
     ###  Inputs  ###
     #sX & sY                    :   [3,] start,stop,step parameters if grid. Otherwise array of sampling positions (shape ignored, will be flattened)
@@ -274,7 +274,8 @@ def kdeGauss2d_gpu(sX, sY, kx, ky, kwt, M=1, samplingMode=0, PerBnds=np.array([n
             kScalar = 1/(2*np.pi*M**2)
             kwt = kwt*kScalar
         elif Md==4:
-            kScalar = -1             #this value is used as a flag for the gpu kernel to recalculate the normalization scalar in each thread
+            #kScalar = -1             #this value is used as a flag for the gpu kernel to recalculate the normalization scalar in each thread
+            kScalar = 1
         else:
             raise ValueError('Failure in Normalization Routine, Transform case not recognized')
     else:
