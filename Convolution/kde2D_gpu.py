@@ -123,7 +123,7 @@ def kdeGauss2d_Radial_core_gpu(X,Y,kx,ky,kwt,M,PerBnds,scutoff,samplingMode,kdeD
 #This function allows for M matrix transforms to produce non-radial kernels. This is accomplished by calling a radial kernel on a transformation of the xy space. Provides an easy method to use or create different kernel functions (e.g. bump functions). Just replace the  GaussFun_gpu() call.
 #If M is constant for all k datapoints, M must be a precalculated inverse matrix. This avoids considerable overhead to recalculate it for each thread.
 @cuda.jit
-def kdeGauss2d_MTransf_core_gpu(X,Y,kx,ky,kwt,M,estRng,PerBnds,scutoff,samplingMode,kdeDens,kdeVals):
+def kdeGauss2d_MTransf_core_gpu(X,Y,kx,ky,kwt,M,estRng,PerBnds,scutoff,samplingMode,kScalar,kdeDens,kdeVals):
     ###  Inputs  ###
     #X & Y        :   if samplingMode 'Manual' X & Y sampling points. samplingMode 'Grid' [3,] vectors of [size, offset, stepsize]
     #kx & ky      :   input xy positions
@@ -133,6 +133,7 @@ def kdeGauss2d_MTransf_core_gpu(X,Y,kx,ky,kwt,M,estRng,PerBnds,scutoff,samplingM
     #PerBnds      :   None or [2,]. Periodic boundary x and y values (currently assumes lower boundary is at 0)
     #scutoff      :   cutoff radius (in units of s)
     #samplingMode :   0=Grid, or 1=Manual. How sample positions are handled. Using a grid trades a memory call for a small conversion calcualation
+    #kScalar      :   Kernel scalar. Only use here is a flag (if ==-1) to indicate this needs to calculated here
 
     ###  Outputs  ###
     #kdeVals      :   values
@@ -177,6 +178,14 @@ def kdeGauss2d_MTransf_core_gpu(X,Y,kx,ky,kwt,M,estRng,PerBnds,scutoff,samplingM
                 dx = xn
                 dy = yn
         elif Md==4:      #each datapoint has unique M transform(s)
+            #normalize?
+            if zScalar==-1:
+                A = M[:,:,0]
+                for i in range(1,Mn):
+                    A = A@M[:,:,i]
+                kwtS = 1/np.sqrt(np.linalg.det(2*np.pi*A@A.T))
+                kwt[i] = kwt[i]*kwtS
+            #calc inv M transform
             for j in range(Mn-1,-1,-1):
                 Minv00, Minv01, Minv10, Minv11 = M22inv(M[i,:,:,j])
                 xn = dx*Minv00 + dy*Minv10
@@ -198,8 +207,9 @@ def kdeGauss2d_MTransf_core_gpu(X,Y,kx,ky,kwt,M,estRng,PerBnds,scutoff,samplingM
 
 #Calculates Gaussian 'radial' basis functions located at the given k datapoints at sampling points. GPU enabled
 #Can use provided matrix transforms for scaling and non-radial kernels. Boundaries can be periodic if given boundary values PerBnds.
-#Note, kernel is not normalized so mass is not conserved. If this is neede, appropriate scalars should be applied to weights 'kwt'.
-def kdeGauss2d_gpu(sX, sY, kx, ky, kwt, M=1, samplingMode=0, PerBnds=np.array([np.inf,np.inf],dtype=np.float32), scutoff=3, tpb=64, verbose=False):
+#(outdated)Note, kernel is not normalized so mass is not conserved. If this is needed, appropriate scalars should be applied to weights 'kwt'.
+#Kernel normalization is available via 'normKernel' flag to approximately preserve mass. It is an analytical scalar so discrete sampling and the 'scutoff' sigma cropping will deviate.
+def kdeGauss2d_gpu(sX, sY, kx, ky, kwt, M=1, samplingMode=0, PerBnds=np.array([np.inf,np.inf],dtype=np.float32), scutoff=3, normKernel=True, tpb=64, verbose=False):
     ###  Inputs  ###
     #sX & sY                    :   [3,] start,stop,step parameters if grid. Otherwise array of sampling positions (shape ignored, will be flattened)
     #kx & ky                    :   [n,] datapoint xy positions
@@ -208,6 +218,7 @@ def kdeGauss2d_gpu(sX, sY, kx, ky, kwt, M=1, samplingMode=0, PerBnds=np.array([n
     #PerBnds        (optional)  :   none or [2,] max xy boundaries (dx dy translations occur on these values). If none, periodic boundaries not considered
     #M              (optional)  :   [1,], [2,2,m], or [n,2,2,m] transform matrix for gausian kernel. If m>1, [2,2] transform is iterated over m. If None, M default to identity matrix (a round sigma=1 gaussian)
     #scutoff        (optional)  :   cutoff radius (in units of s)
+    #normKernel     (optional)  :   flag to normalize the kernel to an ~total volume of 1. This is the analytically derived scalar so low sampling density and cutting off the tails will deviate from a real value of 1. 
     #tpb            (optional)  :   threads per block for gpu kernel
     #verbose        (optional)  :   flag to print timings
 
@@ -246,10 +257,29 @@ def kdeGauss2d_gpu(sX, sY, kx, ky, kwt, M=1, samplingMode=0, PerBnds=np.array([n
     M = np.array(M,dtype=np.float32)
     scutoff = np.float32(scutoff)
 
-    #Precalculations (if all datapoints share M). M is replaced by inverse matrices (as only these are needed later)
+    #Normalize? (the case of unique M transforms per datapoint is handled in the gpu kernel)
     Md = np.ndim(M)
+    if normKernel:
+        if Md==3:                    #if shared transform
+            A = M[:,:,0].copy()
+            for i in range(1,Mn):
+                A = A@M[:,:,i]
+            kScalar = 1/np.sqrt(np.linalg.det(2*np.pi*A@A.T))
+            kwt = kwt*kScalar
+        elif M.size==1:              #if single radial value
+            kScalar = 1/(2*np.pi*M**2)
+            kwt = kwt*kScalar
+        elif Md==4:
+            kScalar = -1             #this value is used as a flag for the gpu kernel to recalculate the normalization scalar in each thread
+        else:
+            raise ValueError('Failure in Normalization Routine, Transform case not recognized')
+    else:
+        kScalar = 1
+    
+    #Precalculations (if all datapoints share M). M is replaced by inverse matrices (as only these are needed later)
+    
     estRng = np.array([np.inf, np.inf],dtype=np.float32)
-    if Md==3:
+    if Md==3:            
         # M inverse
         Minv = np.ones(M.shape,dtype=np.float32)*np.nan
         Mn = M.shape[2]
@@ -282,7 +312,7 @@ def kdeGauss2d_gpu(sX, sY, kx, ky, kwt, M=1, samplingMode=0, PerBnds=np.array([n
     if M.size==1:
         kdeGauss2d_Radial_core_gpu[blockspergrid, tpb](d_sX, d_sY, d_kx, d_ky, d_kwt, np.float32(M), PerBnds, scutoff, samplingMode, d_Dens, d_Vals)
     else:
-        kdeGauss2d_MTransf_core_gpu[blockspergrid, tpb](d_sX, d_sY, d_kx, d_ky, d_kwt, d_M, estRng, PerBnds, scutoff, samplingMode, d_Dens, d_Vals)
+        kdeGauss2d_MTransf_core_gpu[blockspergrid, tpb](d_sX, d_sY, d_kx, d_ky, d_kwt, d_M, estRng, PerBnds, scutoff, samplingMode, kScalar, d_Dens, d_Vals)
     tock3 = time.perf_counter()
 
     #memory transfer back to host
