@@ -272,9 +272,9 @@ def kdeGauss2d_gpu(sX, sY, kx, ky, kwt, M=1, samplingMode=0, PerBnds=np.array([n
             kwt = kwt*kScalar
             print('shared transform normalization parameter: {:.4}'.format(kScalar))
         elif M.size==1:              #if single radial value
-            kScalar = 1/(2*np.pi*M)
+            kScalar = 1/(2*np.pi*M**2)
             kwt = kwt*kScalar
-            print('radial normalization parameter: {:.4}'.format(kScalar))
+            print('radial (sigma={:.2f}) normalization parameter: {:.4}'.format(M,kScalar))
         elif Md==4:
             #kScalar = -1             #this value is used as a flag for the gpu kernel to recalculate the normalization scalar in each thread
             kScalar = 1
