@@ -265,6 +265,7 @@ def kdeGauss2d_gpu(sX, sY, kx, ky, kwt, M=1, samplingMode=0, PerBnds=np.array([n
     Md = np.ndim(M)
     if normKernel:
         if Md==3:                    #if shared transform
+            Mn = M.shape[2]
             A = M[:,:,0].copy()
             for i in range(1,Mn):
                 A = A@M[:,:,i]
