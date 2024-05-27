@@ -78,13 +78,14 @@ def convKDE2arr_old(ival,isampling,imeshstep):
 
 ########################################### Create DataPoints ##########################################################
 ### Lattice ###
-def CreateUCArray(bounds, xy0=[0,0], primitive=[[0,0],[.5,.5]], a=[1,0],b=[0,1], display=False):
+def CreateUCArray(bounds, xy0=[0,0], primitive=[[0,0],[.5,.5]], a=[1,0],b=[0,1], edge=0, display=False):
     ###  Inputs  ###
     #bounds                 :       [4,] boundary to populate [xmin, xmax, ymin, ymax]
     #xy0        (optional)  :       [2,] origin
     #primitive  (optional)  :       [[x0,y0],[x1,y1],...]   points in unit cell (fractional coords)
     #a          (optional)  :       [2,] a vector   
     #b          (optional)  :       [2,] b vector
+    #edge       (optional)  :       edge exclusion distance (default is 0)
     #display    (optional)  :       flag to plot outcome
     ###  Outputs  ###
     #pts                    :       [n,5] array of pts [:,[x,y,wt,a,b]] 
@@ -121,7 +122,7 @@ def CreateUCArray(bounds, xy0=[0,0], primitive=[[0,0],[.5,.5]], a=[1,0],b=[0,1],
 
     #trim at xybounds
     pts = np.reshape(pts,(sz[0]*sz[1],-1))
-    ind = np.where((pts[:,0]>=bounds[0]) & (pts[:,0]<=bounds[1]) & (pts[:,1]>=bounds[2]) & (pts[:,1]<=bounds[3]))[0]
+    ind = np.where((pts[:,0]>=bounds[0]+edge) & (pts[:,0]<=bounds[1]-edge) & (pts[:,1]>=bounds[2]+edge) & (pts[:,1]<=bounds[3]-edge))[0]
     pts = pts[ind,:]
 
     if display:
@@ -187,7 +188,7 @@ def CreateRandArray(bounds, num=None, minR=None, edge = 0, verbose=False, **kwar
 
 ########################################### Sample Gaussian Kernel at Datapoints ##########################################################
 ### Lattice ###
-def GenerateDatasetUCArray(bounds=[0,512,0,256], a=[10,1], b=[-1,10], xy0=[0,0], primitive=[[0,0,1,1.5,1.5,0],[.5,.5,.5,1,1,0]], samplingXY=None, sampMesh=None, verbose=False, pRandType=[1,1,1,1,1,1], pRandRng=[0,0,0,0,0,0], sRandType=True, sRandRng=[0,0], **kwargs):
+def GenerateDatasetUCArray(bounds=[0,512,0,256], a=[10,1], b=[-1,10], xy0=[0,0], primitive=[[0,0,1,1.5,1.5,0],[.5,.5,.5,1,1,0]], edge=0, samplingXY=None, sampMesh=None, verbose=False, pRandType=[1,1,1,1,1,1], pRandRng=[0,0,0,0,0,0], sRandType=True, sRandRng=[0,0], **kwargs):
     ### Creates a dataset of Gaussians from a repeated unit cell sampled at given 'samplingXY' points
     
     ### Notes ###
@@ -274,7 +275,7 @@ def GenerateDatasetUCArray(bounds=[0,512,0,256], a=[10,1], b=[-1,10], xy0=[0,0],
         params = primitive[:,2:]                         #[A, s1, s2, theta]
         for i in range(pN):                                     #loops through atom type in primitive
             #positions
-            tpts = CreateUCArray(bounds, xy0=xy0, primitive=primitive[i,:2], a=a, b=b)[0]
+            tpts = CreateUCArray(bounds, xy0=xy0, primitive=primitive[i,:2], a=a, b=b, edge=edge)[0]
             tpts[:,2] = i
             n = tpts.shape[0]
             #position noise
@@ -470,11 +471,13 @@ def createDataset(method='Grid', sampMesh=None, countsPerUnit=0, baseNoiseRng=0,
     #method                     :   'Grid' or 'Random'
     #sampMesh                   :   [6,] or None. If samplingXY is an nominal meshgrid array [xstart,xstop,xstep,ystart,ystop,ystep]. Used to reshaped and dose for shotnoise.
     #shotNoise_countsPerUnit    :   If grid & sampled meshgrid = counts/primitive. If random & sampled meshgrid = counts/minR_circle. If not sampled meshgrid = totalcounts.
-    #baseNoiseRng               :
+    #baseNoiseRng               :   added gaussian background noise
+    #discretize                 :   flag to output as an integer (output will be rounded)
     
-    ### Common Inputs Passed Through ###
+    ### Common inputs passed through to sub functions ###
     #bounds             [4,] window which will be populated [xmin, xmax, ymin, ymax]
     #samplingXY         [n,2] xy sampling points. Will default to a meshgrid of the bounds.
+    #edge               edge exclusion distance
     #verbose            flag to display execution information
     #noise parameters:
     #pRandType          [6,] Flag for noise type applied to each parameter in primitive. True for normal dist, False for uniform
@@ -493,7 +496,6 @@ def createDataset(method='Grid', sampMesh=None, countsPerUnit=0, baseNoiseRng=0,
     ### For Random Datapoints ###
     #num                number of datapoints
     #minR               exclusion radius
-    #edge               edge exclusion distance
 
     ### For Lattice ###
     #a                  [2,] a basis vector
