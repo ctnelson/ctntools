@@ -470,7 +470,7 @@ def createDataset(method='Grid', sampMesh=None, countsPerUnit=0, baseNoiseRng=0,
     ###  Inputs  ###
     #method                     :   'Grid' or 'Random'
     #sampMesh                   :   [6,] or None. If samplingXY is an nominal meshgrid array [xstart,xstop,xstep,ystart,ystop,ystep]. Used to reshaped and dose for shotnoise.
-    #shotNoise_countsPerUnit    :   If grid & sampled meshgrid = counts/primitive. If random & sampled meshgrid = counts/minR_circle. If not sampled meshgrid = totalcounts.
+    #countsPerUnit              :   If grid & sampled meshgrid = counts/primitive. If random & sampled meshgrid = counts/minR_circle. If not sampled meshgrid = totalcounts.
     #baseNoiseRng               :   added gaussian background noise
     #discretize                 :   flag to output as an integer (output will be rounded)
     
@@ -486,13 +486,15 @@ def createDataset(method='Grid', sampMesh=None, countsPerUnit=0, baseNoiseRng=0,
     #sRandRng           [2,] Scalar to define the range for xy noise parameters
 
     ### Outputs ###
-    #kdeVal             [n,]    scan location values
+    #Vals               [n,]    scan location values
     #samplingXY         [n,2]   nominal scan positions
     #sXY                [n,2]   actual scan positions
     #pts                [sN,5]  datapoint grid information [x, y, primitive index, row, col]
     #params             [sN,6] or [pN,6] datapoint gaussian parameters [x, y, A, s1, s2, theta]
     #dN                 [sN,6] or [pN,2] noise applied to gaussian parameters
-
+    #sampMesh           [6,]    meshgrid sampling parameters (see input)
+    #iScalar            intensity scalar for creating shot-noise output. Can use this to convert back to input units.
+    
     ### For Random Datapoints ###
     #num                number of datapoints
     #minR               exclusion radius
@@ -522,7 +524,8 @@ def createDataset(method='Grid', sampMesh=None, countsPerUnit=0, baseNoiseRng=0,
     if countsPerUnit>0:
         if verbose:
             print('Incorporating Shot Noise by drawing from Poisson Distribution')
-        Valsnorm = Vals/np.sum(Vals.ravel())        #divide by sum to convert to a probability distribution
+        Valmx = np.sum(Vals.ravel())
+        Valsnorm = Vals/Valmx        #divide by sum to convert to a probability distribution
         if not(sampMesh is None):
             if (method=='Grid'):
                 a = np.array(a)
@@ -536,9 +539,13 @@ def createDataset(method='Grid', sampMesh=None, countsPerUnit=0, baseNoiseRng=0,
             numP = gArea/pArea
             totCounts = numP*countsPerUnit          #expected counts
             Vals = Valsnorm*totCounts               #expected value
+            iScalar = Valmx/totCounts
         else:
             Vals = Valsnorm*countsPerUnit
+            iScalar = Valmx/countsPerUnit
         Vals = np.random.poisson(lam=Vals, size=Vals.shape) #sample expected value from Poisson distribution
+    else:
+        iScalar=1.
 
     #Background Gaussian Noise?
     if baseNoiseRng>0:
@@ -558,4 +565,4 @@ def createDataset(method='Grid', sampMesh=None, countsPerUnit=0, baseNoiseRng=0,
             print('Discretizing Output')
         Vals = np.round(Vals).astype(np.int32)
 
-    return Vals, samplingXY, sXY, pts, params, dN, sampMesh
+    return Vals, samplingXY, sXY, pts, params, dN, sampMesh, iScalar
