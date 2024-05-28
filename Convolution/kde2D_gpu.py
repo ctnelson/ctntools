@@ -321,7 +321,7 @@ def kdeGauss2d_gpu(sX, sY, kx, ky, kwt, M=1, samplingMode=0, PerBnds=np.array([n
     #invoke kernel
     blockspergrid = (kdeVals.size // tpb + 1)
     if M.size==1:
-        kdeGauss2d_Radial_core_gpu[blockspergrid, tpb](d_sX, d_sY, d_kx, d_ky, d_kwt, np.float32(M), PerBnds, scutoff, samplingMode, d_Dens, d_Vals)
+        kdeGauss2d_Radial_core_gpu[blockspergrid, tpb](d_sX, d_sY, d_kx, d_ky, d_kwt, np.float32(M), PerBnds, scutoff, samplingMode, kScalar, d_Dens, d_Vals)
     else:
         kdeGauss2d_MTransf_core_gpu[blockspergrid, tpb](d_sX, d_sY, d_kx, d_ky, d_kwt, d_M, estRng, PerBnds, scutoff, samplingMode, kScalar, d_Dens, d_Vals)
     tock3 = time.perf_counter()
