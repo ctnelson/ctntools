@@ -65,7 +65,7 @@ def M22inv(M):
 #Calculates the radial basis function for all k datapoints contributing to a single sampling point. Calculation is run for all sampling points in parallel on the gpu.
 #This function allows for radial scaling only via (M).
 @cuda.jit
-def kdeGauss2d_Radial_core_gpu(X,Y,kx,ky,kwt,M,PerBnds,scutoff,samplingMode,kdeDens,kdeVals):
+def kdeGauss2d_Radial_core_gpu(X,Y,kx,ky,kwt,M,PerBnds,scutoff,samplingMode,kScalar,kdeDens,kdeVals):
     ###  Inputs  ###
     #X & Y        :   if samplingMode 'Manual' X & Y sampling points. samplingMode 'Grid' [3,] vectors of [size, offset, stepsize]
     #kx & ky      :   input xy positions
@@ -74,6 +74,7 @@ def kdeGauss2d_Radial_core_gpu(X,Y,kx,ky,kwt,M,PerBnds,scutoff,samplingMode,kdeD
     #PerBnds      :   None or [2,]. Periodic boundary x and y values
     #scutoff      :   cutoff radius (in units of s)
     #samplingMode :   0=Grid, 1=Manual. How sample positions are handled. using Grid trades a memory call for a small conversion calcualation
+    #kScalar      :   Kernel scalar. Only use here is a flag (if ==-1) to indicate this needs to calculated here
 
     ###  Outputs  ###
     #kdeVals      :   values
@@ -115,8 +116,8 @@ def kdeGauss2d_Radial_core_gpu(X,Y,kx,ky,kwt,M,PerBnds,scutoff,samplingMode,kdeD
             continue
         #Gaussian Value
         z = GaussFun_gpu(r,M)
-        kdeDens[ii] += z
-        kdeVals[ii] += z*kwt[i]
+        kdeDens[ii] += z*kScalar
+        kdeVals[ii] += z*kScalar*kwt[i]
 
 
 #Calculates the 'radial' basis function for all k datapoints contributing to a single sampling point. Calculation is run for all sampling points in parallel on the gpu.
@@ -203,8 +204,8 @@ def kdeGauss2d_MTransf_core_gpu(X,Y,kx,ky,kwt,M,estRng,PerBnds,scutoff,samplingM
             continue
         #Gaussian Value
         z = GaussFun_gpu(r,1.)
-        kdeDens[ii] += z
-        kdeVals[ii] += z*kwt[i]
+        kdeDens[ii] += z*kScalar
+        kdeVals[ii] += z*kScalar*kwt[i]
 
 #############################################################################################################
 ############################### Gaussian Kernel Density Estimator  ##########################################
