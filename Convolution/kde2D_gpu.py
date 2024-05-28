@@ -307,6 +307,8 @@ def kdeGauss2d_gpu(sX, sY, kx, ky, kwt, M=1, samplingMode=0, PerBnds=np.array([n
 
     tock1 = time.perf_counter()
 
+    print(np.max(kwt.ravel()))
+    
     #transfer to GPU memory
     d_sX = cuda.to_device(sX)
     d_sY = cuda.to_device(sY)
