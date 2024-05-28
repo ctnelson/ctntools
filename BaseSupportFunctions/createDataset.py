@@ -466,19 +466,20 @@ def GenerateDatasetRand(bounds=[0,512,0,256], num=None, minR=10, edge=1, params=
     return kdeVal, samplingXY, sXY, pts, params, dN, minR, sampMesh
   
 ########################################### Generate Dataset ##########################################################
-def createDataset(method='Grid', sampMesh=None, countsPerUnit=0, baseNoiseRng=0, discretize=False, verbose=False, **kwargs):
+def createDataset(method='Grid', sampMesh=None, countsPerUnit=0, baseNoiseRng=0, discretize=False, normKernel=False, verbose=False, **kwargs):
     ###  Inputs  ###
     #method                     :   'Grid' or 'Random'
     #sampMesh                   :   [6,] or None. If samplingXY is an nominal meshgrid array [xstart,xstop,xstep,ystart,ystop,ystep]. Used to reshaped and dose for shotnoise.
     #countsPerUnit              :   If grid & sampled meshgrid = counts/primitive. If random & sampled meshgrid = counts/minR_circle. If not sampled meshgrid = totalcounts.
     #baseNoiseRng               :   added gaussian background noise
     #discretize                 :   flag to output as an integer (output will be rounded)
+    #normKernel                 :   flag whether to normalize the gaussian kernel (conserves total mass), or not (preserves the primitive intensity value)
+    #verbose            flag to display execution information
     
     ### Common inputs passed through to sub functions ###
     #bounds             [4,] window which will be populated [xmin, xmax, ymin, ymax]
     #samplingXY         [n,2] xy sampling points. Will default to a meshgrid of the bounds.
     #edge               edge exclusion distance
-    #verbose            flag to display execution information
     #noise parameters:
     #pRandType          [6,] Flag for noise type applied to each parameter in primitive. True for normal dist, False for uniform
     #pRandRng           [6,] Scalar to define the range for each respective noise parameter
@@ -508,9 +509,9 @@ def createDataset(method='Grid', sampMesh=None, countsPerUnit=0, baseNoiseRng=0,
     ### Main ###
     # Get sampled Kernel
     if method=='Grid':
-        Vals, samplingXY, sXY, pts, params, dN, a, b, primitive, sampMesh = GenerateDatasetUCArray(sampMesh=sampMesh,verbose=verbose,**kwargs)
+        Vals, samplingXY, sXY, pts, params, dN, a, b, primitive, sampMesh = GenerateDatasetUCArray(sampMesh=sampMesh,normKernel=normKernel,verbose=verbose,**kwargs)
     elif method=='Random':
-        Vals, samplingXY, sXY, pts, params, dN, minR, sampMesh = GenerateDatasetRand(sampMesh=sampMesh,verbose=verbose,**kwargs)
+        Vals, samplingXY, sXY, pts, params, dN, minR, sampMesh = GenerateDatasetRand(sampMesh=sampMesh,normKernel=normKernel,verbose=verbose,**kwargs)
     else:
         raise ValueError('method must be "Grid" or "Random"')
     
