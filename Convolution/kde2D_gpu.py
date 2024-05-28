@@ -280,6 +280,8 @@ def kdeGauss2d_gpu(sX, sY, kx, ky, kwt, M=1, samplingMode=0, PerBnds=np.array([n
             print('unique transform normalization not implemented')
         else:
             raise ValueError('Failure in Normalization Routine, Transform case not recognized')
+        kS_sigcutoff = 1-np.exp(-scutoff**2/2)    #normalize for the heavyside sigma cutoff at scutoff (CDF of Rayleigh distribution)
+        kScalar = kScalar / kS_sigcutoff
     else:
         kScalar = 1
     
