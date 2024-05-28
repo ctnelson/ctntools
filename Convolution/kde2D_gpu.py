@@ -270,10 +270,10 @@ def kdeGauss2d_gpu(sX, sY, kx, ky, kwt, M=1, samplingMode=0, PerBnds=np.array([n
             for i in range(1,Mn):
                 A = A@M[:,:,i]
             kScalar = 1/np.sqrt(np.linalg.det(2*np.pi*A@A.T))
-            kwt = kwt*kScalar
+            #kwt = kwt*kScalar
         elif M.size==1:              #if single radial value
             kScalar = 1/(2*np.pi*M**2)
-            kwt = kwt*kScalar
+            #kwt = kwt*kScalar
         elif Md==4:
             #kScalar = -1             #this value is used as a flag for the gpu kernel to recalculate the normalization scalar in each thread
             kScalar = 1
@@ -282,6 +282,7 @@ def kdeGauss2d_gpu(sX, sY, kx, ky, kwt, M=1, samplingMode=0, PerBnds=np.array([n
             raise ValueError('Failure in Normalization Routine, Transform case not recognized')
         kS_sigcutoff = 1-np.exp(-scutoff**2/2)    #normalize for the heavyside sigma cutoff at scutoff (CDF of Rayleigh distribution)
         kScalar = kScalar / kS_sigcutoff
+        kwt = kwt*kScalar
     else:
         kScalar = 1
     
