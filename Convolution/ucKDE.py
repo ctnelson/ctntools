@@ -1,4 +1,4 @@
-Creates a 'Mean' unit cell via a gaussian radial basis function
+#Creates a 'Mean' unit cell via a gaussian radial basis function
 ################################################# Table of Contents ############################################
 #ucKDE        :  This function interpolates a 'mean' unit cell. Results is in ab lattice space (so always tiles in a grid)
 #valFromUCab  :  From a unit cell ab image, interpolate values at given a- and b- coordinates
