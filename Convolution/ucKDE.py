@@ -111,11 +111,8 @@ def ucxyFromKDE(ucKDEab, a, b, abRng=[0.,1.,0.,1.],inax=None):
     val = np.reshape(val,xxkde.shape)
 
     if not (inax is None):
-        dAB = np.array([[0,a[0],a[0]+b[0],b[0]]-a[0]/2-b[0]/2,[0,a[1],a[1]+b[1],b[1]]-a[1]/2-b[1]/2]).T     #relative unit cell vertices
-        #fig, ax = plt.subplots(1, 1, figsize=(20,20*xxkde.shape[0]/xxkde.shape[1]), dpi = 100)
-        #h=ax.imshow(val,origin='lower')
-        #fig.colorbar(h,ax=ax)
-        inax.imshow(val,origin='lower')
-        inax.plot(np.append(dAB[:,0],dAB[0,0])+xy0[0],np.append(dAB[:,1],dAB[0,1])+xy0[1],'--y')    #plot unit cell
+        dAB = np.array([[0,a[0],a[0]+b[0],b[0]]-a[0]/2-b[0]/2,[0,a[1],a[1]+b[1],b[1]]-a[1]/2-b[1]/2]).T     #unit cell vertices
+        inax.imshow(val,origin='lower',cmap='gray')
+        inax.plot(np.append(dAB[:,0],dAB[0,0])+xy0[0],np.append(dAB[:,1],dAB[0,1])+xy0[1],'--y')            #plot unit cell
 
     return val
