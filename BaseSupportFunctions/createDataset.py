@@ -472,7 +472,7 @@ def createDataset(method='Grid', sampMesh=None, countsPerUnit=0, baseNoiseRng=0,
     #sampMesh                   :   [6,] or None. If samplingXY is an nominal meshgrid array [xstart,xstop,xstep,ystart,ystop,ystep]. Used to reshaped and dose for shotnoise.
     #countsPerUnit              :   If grid & sampled meshgrid = counts/primitive. If random & sampled meshgrid = counts/minR_circle. If not sampled meshgrid = totalcounts.
     #baseNoiseRng               :   added gaussian background noise
-    #discretize                 :   flag to output as an integer (output will be rounded)
+    #discretize                 :   flag to output as an integer (output will be rounded). If false, shot noise will be scaled back to the primitive amplitude.
     #normKernel                 :   flag whether to normalize the gaussian kernel (conserves total mass), or not (preserves the primitive intensity value)
     #verbose            flag to display execution information
     
@@ -565,5 +565,7 @@ def createDataset(method='Grid', sampMesh=None, countsPerUnit=0, baseNoiseRng=0,
         if verbose:
             print('Discretizing Output')
         Vals = np.round(Vals).astype(np.int32)
+    elif countsPerUnit>0:
+        Vals=Vals*iScalar        #this resets the scale change created by the shot noise function
 
     return Vals, samplingXY, sXY, pts, params, dN, sampMesh, iScalar
