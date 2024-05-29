@@ -559,7 +559,7 @@ def createDataset(method='Grid', sampMesh=None, countsPerUnit=0, baseNoiseRng=0,
         else:
             raise ValueError('Vals dimension not accounted for')
         #bGNoise = np.where(bGNoise<0,0,bGNoise)
-        Vals = Vals.astype(np.float32) + bGNoise
+        Vals = Vals.astype(np.float32) + bGNoise/iScalar
         
     if discretize:
         if verbose:
