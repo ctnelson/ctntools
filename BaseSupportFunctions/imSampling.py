@@ -1,15 +1,16 @@
-### NOTE ### KDE not coded for getUCStack
+### NOTE ### KDE not currently linked to getUCStack. currently two distinct functions.
 
-#### Image sampling functions ###
+######################################### Table of Contents #####################################
 #condDownsample    :    Performs a conditional downsampling (using block_reduce) based on comparison of a ref to given dimension
 #getUCStack        :    Creates a 3D stack of subimages from a given image, array of reference points, & basis vectors
+#imDatapointsInUC  :    Return indices of datapoints found in unit cells (subpixel), designed by centerpoint,a,&b vectors
 
-#Imports
+############################################# Imports ############################################
 import numpy as np
 from tqdm import tqdm
 from skimage.measure import block_reduce
 from scipy.interpolate import RegularGridInterpolator                      
-from ctntools.Geometry.pointInPolygon import pointInPoly   
+from ctntools.Geometry.pointInPolygon import pointInPoly, imIndInPoly   
 
 ########################################### condDownsample ###################################################
 #Conditional Downsampling. Performs a block_reduce downsampling based on closest power of 2 ratio of a given dimension to a target dimension (e.g. unit cell spacing vs. a target pixels per unit cell)
@@ -102,3 +103,43 @@ def getUCStack(inim, xy, a, b, abUCoffset=[.5,.5], method='round',KDEs=.5,KDErsc
     mask = mask[brdr:-brdr,brdr:-brdr]
     
     return UCstack, mask
+
+################################################################################################################
+#This function collects the image datapoints found within unit cells for given location, a, and b vectors
+def imDatapointsInUC(im,ucxy,a,b):
+    ### Inputs ###
+    #im         :   image
+    #ucxy       :   [n,2] unit cell center points
+    #a          :   [2,] a vector
+    #b          :   [2,] b vector
+
+    ### Outputs ###
+    #UCab       :   [n,2] Unit cell datapoints in ab coordinates
+    #UCxy       :   [n,2] Unit cell datapoints in xy coordinates
+    #inUCind    :   [n,] Array of indices for points in unit cells
+    #inUCi      :   [n,] Corresponding unit cell # of inUCind
+
+    #general setting
+    xx,yy = np.meshgrid(np.arange(im.shape[1]),np.arange(im.shape[0]))                                  #x,y position meshgrid
+    dAB = np.array([[0,a[0],a[0]+b[0],b[0]]-a[0]/2-b[0]/2,[0,a[1],a[1]+b[1],b[1]]-a[1]/2-b[1]/2]).T     #relative unit cell vertices
+    #preallocate
+    inUCind = np.array([],dtype='int')
+    inUCi = np.array([],dtype='int')
+    #loop through unit cells
+    for i in np.arange(ucxy.shape[0],dtype='int'):
+        idAB = dAB+np.repeat(ucxy[i,np.newaxis,:2],4,axis=0)    #unit cell vertices at index
+        ind = imIndInPoly(im,idAB,xx,yy)                        #return indices in unit cell
+        #update index arrays
+        inUCind = np.append(inUCind,ind)                    
+        inUCi = np.append(inUCi,np.ones(ind.size,dtype='int')*i)
+
+    #transformation Matrix for xy->ab spaces
+    M  = np.linalg.inv(np.vstack((a,b)))
+    #Coordinates in Unit Cell coordinates (xy)
+    UCdx = xx.ravel()[inUCind]-ucxy[inUCi,0]
+    UCdy = yy.ravel()[inUCind]-ucxy[inUCi,1]
+    #Coordinates in Unit Cell coordinates (ab)
+    UCxy = np.vstack((UCdx,UCdy)).T
+    UCab = UCxy@M
+
+    return UCab, UCxy, inUCind, inUCi
