@@ -15,11 +15,14 @@
 #swMtransf_matchT_IJ_Mean        :  get sliding window Mean
 #swMtransf_matchT_IJ_Var         :  get sliding window Var
 #swTemplateMatch                 :  perform the sliding window template match
-
+#templateMatch                   :  Finds matches between a template and master image (high-level function)
 ###########################################################################################
 from numba import cuda
 import math
 import numpy as np
+import matplotlib.pyplot as plt
+from ctntools.PeakFinding.findPeaks import findPeaks
+
 ############################################   Mean   #####################################
 @cuda.jit
 #GPU core routine of sliding window transform comparison. This function asserts the search points are i,j image coordinates. 
@@ -467,3 +470,59 @@ def swTemplateMatch(im, templArr, templArriijj=None, wt=None, calc='ZeroNormCros
     swCounts = d_Counts.copy_to_host()
 
     return swCC, swVar, swMean, swCounts
+
+####################################################### templateMatch ############################################################
+#Finds matches between a template and master image. Employs a gpu enabled sliding window self-similarity computation (Zero Norm Cross Correletion or Mean Abs Diff)
+def templateMatch(im, template, wt=None, tMatchMethod='ZeroNormCrossCorr', matchNormalize=True, matchThresh=0.8, exclDist = 1, inax=None, verbose=0, **kwargs):
+    ### Inputs ###
+    #im                         :   [w,h] master image
+    #template                   :   [wt,ht] template image or [n,] array (if using 1D array the corresponding [n,2] positions variable 'templArriij' must be supplied)
+    #wt             (optional)  :   weights matching template (either [wt,ht] or [n,])
+    #tMatchMethod   (optional)  :   'ZeroNormCrossCorr', 'MeanAbsDiff'. Method of match evaluation
+    #matchNormalize (optional)  :   flag to normalize the template match for peak finding
+    #matchThresh    (optional)  :   intensity threshold for peak finding
+    #exclDist       (optional)  :   exclusion radius for finding neighboring peaks
+    #inax           (optional)  :   input axis to plot results
+    #verbose        (optional)  :   flag to print execution information
+
+    ### Additional available inputs passed through to swTemplateMatch function ###
+    #templArriijj   (optional)  :   [n,2] x&y positions of template Array values. If 'None' will assume it is a meshgrid.
+    #ijBounds       (optional)  :   [4,1] array bounds to interrogate [jmin, jmax, imin, imax]
+    #stride         (optional)  :   ij stepsize
+
+    ### Outputs ###
+    #tMatchLoc                  :   match peak locations
+    #tMatch                     :   match image
+    
+    #gpu function requires contiguous arrays, so check
+    if not im.flags['C_CONTIGUOUS']:
+        im = np.ascontiguousarray(im)
+        if verbose>0:
+            Warning('image is not contiguous')
+    if not template.flags['C_CONTIGUOUS']:
+        template = np.ascontiguousarray(template)
+        if verbose>0:
+            Warning('template is not contiguous')
+
+    #Perform template match
+    tMatch,_,_,tMCounts = swTemplateMatch(im, template, wt=wt, calc=tMatchMethod, **kwargs)
+    findMaxIm = tMatch*tMCounts
+
+    #normalize
+    if matchNormalize:
+        findMaxIm = (findMaxIm-np.nanmin(findMaxIm.ravel()))/(np.nanmax(findMaxIm.ravel())-np.nanmin(findMaxIm.ravel()))
+    #invert if needed
+    if tMatchMethod=='MeanAbsDiff':
+        findMaxIm = np.max(findMaxIm.ravel())-findMaxIm
+
+    #find peaks
+    mask = findMaxIm>matchThresh
+    ucxy, findMaxIm_sm = findPeaks(findMaxIm, imask=mask, pkExclRadius=exclDist, verbose=verbose, **kwargs)
+
+    #display
+    if not (inax is None):
+        inax.imshow(findMaxIm_sm,cmap='gray',origin='lower')
+        inax.set_title('templateMatch')
+        inax.scatter(ucxy[:,0],ucxy[:,1],s=30,c='r',marker='+')
+
+    return ucxy, tMatch
