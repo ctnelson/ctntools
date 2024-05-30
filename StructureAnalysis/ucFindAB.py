@@ -166,7 +166,7 @@ def ucFindAB(im, imMask=None, ucScaleGuess=None, swUCScalar=4.1, pxlprUC=20, dow
         exclDist = Pk1Dist*rExclScalar
     elif rExclSource=='Max':
         exclDist = mxPkDist*rExclScalar
-    else
+    else:
         raise ValueError('unknown input for rExclSource')
 
     #Display progress
