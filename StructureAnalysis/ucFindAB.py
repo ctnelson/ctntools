@@ -79,7 +79,7 @@ def abGuessFromScoredPeaks(pks, xy0=np.zeros((2,)), alphaGuess=90, rexcl=0, rGue
 
 ################################## Protocol to find ab basis vectors #############################
 #Searches for periodic a- & b-vectors in an image
-def ucFindAB(im, imMask=None, ucScaleGuess=None, swUCScalar=4.1, pxlprUC=20, downsampleFlag=True, rExclScalar = .75, alphaGuess=None, inax=[None]*3, verbose=0, **kwargs):
+def ucFindAB(im, imMask=None, ucScaleGuess=None, swUCScalar=4.1, pxlprUC=20, downsampleFlag=True, rExclScalar=1, rExclSource='firstMin' alphaGuess=None, inax=[None]*3, verbose=0, **kwargs):
     ### Inputs ###
     #im                         :   input image
     #imMask         (optional)  :   mask im (only true region will be analyzed)
@@ -87,8 +87,9 @@ def ucFindAB(im, imMask=None, ucScaleGuess=None, swUCScalar=4.1, pxlprUC=20, dow
     #swUCScalar     (optional)  :   #scalar # of unit cells bounds to perform the sliding window "autocorrelation"
     #pxlprUC        (optional)  :   target pixels / UC for downsampling.
     #downsampleFlag (optional)  :   downsample? flag (will only happen if oversampled relative to 'pxlprUC' by at least a factor of 2)
-    #rExclScalar
-    #alphaGuess
+    #rExclScalar    (optional)  :   distance exclusion for peak finding
+    #rExclSource    (optional)  :   'firstMin','firstMaxAfterMin','Max'. Source of exclusion distance for peak finding
+    #alphaGuess     (optional)  :   guess for internal angle
     #verbose        (optional)  :   print execution details, 0=silent (no plots), 1=basic plots, 2=detailed
     #inax           (optional)  :   axes to plot on [3x]
 
@@ -143,17 +144,30 @@ def ucFindAB(im, imMask=None, ucScaleGuess=None, swUCScalar=4.1, pxlprUC=20, dow
     x, distr, density, _, _ = radKDE(swid, rstp=radKDE_stp, method='interp', xyscale=xyscale)
     distr = distr/density
     distr = np.vstack((x,distr,density))
+    
     #Find first minima
     distrdx = np.gradient(distr[1,:])
     ind = np.argmax(distrdx<0)              
     minRind = np.argmax(distrdx[ind:]>0)+ind
     rdistmin=x[minRind]
-    #Find Max peak after minima
-    ppkind = np.nanargmax(distr[1,minRind:])+minRind
-    ppkDist = x[ppkind]
-    ppkDist = np.tile(ppkDist,2)
 
-    exclDist = ppkDist[0]*rExclScalar   #peak finding exclusion radius
+    #Find first Max after Min
+    ind = np.nanargmax(distr[1,minRind:]<0)+minRind
+    Pk1Dist=x[ind]
+
+    #Find Max peak after minima
+    mxPkind = np.nanargmax(distr[1,minRind:])+minRind
+    mxPkDist = x[mxPkind]
+
+    #exclusion distance for peak finding
+    if rExclSource=='firstMin':
+        exclDist = rdistmin*rExclScalar
+    elif rExclSource=='firstMaxAfterMin':
+        exclDist = Pk1Dist*rExclScalar
+    elif rExclSource=='Max':
+        exclDist = mxPkDist*rExclScalar
+    else
+        raise ValueError('unknown input for rExclSource')
 
     #Display progress
     if not (inax[1] is None):
@@ -185,7 +199,7 @@ def ucFindAB(im, imMask=None, ucScaleGuess=None, swUCScalar=4.1, pxlprUC=20, dow
         if not (inax[2] is None):
             inax[2].set_title('swMAD Angular Self-Similarity')
 
-    a, b, ascore, bscore = abGuessFromScoredPeaks(pks, xy0=xy0, alphaGuess=alphaGuess, rexcl=x[minRind], rGuess=ppkDist[0], **kwargs)
+    a, b, ascore, bscore = abGuessFromScoredPeaks(pks, xy0=xy0, alphaGuess=alphaGuess, rexcl=x[minRind], rGuess=ppkDist, **kwargs)
     a = (pks[a,:2]-xy0)
     b = (pks[b,:2]-xy0)
 
