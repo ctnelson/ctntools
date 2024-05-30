@@ -90,29 +90,39 @@ def valFromUCab(UCim,ab):
 
 ####################################################### ucxyFromKDE #################################################
 #returns the mean unit cell from abspace in xyspace. Size is a bounding box surrounding the ab range provided by 'abRng'.
-def ucxyFromKDE(ucKDEab, a, b, abRng=[0.,1.,0.,1.],inax=None):
+def ucxyFromKDE(ucKDEab, a, b, abRng=[0.,1.,0.,1.], inax=None):
     ### Inputs ###
     #ucKDEab    :   mean unit cell in ab coordinates
     #a          :   [2,] a basis vector    
     #b          :   [2,] b basis vector
     #abRng      :   [4,] ab range   
+
+    ### Outputs ###
+    #xyKDE      :   mean image in xy space
+    #xyKDEmask  :   mask of region within the ab vector range
     
-    M  = np.linalg.inv(np.vstack((a,b)))
+    #Determine xy bounding box
     x = [abRng[0]*a[0]+abRng[2]*b[0], abRng[1]*a[0]+abRng[2]*b[0], abRng[1]*a[0]+abRng[3]*b[0], abRng[0]*a[0]+abRng[3]*b[0]]
     y = [abRng[0]*a[1]+abRng[2]*b[1], abRng[1]*a[1]+abRng[2]*b[1], abRng[1]*a[1]+abRng[3]*b[1], abRng[0]*a[1]+abRng[3]*b[1]]
     xxkde = np.arange(np.floor(np.min(x)).astype('int'),np.ceil(np.max(x)).astype('int')+1)
     yykde = np.arange(np.floor(np.min(y)).astype('int'),np.ceil(np.max(y)).astype('int')+1)
     xxkde, yykde = np.meshgrid(xxkde,yykde)
-    d_ab = np.vstack((xxkde.ravel(),yykde.ravel())).T @ M     #@ab coordinates
-    xy0 = np.array([.5*(a[0]+b[0]),.5*(a[1]+b[1])])
-    xy0 = np.array([(xy0[0]-xxkde[0,0])/(xxkde[0,-1]-xxkde[0,0])*xxkde.shape[1], (xy0[1]-yykde[0,0])/(yykde[-1,0]-yykde[0,0])*yykde.shape[0]])
+    #conversion to ab coords
+    M  = np.linalg.inv(np.vstack((a,b))) 
+    d_ab = np.vstack((xxkde.ravel(),yykde.ravel())).T @ M 
+    #interpolate from the ab mean cell
+    xyKDE = valFromUCab(ucKDEab,d_ab)
+    xyKDE = np.reshape(xyKDE,xxkde.shape)
+    #valid mask
+    xyKDEmask = np.where((d_ab[:,0]>=abRng[0]) & (d_ab[:,0]<=abRng[1]) & (d_ab[:,1]>=abRng[2]) & (d_ab[:,1]<=abRng[3]),True,False)
+    xyKDEmask = np.reshape(xyKDEmask,xxkde.shape)
 
-    val = valFromUCab(ucKDEab,d_ab)
-    val = np.reshape(val,xxkde.shape)
-
+    #Plotting?
     if not (inax is None):
-        dAB = np.array([[0,a[0],a[0]+b[0],b[0]]-a[0]/2-b[0]/2,[0,a[1],a[1]+b[1],b[1]]-a[1]/2-b[1]/2]).T     #unit cell vertices
-        inax.imshow(val,origin='lower',cmap='gray')
+        xy0 = np.array([.5*(a[0]+b[0]),.5*(a[1]+b[1])])
+        xy0 = np.array([(xy0[0]-xxkde[0,0])/(xxkde[0,-1]-xxkde[0,0])*xxkde.shape[1], (xy0[1]-yykde[0,0])/(yykde[-1,0]-yykde[0,0])*yykde.shape[0]])
+        dAB = np.array([[0,a[0],a[0]+b[0],b[0]]-a[0]/2-b[0]/2,[0,a[1],a[1]+b[1],b[1]]-a[1]/2-b[1]/2]).T     #relative unit cell vertices
+        inax.imshow(xyKDE,origin='lower')                                                                   #image of mean unit cell
         inax.plot(np.append(dAB[:,0],dAB[0,0])+xy0[0],np.append(dAB[:,1],dAB[0,1])+xy0[1],'--y')            #plot unit cell
 
-    return val
+    return xyKDE, xyKDEmask
