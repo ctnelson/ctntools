@@ -60,6 +60,7 @@ def imIndInPoly(im,vrts,ixx=None,iyy=None):
     ### Inputs ###
     #im     :   input image
     #vrts   :   [n,2] polygon vertices
+    #ixx,iyy:   meshgrid of x & y values of image
     ### Output ###
     #ind    :   indices of points within polygon
 
