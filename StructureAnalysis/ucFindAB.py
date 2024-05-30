@@ -152,8 +152,8 @@ def ucFindAB(im, imMask=None, ucScaleGuess=None, swUCScalar=4.1, pxlprUC=20, dow
     rdistmin=x[minRind]
 
     #Find first Max after Min
-    ind = np.nanargmax(distr[1,minRind:]<0)+minRind
-    Pk1Dist=x[ind]
+    Pk1ind = np.nanargmax(distr[1,minRind:]<0)+minRind
+    Pk1Dist=x[Pk1ind]
 
     #Find Max peak after minima
     mxPkind = np.nanargmax(distr[1,minRind:])+minRind
@@ -178,7 +178,8 @@ def ucFindAB(im, imMask=None, ucScaleGuess=None, swUCScalar=4.1, pxlprUC=20, dow
         inax[1].text(x[minRind],np.nanmax(distr[1,:]),'min radius',c='c',ha='left',va='top',rotation='vertical')
         inax[1].plot([exclDist,exclDist],[0,np.nanmax(distr[1,:])],'-y')
         inax[1].text(exclDist,np.nanmax(distr[1,:]),'peakfind exclusion',c='y',ha='left',va='top',rotation='vertical')
-        inax[1].scatter(x[ppkind],distr[1,ppkind],s=50,c='r')
+        inax[1].scatter(x[Pk1ind],distr[1,Pk1ind],s=50,c='r')    #pk1
+        inax[1].scatter(x[mxPkind],distr[1,mxPkind],s=50,c='r')    #pk1
         inax[1].set_title('swMAD Radial distribution')
 
     #Find Peaks
