@@ -79,7 +79,7 @@ def abGuessFromScoredPeaks(pks, xy0=np.zeros((2,)), alphaGuess=90, rexcl=0, rGue
 
 ################################## Protocol to find ab basis vectors #############################
 #Searches for periodic a- & b-vectors in an image
-def ucFindAB(im, imMask=None, ucScaleGuess=None, swUCScalar=4.1, pxlprUC=20, downsampleFlag=True, rExclScalar=1, rExclSource='firstMin' alphaGuess=None, inax=[None]*3, verbose=0, **kwargs):
+def ucFindAB(im, imMask=None, ucScaleGuess=None, swUCScalar=4.1, pxlprUC=20, downsampleFlag=True, rExclScalar=1, rExclSource='firstMin', alphaGuess=None, inax=[None]*3, verbose=0, **kwargs):
     ### Inputs ###
     #im                         :   input image
     #imMask         (optional)  :   mask im (only true region will be analyzed)
