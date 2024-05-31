@@ -178,7 +178,7 @@ def ucFindAB(im, imMask=None, ucScaleGuess=None, swUCScalar=4.1, pxlprUC=20, dow
         inax[1].text(x[minRind],np.nanmax(distr[1,:]),'min radius',c='c',ha='left',va='top',rotation='vertical')
         inax[1].plot([exclDist,exclDist],[0,np.nanmax(distr[1,:])],'-y')
         inax[1].text(exclDist,np.nanmax(distr[1,:]),'peakfind exclusion',c='y',ha='left',va='top',rotation='vertical')
-        inax[1].scatter(x[pk1ind],distr[1,pk1ind],s=50,c='r')          #pk1
+        inax[1].scatter(x[pk1ind],distr[1,pk1ind],s=50,c='o')          #pk1
         inax[1].scatter(x[mxPkind],distr[1,mxPkind],s=50,c='r')        #max peak
         inax[1].set_title('swMAD Radial distribution')
 
