@@ -83,7 +83,8 @@ def getUCStack(inim, xy, a, b, abUCoffset=[.5,.5], method='round',KDEs=.5,KDErsc
         if method=='round':
             tdx = np.round(tdx).astype('int')
             tdy = np.round(tdy).astype('int')
-            tdyx = np.array([tdx[tind],tdy[tind]])
+            #tdyx = np.array([tdx[tind],tdy[tind]])
+            tdyx = (tdx[tind],tdy[tind])
             UCstack[:,:,i][tind]=inim[tdyx]
         elif method=='interp':
             tdyx = np.array([tdy[tind],tdx[tind]]).T
