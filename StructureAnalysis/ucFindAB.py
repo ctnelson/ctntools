@@ -64,8 +64,8 @@ def abGuessFromScoredPeaks(pks, xy0=np.zeros((2,)), alphaGuess=90, rexcl=0, rGue
     #a=pks[aind,:2]-xy0
 
     #b vector score
-    if rGuess is None:
-        rGuess = pks[aind,3]
+    #if rGuess is None:
+    rGuess = pks[aind,3]
     pksR = np.max(np.vstack((np.abs((pks[:,3]-rGuess)/rGuess),np.zeros_like(pks[:,3]))),axis=0)
     angdelta = np.min(np.abs(np.vstack((pks[:,4]-pks[aind,4]-alphaGuess,pks[:,4]-(pks[aind,4]-alphaGuess+2*np.pi)))),axis=0)
     angdelta = angdelta/np.max(np.abs(angdelta))
