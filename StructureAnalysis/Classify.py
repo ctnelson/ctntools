@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 from sklearn.cluster import KMeans
 
 #KMeans clustering of a subimage stack [h,w,n]. Increments through number of classes and selects optimum as a failure to reach an threshold improvement ('ClassIncThresh'), i.e. looking for the 'elbow' of the scree plot
-def subImStackKMeans(iStack, maxClasses=7, ClassSelMethod = 'GradientThresh', ClassIncThresh=.05, ClassNaNMethod='random', inax=None, verbose=False, **kwargs):
+def subImStackKMeans(iStack, maxClasses=7, ClassSelMethod = 'GradientThresh', ClassIncThresh=.02, ClassNaNMethod='random', inax=None, verbose=False, **kwargs):
     ### Inputs ###
     #iStack             :   [h,w,n]
     #maxClasses         :   maximum number of classes
