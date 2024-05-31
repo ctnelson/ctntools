@@ -152,7 +152,7 @@ def ucFindAB(im, imMask=None, ucScaleGuess=None, swUCScalar=4.1, pxlprUC=20, dow
     rdistmin=x[minRind]
 
     #Find first Max after Min
-    pk1ind = np.nanargmax(distr[1,minRind:]<0)+minRind
+    pk1ind = np.nanargmax(distr[1,minRind+1:]<0)+minRind+1
     pk1Dist=x[pk1ind]
 
     #Find Max peak after minima
