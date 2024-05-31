@@ -58,7 +58,7 @@ def subImStackKMeans(iStack, maxClasses=7, ClassSelMethod = 'gradThresh', ClassI
             raise ValueError('not yet coded')
 
         elif ClassSelMethod!='Manual':
-            raise ValueError('KMeans class number selection variable ClassSelMethod must be 'Manual', 'GradientThresh', or 'GradientKink'
+            raise ValueError('KMeans class number selection variable ClassSelMethod must be "Manual", "GradientThresh", or "GradientKink"')
             
     #Unit Cell Class Averages
     km_uc_avg = np.empty([iStack.shape[0],iStack.shape[1],km_clusternum])
