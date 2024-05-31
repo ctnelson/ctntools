@@ -59,7 +59,7 @@ def subImStackKMeans(iStack, maxClasses=7, ClassIncThresh=.05, ClassNaNMethod='r
     if not (inax is None):
         inax.plot(np.arange(1,maxClasses+1),km_inertia)
         inax.scatter(km_clusternum,km_inertia[km_clusternum-1])
-        inax.plot([km_clusternum, km_clusternum+1],[km_inertia[km_clusternum-1],km_inertia[km_clusternum-1]-km_gain[km_clusternum-1],'--b')
+        inax.plot([km_clusternum, km_clusternum+1],[km_inertia[km_clusternum-1],km_inertia[km_clusternum-1]-km_gain[km_clusternum-1]],'--b')
         inax.set_title('KMeans Scree Plot')
         inax.set_xlabel('# Classes')
         inax.set_ylabel('Intertia')
