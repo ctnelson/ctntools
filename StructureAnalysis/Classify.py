@@ -51,7 +51,7 @@ def subImStackKMeans(iStack, maxClasses=10, findClassNum=True, classNaNMethod='r
         #Find Elbow in Scree Plot
         x = np.arange(1,maxClasses+1)
         y = km_inertia/np.max(km_inertia)
-        kmClustN = findScreeElbow(y, elbowMethod='GradientThresh', gradThresh=.03, kinkThresh=.01, minLinearLen=3, fSEnormalize=True, inax=inax, **kwargs) + 1    
+        kmClustN = findScreeElbow(y, elbowMethod='LineOutlier', gradThresh=.03, kinkThresh=.01, minLinearLen=3, fSEnormalize=True, inax=inax, **kwargs) + 1    
         if verbose:
             print('Autoselected {:d} classes'.format(kmClustN))
 
