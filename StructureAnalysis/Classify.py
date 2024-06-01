@@ -1,20 +1,20 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.cluster import KMeans
+from ctntools.BaseSupportFunctions.LineAnalysis import findScreeElbow
 
-#KMeans clustering of a subimage stack [h,w,n]. Increments through number of classes and selects optimum as a failure to reach an threshold improvement ('ClassIncThresh'), i.e. looking for the 'elbow' of the scree plot
-def subImStackKMeans(iStack, maxClasses=7, ClassSelMethod = 'GradientThresh', ClassIncThresh=.04, ClassNaNMethod='random', inax=None, verbose=False, **kwargs):
+def subImStackKMeans(iStack, maxClasses=10, findClassNum=True, classNaNMethod='random', inax=None, verbose=False, **kwargs):
     ### Inputs ###
     #iStack             :   [h,w,n]
     #maxClasses         :   maximum number of classes
-    #ClassSelMethod     :   'GradientThresh', 'GradientKink', 'Manual'. Method to autoselect number of classes. 'Manual' uses 'maxClasses', 'Gradient...' uses the slope of the normalized scree plot. '...Thresh' uses a slope threshold, '...Kink' looks for a slope change
-    #ClassIncThresh     :   threshold of improvement for incrementing additional class # (this is the criteria used to autoselect class #)
-    #ClassNaNMethod     :   'random', or 'remove'. Method to handle invalid datapoints (e.g. NaN or Inf)
+    #findClassNum       :   flag to automatically find optimum # of classes. If false will use 'maxClasses' value
+    #classNaNMethod     :   'random', or 'remove'. Method to handle invalid datapoints (e.g. NaN or Inf)
     #inax               :   axis for optional plotting of outputs
     #verbose            :   flag to print execution details
+
     ### Outputs ###
     #km_uc_avg          :   [h,w,class#] Stack of Class averages
-    #oClass             :   [n,] Class labels 
+    #oClass             :   [n,] Class labels
     
     #Setup
     X_vec = iStack.reshape(np.shape(iStack)[0]*np.shape(iStack)[1],np.shape(iStack)[2]).T
@@ -26,19 +26,21 @@ def subImStackKMeans(iStack, maxClasses=7, ClassSelMethod = 'GradientThresh', Cl
     ### handling invalid values ###
     ind=np.where(np.logical_not(np.isfinite(X_vec)))
     if ind[0].size>0:
-        if ClassNaNMethod=='remove':
+        if classNaNMethod=='remove':
             oind=np.where(np.all(np.isfinite(X_vec),axis=1))[0]     #skip indices of any subImages with invalid points
             X_vec = X_vec[oind]
             if verbose:
                 print('{:d} subimages with invalid datapoints were removed'.format(iStack.shape[2]-oind.size))
-        elif ClassNaNMethod=='random':
+        elif classNaNMethod=='random':
             temp = np.random.randn(ind[0].size,)*np.nanvar(X_vec.ravel())+np.nanmean(X_vec.ravel()) #replace with random noise (scaled to dataset statistics)
             X_vec[ind]=temp
 
     ### KMeans & Cluster number selection ###
-    if ClassSelMethod=='Manual':
-        km_clusternum = maxClasses
-        kmeans = KMeans(n_clusters=km_clusternum, random_state=0).fit(X_vec)
+    if not findClassNum:
+        kmClustN = maxClasses
+        kmeans = KMeans(n_clusters=kmClustN, random_state=0).fit(X_vec)
+        if verbose:
+                print('Manually selected {:d} classes'.format(kmClustN))
     else:
         #Loop performing Kmeans for different #classes
         for i in np.arange(1,maxClasses+1):
@@ -46,37 +48,26 @@ def subImStackKMeans(iStack, maxClasses=7, ClassSelMethod = 'GradientThresh', Cl
             km_labels[i-1,:] = kmeans.labels_ #kmeans.predict(kmdata)
             km_inertia[i-1] = kmeans.inertia_
 
-        #Autoselect class number by gradient threshold
-        if ClassSelMethod=='GradientThresh':            
-            km_gain = (km_inertia[0:-1]-km_inertia[1:])/km_inertia[0]
-            km_clusternum = np.argmax(km_gain<ClassIncThresh)+1
-            if verbose:
-                print('Autoselected {:d} classes'.format(km_clusternum))
+        #Find Elbow in Scree Plot
+        x = np.arange(1,maxClasses+1)
+        y = km_inertia/np.max(km_inertia)
+        kmClustN = findScreeElbow(y, elbowMethod='GradientThresh', gradThresh=.03, kinkThresh=.01, minLinearLen=3, fSEnormalize=True, inax=inax, **kwargs) + 1    
+        if verbose:
+            print('Autoselected {:d} classes'.format(kmClustN))
 
-        #Autoselect class number by gradient change ('kink')
-        elif ClassSelMethod=='GradientKink':
-            raise ValueError('not yet coded')
-
-        elif ClassSelMethod!='Manual':
-            raise ValueError('KMeans class number selection variable ClassSelMethod must be "Manual", "GradientThresh", or "GradientKink"')
-            
     #Unit Cell Class Averages
-    km_uc_avg = np.empty([iStack.shape[0],iStack.shape[1],km_clusternum])
-    for i in np.arange(0,km_clusternum):
-        ind = np.where(km_labels[km_clusternum-1,:]==i)[0]
+    km_uc_avg = np.empty([iStack.shape[0],iStack.shape[1],kmClustN])
+    for i in np.arange(0,kmClustN):
+        ind = np.where(km_labels[kmClustN-1,:]==i)[0]
         km_uc_avg[:,:,i]=np.nanmean(iStack[:,:,ind],axis=2)
 
-    #Outputs
-    oClass[oind] = km_labels[km_clusternum-1,:]
-
-    #Scree Plot?
+    #Plot?
     if not (inax is None):
-        inax.plot(np.arange(1,maxClasses+1),km_inertia)
-        inax.scatter(km_clusternum,km_inertia[km_clusternum-1])
-        if ClassSelMethod=='GradientThresh':
-            inax.plot([km_clusternum, km_clusternum+1],[km_inertia[km_clusternum-1],km_inertia[i]-ClassIncThresh*km_inertia[0]],'--b')
         inax.set_title('KMeans Scree Plot')
         inax.set_xlabel('# Classes')
-        inax.set_ylabel('Intertia')
+        inax.set_ylabel('Intertia (normalized)')
+
+    #Outputs
+    oClass[oind] = km_labels[kmClustN-1,:]
 
     return km_uc_avg, oClass
