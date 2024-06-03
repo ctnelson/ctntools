@@ -63,7 +63,7 @@ def findScreeElbow(y, elbowMethod='LineOutlier', gradThresh=.03, kinkThresh=.01,
             inax.text(elbowInd,y[elbowInd],' Gradient Threshold',va='top',ha='right',color='b',rotation=-90,alpha=.25)
         elif elbowMethod=='LineOutlier':
             inax.plot(x,m[elbowInd]*x+c[elbowInd],'--g',zorder=0,alpha=.25)
-            inax.plot(x[:elbowInd+1],m[elbowInd]*x[:elbowInd+1]+c[elbowInd]+kinkThresh,'-r',alpha=.25,zorder=0)
+            inax.plot(x[:elbowInd+2],m[elbowInd]*x[:elbowInd+2]+c[elbowInd]+kinkThresh,'-r',alpha=.25,zorder=0)
             inax.text(elbowInd,m[elbowInd]*elbowInd+c[elbowInd]+kinkThresh,'Gradient Kink Threshold',va='bottom',ha='left',color='r',alpha=.25)
 
     return elbowInd
