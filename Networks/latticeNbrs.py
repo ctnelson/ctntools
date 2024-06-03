@@ -52,15 +52,15 @@ def latticeNbrs(xy, a=None, b=None, searchDist=np.inf, nbrNum=9, awt = [.25,1,1]
         br = nbrmed[bind,:2]    #refined b vector
         abNbrInd=nbrInd[:,[aind,bind],:]
 
-    #plot?
-    if not (inax is None):
-        color = plt.cm.brg(np.linspace(0, 1, nbrNum))
-        for i in range(nbrNum):
-            inax.scatter(dx[:,i],dy[:,i],s=1,color=color[i])
-        inax.scatter(nbrmed[:,0],nbrmed[:,1],s=50,marker='+',c='k',zorder=1)
-        inax.scatter(0,0,s=100,marker='o',c='r')
-        inax.plot([0,ar[0]],[0,ar[1]],'-b')     #a vector
-        inax.plot([0,br[0]],[0,br[1]],'-r')     #b vector
-        inax.set_aspect(1)
+        #plot?
+        if not (inax is None):
+            color = plt.cm.brg(np.linspace(0, 1, nbrNum))
+            for i in range(nbrNum):
+                inax.scatter(dx[:,i],dy[:,i],s=1,color=color[i])
+            inax.scatter(nbrmed[:,0],nbrmed[:,1],s=50,marker='+',c='k',zorder=1)
+            inax.scatter(0,0,s=100,marker='o',c='r')
+            inax.plot([0,ar[0]],[0,ar[1]],'-b')     #a vector
+            inax.plot([0,br[0]],[0,br[1]],'-r')     #b vector
+            inax.set_aspect(1)
     
     return abNbrInd, ar, br
