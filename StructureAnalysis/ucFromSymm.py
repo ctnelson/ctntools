@@ -102,6 +102,7 @@ def ucFromSymm(im, M, abUCoffset=[.5,.5], swRadiusScalar=1.1, Mwt=None, symmCalc
         if (verbose!=0) & (np.any(ds>1)):
             print('Downsampled by [{:d}x{:d}]'.format(ds[0],ds[1]))
     else:
+        imds=im
         ds = np.array([1,1],dtype='int')
     #get sliding window symmetry
     swRad = np.max(abmag)*swRadiusScalar/ds[0]    #sliding window transform calculatoin radius
