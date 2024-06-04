@@ -72,7 +72,6 @@ def ucFromSymm(im, M, abUCoffset=[.5,.5], swRadiusScalar=1.1, Mwt=None, symmCalc
     else:
         Mwt=np.array(Mwt)
     n=Mwt.size
-    print(n)
     ### Initialize plots?
     if verbose==2:
         figAB, axAB = plt.subplots(1, 3, figsize=(fsz_, fsz_/3), dpi = 100)
