@@ -10,7 +10,7 @@ def imSymmMap(inim, iM, swRad, symmCalc='ZeroNormCrossCorr', inax=None, verbose=
     #iM             :   Dictionary of symmetries to apply. Example: {'i':0,'r':[90,120]} creates a [2,2,3] stack of inversion, 90deg rot and 120deg rot. More details in def makeMtransf() description
     #swRad          :   search window transform calculation radius
     #symmCalc       :   calculation type for sliding window symmetry 'ZeroNormCrossCorr', or 'MeanAbsDiff'   
-    #inax           :   [3,] axis for plotting
+    #inax           :   axis for plotting
     #verbose        :   flag to print execuation details       
     ### Outputs ###
     #swSymm         :   stack of the sliding window symmetry calculations
