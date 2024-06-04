@@ -107,9 +107,9 @@ def getUCStack(inim, xy, a, b, abUCoffset=[.5,.5], method='round',KDEs=.5,KDErsc
 
 ################################################################################################################
 #This function collects the image datapoints found within unit cells for given location, a, and b vectors
-def imDatapointsInUC(im,ucxy,a,b,ucScore=None):
+def imDatapointsInUC(imSz,ucxy,a,b,ucScore=None):
     ### Inputs ###
-    #im         :   [h,w]image
+    #imSz       :   [2,] image size
     #ucxy       :   [n,2] unit cell center points
     #a          :   [2,] a vector
     #b          :   [2,] b vector
@@ -126,18 +126,18 @@ def imDatapointsInUC(im,ucxy,a,b,ucScore=None):
     #general setting
     if ucScore is None:
         ucScore = np.ones(ucxy.shape[0],)
-    xx,yy = np.meshgrid(np.arange(im.shape[1]),np.arange(im.shape[0]))                                  #x,y position meshgrid
+    xx,yy = np.meshgrid(np.arange(im[1]),np.arange(im[0]))                                              #x,y position meshgrid
     dAB = np.array([[0,a[0],a[0]+b[0],b[0]]-a[0]/2-b[0]/2,[0,a[1],a[1]+b[1],b[1]]-a[1]/2-b[1]/2]).T     #relative unit cell vertices
     #preallocate
     UCimInd = np.array([],dtype='int')
     UCimI = np.array([],dtype='int')
-    imUCind = np.ones_like(im,dtype='int')
-    imUCscore = np.ones_like(im,dtype='float')*np.nan
+    imUCind = np.ones(imSz,dtype='int')
+    imUCscore = np.ones(imSz,dtype='float')*np.nan
     #loop through unit cells
     for i in np.arange(ucxy.shape[0],dtype='int'):
         #get indices within UC
         idAB = dAB+np.repeat(ucxy[i,np.newaxis,:2],4,axis=0)    #unit cell vertices at index
-        ind = imIndInPoly(im,idAB,xx,yy)                        #return indices in unit cell
+        ind = imIndInPoly(imSz,idAB,xx,yy)                        #return indices in unit cell
         #update maps (includes conflict resolution. If any points are multiply subscribed priority is to the highest score)
         compareArr = np.array([imUCscore.ravel()[ind],np.ones(ind.size,)*ucScore[i]])   #stack current and new score values
         maxScoreInd = np.nanargmax(compareArr,axis=0)                                   #get index of max
