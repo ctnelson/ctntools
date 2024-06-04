@@ -70,9 +70,9 @@ def imIndInPoly(imSz,vrts,ixx=None,iyy=None):
     bnds = np.array([np.floor(np.min(vrts[:,0])), np.ceil(np.max(vrts[:,0])), np.floor(np.min(vrts[:,1])), np.ceil(np.max(vrts[:,1]))],dtype='int')
     #valid bounds
     xxl = np.max([bnds[0],0])
-    xxh = np.min([bnds[1],im[1]-1])+1
+    xxh = np.min([bnds[1],imSz[1]-1])+1
     yyl = np.max([bnds[2],0])
-    yyh = np.min([bnds[3],im[0]-1])+1
+    yyh = np.min([bnds[3],imSz[0]-1])+1
     #crop index to just test the bounding box
     ind = np.ravel_multi_index((iyy[yyl:yyh,xxl:xxh],ixx[yyl:yyh,xxl:xxh]),imSz)
     #in polygon test
