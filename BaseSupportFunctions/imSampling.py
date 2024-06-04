@@ -126,7 +126,7 @@ def imDatapointsInUC(imSz,ucxy,a,b,ucScore=None):
     #general setting
     if ucScore is None:
         ucScore = np.ones(ucxy.shape[0],)
-    xx,yy = np.meshgrid(np.arange(im[1]),np.arange(im[0]))                                              #x,y position meshgrid
+    xx,yy = np.meshgrid(np.arange(imSz[1]),np.arange(imSz[0]))                                              #x,y position meshgrid
     dAB = np.array([[0,a[0],a[0]+b[0],b[0]]-a[0]/2-b[0]/2,[0,a[1],a[1]+b[1],b[1]]-a[1]/2-b[1]/2]).T     #relative unit cell vertices
     #preallocate
     UCimInd = np.array([],dtype='int')
