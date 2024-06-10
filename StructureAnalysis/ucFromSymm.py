@@ -109,8 +109,17 @@ def ucFromSymm(im, M, abUCoffset=[.5,.5], swRadiusScalar=1.1, Mwt=None, symmCalc
     swRad = np.max(abmag)*swRadiusScalar/ds[0]    #sliding window transform calculatoin radius
     swSymm, swCounts, Mlbls = imSymmMap(imds, M, swRad, symmCalc=symmCalc, verbose=verbose, inax=axSymm, **kwargs)
     #Weighted symmetry image sum
+    temp = np.reshape(swCounts,(-1,swCounts.shape[-1]))
+    print(temp.shape)
+    temp = np.nanmax(temp,axis=0)
+    print(temp)
+    print(np.nanmin(temp.ravel()))
+    print(np.nanmax(temp.ravel()))
+    swCountsNorm = swCounts/np.repeat(np.repeat(temp[np.newaxis,np.newaxis,:],swSymm.shape[0],axis=0),swSymm.shape[1],axis=1)
+    rint(np.nanmin(swCountsNorm.ravel()))
+    print(np.nanmax(swCountsNorm.ravel()))
     temp = np.repeat(np.repeat(Mwt[np.newaxis,np.newaxis,:],swSymm.shape[0],axis=0),swSymm.shape[1],axis=1)
-    swSymm_combined = np.sum(swSymm*swCounts*temp, axis=2)
+    swSymm_combined = np.sum(swSymm*swCountsNorm*temp, axis=2)
     #Find peaks
     pkExclRadius=np.min(abmag/ds)*rExclScalar
     edgeExcl=np.max(abmag/ds)*edgeExclScalar
