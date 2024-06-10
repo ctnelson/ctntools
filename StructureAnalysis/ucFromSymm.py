@@ -117,6 +117,8 @@ def ucFromSymm(im, M, abUCoffset=[.5,.5], swRadiusScalar=1.1, Mwt=None, symmCalc
     pkRefineWinsz = np.array([atmMinR, atmMinR])/ds/2
     pks_sp,_ = findPeaks(swSymm_combined, pFsig=1, pkExclRadius=pkExclRadius, edgeExcl=edgeExcl, iThresh=pkThresh, pkRefineWinsz=pkRefineWinsz, progressDescr='Fitting Candidate Peaks...',  inax=axSymmfit[0], verbose=verbose, **kwargs)
 
+    plt.hist(swSymm_combined.ravel(),100)
+    
     ### Create UC stack ###
     pks_sp[:,0]=pks_sp[:,0]*ds[0]
     pks_sp[:,1]=pks_sp[:,1]*ds[1]
