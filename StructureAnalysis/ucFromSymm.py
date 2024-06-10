@@ -31,7 +31,7 @@ def get_ax_size(ifig,iax):
     return width, height
 
 ############################################# Main ########################################
-def ucFromSymm(im, M, abUCoffset=[.5,.5], swRadiusScalar=1.1, Mwt=None, symmCalc='ZeroNormCrossCorr', alphaGuess=120, rExclScalar=.85, edgeExclScalar=1., pxlprUC=20, downsampleFlag=True, principlePeakMethod='max', UCstackMethod='interp', ClassNaNMethod='random', verbose=1, **kwargs):
+def ucFromSymm(im, M, abUCoffset=[.5,.5], swRadiusScalar=1.1, Mwt=None, symmCalc='ZeroNormCrossCorr', alphaGuess=120, rExclScalar=.85, edgeExclScalar=1., pkThresh=0.5, pxlprUC=20, downsampleFlag=True, principlePeakMethod='max', UCstackMethod='interp', ClassNaNMethod='random', verbose=1, **kwargs):
     ### Required Input ###
     #im                                 :   2D image
     #M                  (Symmetry)      :   {Dict} Symmetries to apply. 'i' inversion, 'r' rotation, 'm' mirror. example format:{'i':0,'r':[60,120]}
@@ -43,6 +43,7 @@ def ucFromSymm(im, M, abUCoffset=[.5,.5], swRadiusScalar=1.1, Mwt=None, symmCalc
     #alphaGuess         (ab Finding)    :   guess for lattice parameter internal angle
     #rExclScalar        (Peak Finding)  :   peak finding exclusion radius (scalar applied to ab vecor magnitude)
     #edgeExclScalar     (Peak Finding)  :   exclusion zone at borders
+    #pkThresh           (Peak Finding)  :   Intensity threshold
     #pxlprUC            (Downsampling)  :   target pixels per unit cell (used for downsampling, ignored if flag is False)
     #downsampleFlag     (Downsampling)  :   flag to allow automatic downsampling
     #principlePeakMethod(ab Finding)    :   'max' or 'first'. method to select fft peak for initial scale guess. (passed to ctntools function fftpeaks)
@@ -114,7 +115,7 @@ def ucFromSymm(im, M, abUCoffset=[.5,.5], swRadiusScalar=1.1, Mwt=None, symmCalc
     pkExclRadius=np.min(abmag/ds)*rExclScalar
     edgeExcl=np.max(abmag/ds)*edgeExclScalar
     pkRefineWinsz = np.array([atmMinR, atmMinR])/ds/2
-    pks_sp,_ = findPeaks(swSymm_combined, pFsig=1, pkExclRadius=pkExclRadius, edgeExcl=edgeExcl, pkRefineWinsz=pkRefineWinsz, progressDescr='Fitting Candidate Peaks...',  inax=axSymmfit[0], verbose=verbose, **kwargs)
+    pks_sp,_ = findPeaks(swSymm_combined, pFsig=1, pkExclRadius=pkExclRadius, edgeExcl=edgeExcl, iThresh=pkThresh, pkRefineWinsz=pkRefineWinsz, progressDescr='Fitting Candidate Peaks...',  inax=axSymmfit[0], verbose=verbose, **kwargs)
 
     ### Create UC stack ###
     pks_sp[:,0]=pks_sp[:,0]*ds[0]
