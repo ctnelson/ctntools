@@ -116,7 +116,7 @@ def ucFromSymm(im, M, abUCoffset=[.5,.5], swRadiusScalar=1.1, Mwt=None, symmCalc
     print(np.nanmin(temp.ravel()))
     print(np.nanmax(temp.ravel()))
     swCountsNorm = swCounts/np.repeat(np.repeat(temp[np.newaxis,np.newaxis,:],swSymm.shape[0],axis=0),swSymm.shape[1],axis=1)
-    rint(np.nanmin(swCountsNorm.ravel()))
+    print(np.nanmin(swCountsNorm.ravel()))
     print(np.nanmax(swCountsNorm.ravel()))
     temp = np.repeat(np.repeat(Mwt[np.newaxis,np.newaxis,:],swSymm.shape[0],axis=0),swSymm.shape[1],axis=1)
     swSymm_combined = np.sum(swSymm*swCountsNorm*temp, axis=2)
