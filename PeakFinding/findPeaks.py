@@ -13,11 +13,12 @@ from ctntools.BaseSupportFunctions.kernels import gKernel2D                     
 from ctntools.PeakFinding.imregionalmax import imregionalmax                                #coarse finds peaks by local maxima
 from ctntools.PeakFinding.peakfitting import refinePeaks                                    #refines peaks by parabaloid fit
 
-def findPeaks(inim, imask=None, pFsig=1, pkExclRadius=1, edgeExcl=0, pkRefineWinsz=[3,3],  inax=None, verbose=False, **kwargs):
+def findPeaks(inim, imask=None, pFsig=1, iThresh=-np.inf, pkExclRadius=1, edgeExcl=0, pkRefineWinsz=[3,3],  inax=None, verbose=False, **kwargs):
     ### Inputs ###
     #inim           :   input image
     #imask          :   mask out regions for peak finding
     #pFsig          :   pre-smoothing sigma
+    #iThresh        :   intensity threshold
     #pkExclRadius   :   exclusion radius of intial peak search
     #edgeExcl       :   exclusion at edges
     #pkRefineWinsz  :   windowsize around initial peak for refining paraboloid fit
@@ -41,11 +42,12 @@ def findPeaks(inim, imask=None, pFsig=1, pkExclRadius=1, edgeExcl=0, pkRefineWin
     else:
         im_sm = im
 
-    #Mask
+    #Masks
     #2nd derivative <0
     im_sm_L = ndimage.laplace(im_sm)
     Lsubmask = im_sm_L<0
-    
+    #Intensity
+    Isubmask = im_sm>=iThresh
     #Edge
     if edgeExcl>0:
         Esubmask = np.zeros_like(inim,dtype='bool')
@@ -53,14 +55,18 @@ def findPeaks(inim, imask=None, pFsig=1, pkExclRadius=1, edgeExcl=0, pkRefineWin
     else:
         Esubmask = np.ones_like(inim,dtype='bool')
     #mask = np.logical_and(Lsubmask,Esubmask)
-    mask = imask & Lsubmask & Esubmask
-    #Coarse find peaks (pixel level)
-    pks = imregionalmax(im_sm, pkExclRadius, localMaxRequired=False, imask=mask)[0].T
-    #Peak Refine (parabaloid fit)
-    pks_sp = refinePeaks(im_sm, pks[:,:2], pkRefineWinsz, verbose=verbose, **kwargs)[:,:3]
-    #crop for valid & in-bounds
-    ind = np.where((np.isfinite(pks_sp[:,0])) & (pks_sp[:,0]>0) & (pks_sp[:,0]<inim.shape[1]) & (pks_sp[:,1]>0) & (pks_sp[:,1]<inim.shape[0]))[0]
-    pks_sp = pks_sp[ind,:]
+    mask = imask & Lsubmask & Esubmask & Isubmask
+
+    if np.any(mask.ravel()):
+        #Coarse find peaks (pixel level)
+        pks = imregionalmax(im_sm, pkExclRadius, localMaxRequired=False, imask=mask)[0].T
+        #Peak Refine (parabaloid fit)
+        pks_sp = refinePeaks(im_sm, pks[:,:2], pkRefineWinsz, verbose=verbose, **kwargs)[:,:3]
+        #crop for valid & in-bounds
+        ind = np.where((np.isfinite(pks_sp[:,0])) & (pks_sp[:,0]>0) & (pks_sp[:,0]<inim.shape[1]) & (pks_sp[:,1]>0) & (pks_sp[:,1]<inim.shape[0]))[0]
+        pks_sp = pks_sp[ind,:]
+    else:
+        pks_sp = np.empty((0,3))
 
     if not (inax is None):
         inax.imshow(im_sm, origin='lower')
