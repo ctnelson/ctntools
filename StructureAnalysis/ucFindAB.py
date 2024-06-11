@@ -218,9 +218,9 @@ def ucFindAB(im, imMask=None, ucScaleGuess=None, swUCScalar=4.1, pxlprUC=20, dow
         if not (inax[2] is None):
             inax[2].set_title('swMAD Angular Self-Similarity')
 
-    a, b, ascore, bscore = abGuessFromScoredPeaks(pks, xy0=xy0, alphaGuess=alphaGuess, rexcl=x[minRind], rGuess=pk1Dist, **kwargs)
-    a = (pks[a,:2]-xy0)
-    b = (pks[b,:2]-xy0)
+    aInd, bInd, ascore, bscore = abGuessFromScoredPeaks(pks, xy0=xy0, alphaGuess=alphaGuess, rexcl=x[minRind], rGuess=pk1Dist, **kwargs)
+    a = (pks[aInd,:2]-xy0)
+    b = (pks[bInd,:2]-xy0)
 
     #plot
     if not (inax[0] is None):
@@ -244,5 +244,5 @@ def ucFindAB(im, imMask=None, ucScaleGuess=None, swUCScalar=4.1, pxlprUC=20, dow
     dists = dists*np.min(ds)
     distr = np.vstack((x*np.min(ds),distr))
     
-    outDict = {'pks':pks, 'scores':scores, 'aInd':aind, 'bInd':bind, 'dists':dists, 'radDistr':distr, 'dInd':distInds}
+    outDict = {'pks':pks, 'scores':scores, 'aInd':aInd, 'bInd':bInd, 'dists':dists, 'radDistr':distr, 'dInd':distInds}
     return a, b, outDict
