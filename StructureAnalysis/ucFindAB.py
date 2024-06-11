@@ -16,7 +16,7 @@ from ctntools.PeakFinding.findPeaks import findPeaks                            
 
 ################################## select basis vectors for an xy list of scored candidates #############################
 #attempts to guess ab vectors as selections from an array of candidate peaks with associated scores
-def abGuessFromScoredPeaks(pks, xy0=np.zeros((2,)), alphaGuess=90, alphaExclusions=[[0,10],[190,10]], rexcl=0, rGuess=None, aOrientTarget=0, awt = [.75,0.,.25], bwt=[1/3,1/3,1/3], normalize=1, **kwargs):
+def abGuessFromScoredPeaks(pks, xy0=np.zeros((2,)), alphaGuess=90, alphaExclusions=[[0,10],[190,10]], rexcl=0, rGuess=None, aOrientTarget=0, awt = [.75,0.05,.2], bwt=[1/3,1/3,1/3], normalize=1, **kwargs):
     ### Inputs ###:
     #pks                        :   [m,3] or [m,5] array of peaks [x,y,score] or [x,y,score,rmag,rang]
     #xy0            (optional)  :   center point (defaults to [0,0])
@@ -152,10 +152,14 @@ def ucFindAB(im, imMask=None, ucScaleGuess=None, swUCScalar=4.1, pxlprUC=20, dow
         inax[0].clear() 
         inax[0].imshow(swid,cmap='gray',origin='lower',vmin=np.nanmin(swid.ravel()),vmax=np.nanmax(swid.ravel()))
         inax[0].set_title('Image sliding window MeanAbsDiff')
-        loc = inax[0].get_xticks()
-        inax[0].set_xticklabels(loc-xy0[1])
-        loc = inax[0].get_yticks()
-        inax[0].set_yticklabels(loc-xy0[0])
+        xticks = np.array([-1,-.5,0,.5,1])*(swid.shape[1]-1)/2 + (swid.shape[1]-1)/2
+        xticklbl = np.array([-1,-.5,0,.5,1])*(swid.shape[1]-1)/2
+        yticks = np.array([-1,-.5,0,.5,1])*(swid.shape[0]-1)/2 + (swid.shape[0]-1)/2
+        yticklbl = np.array([-1,-.5,0,.5,1])*(swid.shape[0]-1)/2
+        inax[0].set_xticks(xticks)
+        inax[0].set_xticklabels(xticklbl)
+        inax[0].set_yticks(yticks)
+        inax[0].set_yticklabels(yticklbl)
 
     #Radial distribution
     x, distr, density, _, _ = radKDE(swid, rstp=radKDE_stp, method='interp', xyscale=xyscale)
