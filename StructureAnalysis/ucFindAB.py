@@ -16,11 +16,12 @@ from ctntools.PeakFinding.findPeaks import findPeaks                            
 
 ################################## select basis vectors for an xy list of scored candidates #############################
 #attempts to guess ab vectors as selections from an array of candidate peaks with associated scores
-def abGuessFromScoredPeaks(pks, xy0=np.zeros((2,)), alphaGuess=90, rexcl=0, rGuess=None, aOrientTarget=0, awt = [.75,0.,.25], bwt=[1/3,1/3,1/3], normalize=1, **kwargs):
+def abGuessFromScoredPeaks(pks, xy0=np.zeros((2,)), alphaGuess=90, alphaExclusions=[[0,10],[190,10]], rexcl=0, rGuess=None, aOrientTarget=0, awt = [.75,0.,.25], bwt=[1/3,1/3,1/3], normalize=1, **kwargs):
     ### Inputs ###:
     #pks                        :   [m,3] or [m,5] array of peaks [x,y,score] or [x,y,score,rmag,rang]
     #xy0            (optional)  :   center point (defaults to [0,0])
     #alphaGuess     (optional)  :   target for internal angle (deg)
+    #alphaExclusions(optional)  :   [#,2] or None. internal angle exclusion ranges as pairs of [target,distance] (e.g. [[0,10],[190,10]] excludes finding for a -10-10 deg & 180-200 deg internal angle)
     #rexcl          (optional)  :   minimum exclusion radius
     #rGuess         (optional)  :   guess for a and b magnitude
     #aOrientTarget  (optional)  :   target for a-vector orientation (deg)
@@ -34,6 +35,7 @@ def abGuessFromScoredPeaks(pks, xy0=np.zeros((2,)), alphaGuess=90, rexcl=0, rGue
     #bscore                     :   the scores as b-vector of all candidates
 
     #Set setup
+    alphaExclusions = np.deg2rad(np.array(alphaExclusions))
     alphaGuess = np.deg2rad(alphaGuess)         #convert to radians
     aOrientTarget = np.deg2rad(aOrientTarget)
 
@@ -70,6 +72,11 @@ def abGuessFromScoredPeaks(pks, xy0=np.zeros((2,)), alphaGuess=90, rexcl=0, rGue
     angdelta = np.min(np.abs(np.vstack((pks[:,4]-pks[aind,4]-alphaGuess,pks[:,4]-(pks[aind,4]-alphaGuess+2*np.pi)))),axis=0)
     angdelta = angdelta/np.max(np.abs(angdelta))
     bscore = bwt[1]*pksR + bwt[2]*(angdelta) + bwt[0]*pksA
+    if not (alphaExclusions is None):
+        assert(np.ndim(alphaExclusions)==2 & alphaExclusions.shape[1]==2)
+        for i in range(alphaExclusions.shape[0]):
+            temp = (angdelta-alphaExclusions[i,0])
+            bscore = np.where(angdelta>=alphaExclusions[i,0] & angdelta<=alphaExclusions[i,1],np.nan,bscore)
     bscore[ind] = np.nan
     bscore[aind] = np.nan
     bind = np.nanargmin(bscore) #b vector selection
