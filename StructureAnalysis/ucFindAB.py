@@ -100,6 +100,11 @@ def ucFindAB(im, imMask=None, ucScaleGuess=None, swUCScalar=4.1, pxlprUC=20, dow
     #verbose        (optional)  :   print execution details, 0=silent (no plots), 1=basic plots, 2=detailed
     #inax           (optional)  :   axes to plot on [3x]
 
+    ### Outputs ###
+    #a                          :   alpha vector
+    #b                          :   beta vector
+    #outDict =                  :   Dictionary of outputs & parameters:     'pks': peaks found in image, 'scores': scores for alpha & beta vectors, 'aInd': peak index for alpha vector, 'bInd': peak index for beta vector, 'dists': distance points (first min, first max, max), 'radDistr': radial distribution, 'dInd':distance point indices
+    
     #initial settings
     radKDE_stp = .1
 
@@ -146,6 +151,10 @@ def ucFindAB(im, imMask=None, ucScaleGuess=None, swUCScalar=4.1, pxlprUC=20, dow
         inax[0].clear() 
         inax[0].imshow(swid,cmap='gray',origin='lower',vmin=np.nanmin(swid.ravel()),vmax=np.nanmax(swid.ravel()))
         inax[0].set_title('Image sliding window MeanAbsDiff')
+        loc = inax[0].get_xticks()
+        inax[0].set_xticklabels(loc-xy0[1])
+        loc = inax[0].get_yticks()
+        inax[0].set_yticklabels(loc-xy0[0])
 
     #Radial distribution
     x, distr, density, _, _ = radKDE(swid, rstp=radKDE_stp, method='interp', xyscale=xyscale)
@@ -229,9 +238,15 @@ def ucFindAB(im, imMask=None, ucScaleGuess=None, swUCScalar=4.1, pxlprUC=20, dow
         inax[0].plot([rdistmin,imsz[1]-rdistmin,imsz[1]-rdistmin,rdistmin,rdistmin],[rdistmin,rdistmin,imsz[0]-rdistmin,imsz[0]-rdistmin,rdistmin],'-y',alpha=.25)
         inax[0].text(rdistmin,rdistmin,'edge exclusion',c='y',ha='left',va='top',alpha=.25)
 
+    #Outputs
+    dists = np.array([rdistmin, pk1Dist, mxPkDist])
+    distInds = np.array([minRind, pk1ind, mxPkind])
+    scores = np.vstack((ascore.ravel(),bscore.ravel()))
     #adjust for downsampling
     a = a*ds
     b = b*ds
-    rdistmin=rdistmin*np.min(ds)
-
-    return a, b, rdistmin
+    dists = dist*np.min(ds)
+    distr = np.vstack((x*ds,distr))
+    
+    outDict = {'pks':pks, 'scores':scores, 'aInd':aind, 'bInd':bind, 'dists':dists, 'radDistr':distr, 'dInd':distInds}
+    return a, b, outDict
