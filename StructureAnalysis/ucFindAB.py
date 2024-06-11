@@ -242,7 +242,7 @@ def ucFindAB(im, imMask=None, ucScaleGuess=None, swUCScalar=4.1, pxlprUC=20, dow
     a = a*ds
     b = b*ds
     dists = dists*np.min(ds)
-    distr = np.vstack((x*ds,distr))
+    distr = np.vstack((x*np.min(ds),distr))
     
     outDict = {'pks':pks, 'scores':scores, 'aInd':aind, 'bInd':bind, 'dists':dists, 'radDistr':distr, 'dInd':distInds}
     return a, b, outDict
