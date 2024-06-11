@@ -35,7 +35,8 @@ def abGuessFromScoredPeaks(pks, xy0=np.zeros((2,)), alphaGuess=90, alphaExclusio
     #bscore                     :   the scores as b-vector of all candidates
 
     #Set setup
-    alphaExclusions = np.deg2rad(np.array(alphaExclusions))
+    if not (alphaExclusions is None):
+        alphaExclusions = np.deg2rad(np.array(alphaExclusions))
     alphaGuess = np.deg2rad(alphaGuess)         #convert to radians
     aOrientTarget = np.deg2rad(aOrientTarget)
 
