@@ -174,10 +174,6 @@ def ucFindAB(im, imMask=None, ucScaleGuess=None, swUCScalar=4.1, pxlprUC=20, dow
     #Find Max peak after minima
     mxPkind = np.nanargmax(distr[1,minRind:])+minRind
     mxPkDist = x[mxPkind]
-
-    print('Min {:.2f}'.format(rdistmin))
-    print('Pk1 {:.2f}'.format(pk1Dist))
-    print('PkMax {:.2f}'.format(mxPkDist))
     
     #exclusion distance for peak finding
     if rExclSource=='firstMin':
@@ -245,7 +241,7 @@ def ucFindAB(im, imMask=None, ucScaleGuess=None, swUCScalar=4.1, pxlprUC=20, dow
     #adjust for downsampling
     a = a*ds
     b = b*ds
-    dists = dist*np.min(ds)
+    dists = dists*np.min(ds)
     distr = np.vstack((x*ds,distr))
     
     outDict = {'pks':pks, 'scores':scores, 'aInd':aind, 'bInd':bind, 'dists':dists, 'radDistr':distr, 'dInd':distInds}
