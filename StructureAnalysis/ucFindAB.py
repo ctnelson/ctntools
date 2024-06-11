@@ -1,8 +1,8 @@
-### Searches for periodic a- & b-vectors in an image ###
+################################## Searches for periodic a- & b-vectors in an image ######################################
 #abGuessFromScoredPeaks  :  function used by 'ucFindAB' to select basis vectors from candidates
 #ucFindAB                :  Protocol to find basis vectors. 1) find fft peaks, 2) bounded 'autocorrelation', 3) peak finding & scoring
 
-#Imports
+################################################  Imports  ###############################################################
 import numpy as np
 import matplotlib.pyplot as plt
 #Custom Imoports
@@ -11,8 +11,8 @@ from ctntools.StructureAnalysis.RadialProfile import radKDE                     
 from ctntools.SlidingWindow.swImDiff import swImDiff                                        #a sliding window self-similarity analysis
 from ctntools.SlidingWindow.Rot_imDiff import angarray_rotdiff                              #looks for rotation symmetry
 from ctntools.BaseSupportFunctions.imSampling import condDownsample                         #conditional downsampling
+from ctntools.BaseSupportFunctions.simpleFuns import distWrapped                            #distance on periodic axis
 from ctntools.PeakFinding.findPeaks import findPeaks                                        #peak finding protocol
-
 
 ################################## select basis vectors for an xy list of scored candidates #############################
 #attempts to guess ab vectors as selections from an array of candidate peaks with associated scores
@@ -75,8 +75,8 @@ def abGuessFromScoredPeaks(pks, xy0=np.zeros((2,)), alphaGuess=90, alphaExclusio
     if not (alphaExclusions is None):
         assert(np.ndim(alphaExclusions)==2 & alphaExclusions.shape[1]==2)
         for i in range(alphaExclusions.shape[0]):
-            temp = (angdelta-alphaExclusions[i,0])
-            bscore = np.where(angdelta>=alphaExclusions[i,0] & angdelta<=alphaExclusions[i,1],np.nan,bscore)
+            temp = np.abs(distWrapped(angdelta,alphaExclusions[i,0]))
+            bscore = np.where(temp<=alphaExclusions[i,1],np.nan,bscore)
     bscore[ind] = np.nan
     bscore[aind] = np.nan
     bind = np.nanargmin(bscore) #b vector selection
