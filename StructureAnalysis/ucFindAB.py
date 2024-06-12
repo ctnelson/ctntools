@@ -70,13 +70,14 @@ def abGuessFromScoredPeaks(pks, xy0=np.zeros((2,)), alphaGuess=90, alphaExclusio
     #if rGuess is None:
     rGuess = pks[aind,3]
     pksR = np.max(np.vstack((np.abs((pks[:,3]-rGuess)/rGuess),np.zeros_like(pks[:,3]))),axis=0)
-    angdelta = np.min(np.abs(np.vstack((pks[:,4]-pks[aind,4]-alphaGuess,pks[:,4]-(pks[aind,4]-alphaGuess+2*np.pi)))),axis=0)
-    angdelta = angdelta/np.max(np.abs(angdelta))
+    #angdelta = np.min(np.abs(np.vstack((pks[:,4]-pks[aind,4]-alphaGuess,pks[:,4]-(pks[aind,4]-alphaGuess+2*np.pi)))),axis=0)
+    #angdelta = angdelta/np.max(np.abs(angdelta))
+    angdelta = distWrapped(pks[:,4],pks[aind,4]-alphaGuess) / np.pi
     bscore = bwt[1]*pksR + bwt[2]*(angdelta) + bwt[0]*pksA
     if not (alphaExclusions is None):
         assert(np.ndim(alphaExclusions)==2 & alphaExclusions.shape[1]==2)
         for i in range(alphaExclusions.shape[0]):
-            temp = np.abs(distWrapped(angdelta,alphaExclusions[i,0]))
+            temp = np.abs(distWrapped(pks[:,4],alphaExclusions[i,0]))
             bscore = np.where(temp<=alphaExclusions[i,1],np.nan,bscore)
     bscore[ind] = np.nan
     bscore[aind] = np.nan
