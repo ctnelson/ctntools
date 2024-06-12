@@ -90,8 +90,9 @@ def ucFromSymm(im, M, abUCoffset=[.5,.5], swRadiusScalar=1.1, Mwt=None, symmCalc
         axClassify = None
 
     ### Get ab lattice vectors ###
-    a,b,atmMinR = ucFindAB(im, alphaGuess=alphaGuess, pxlprUC=pxlprUC, downsampleFlag=downsampleFlag, verbose=verbose, inax=axAB, principlePeakMethod=principlePeakMethod, **kwargs)
-
+    a,b,ucFabDict = ucFindAB(im, alphaGuess=alphaGuess, pxlprUC=pxlprUC, downsampleFlag=downsampleFlag, verbose=verbose, inax=axAB, principlePeakMethod=principlePeakMethod, **kwargs)
+    atmMinR = ucFabDict['dists'][0]
+    
     ### find UC candidates by symmetry ###
     #Downsample?
     abmag = np.array([(a[0]**2+a[1]**2)**.5,(b[0]**2+b[1]**2)**.5])
