@@ -16,7 +16,7 @@ from ctntools.PeakFinding.findPeaks import findPeaks                            
 
 ################################## select basis vectors for an xy list of scored candidates #############################
 #attempts to guess ab vectors as selections from an array of candidate peaks with associated scores
-def abGuessFromScoredPeaks(pks, xy0=np.zeros((2,)), alphaGuess=90, alphaExclusions=[[0,10],[190,10]], rexcl=0, rGuess=None, aOrientTarget=0, awt = [.75,0.05,.2], bwt=[1/3,1/3,1/3], normalize=1, **kwargs):
+def abGuessFromScoredPeaks(pks, xy0=np.zeros((2,)), alphaGuess=90, alphaExclusions=[[0,10],[180,10]], rexcl=0, rGuess=None, aOrientTarget=0, awt = [.75,0.05,.2], bwt=[1/3,1/3,1/3], normalize=1, **kwargs):
     ### Inputs ###:
     #pks                        :   [m,3] or [m,5] array of peaks [x,y,score] or [x,y,score,rmag,rang]
     #xy0            (optional)  :   center point (defaults to [0,0])
