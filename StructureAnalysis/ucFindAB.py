@@ -55,8 +55,9 @@ def abGuessFromScoredPeaks(pks, xy0=np.zeros((2,)), alphaGuess=90, alphaExclusio
     ind = np.where(pks[:,3]<rexcl)[0]
 
     #a vector score
-    angdelta = np.min(np.abs(np.vstack((pks[:,4]-aOrientTarget,pks[:,4]-(aOrientTarget+2*np.pi)))),axis=0)
-    angdelta = angdelta/np.max(np.abs(angdelta))
+    #angdelta = np.min(np.abs(np.vstack((pks[:,4]-aOrientTarget,pks[:,4]-(aOrientTarget+2*np.pi)))),axis=0)
+    #angdelta = angdelta/np.max(np.abs(angdelta))
+    angdelta = np.abs(distWrapped(pks[:,4],aOrientTarget)) / np.pi
     if rGuess is None:
         ascore = awt[2]*np.abs(angdelta) + awt[0]*pksA
     else:
@@ -77,7 +78,7 @@ def abGuessFromScoredPeaks(pks, xy0=np.zeros((2,)), alphaGuess=90, alphaExclusio
     if not (alphaExclusions is None):
         assert(np.ndim(alphaExclusions)==2 & alphaExclusions.shape[1]==2)
         for i in range(alphaExclusions.shape[0]):
-            temp = np.abs(distWrapped(pks[:,4],alphaExclusions[i,0]))
+            temp = np.abs(distWrapped(pks[:,4],pks[aind,4]+alphaExclusions[i,0]))
             bscore = np.where(temp<=alphaExclusions[i,1],np.nan,bscore)
     bscore[ind] = np.nan
     bscore[aind] = np.nan
