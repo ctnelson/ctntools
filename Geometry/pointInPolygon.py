@@ -65,7 +65,7 @@ def imIndInPoly(imSz,vrts,ixx=None,iyy=None):
     #ind    :   indices of points within polygon
 
     if (ixx is None) or (iyy is None):
-        ixx,iyy = np.meshgrid(np.arange(im[1]),np.arange(im[0]))
+        ixx,iyy = np.meshgrid(np.arange(imSz[1]),np.arange(imSz[0]))
     #boundary box
     bnds = np.array([np.floor(np.min(vrts[:,0])), np.ceil(np.max(vrts[:,0])), np.floor(np.min(vrts[:,1])), np.ceil(np.max(vrts[:,1]))],dtype='int')
     #valid bounds
