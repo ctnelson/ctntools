@@ -76,7 +76,6 @@ def fftPeaks(inim, gaussSigma = 1, subpixelfit=True, thresh=0.15, normalize=True
       rpk = x[ind]  
   else:
       raise ValueError('unknown principlePeakMethod, must be "first" or "max"')
-  rpk = inim_sz[0]/rpk*normXYscale[0]
   
   #normalize
   im_fft_sm = (im_fft_sm - np.min(im_fft_sm))/np.ptp(im_fft_sm)
@@ -100,6 +99,7 @@ def fftPeaks(inim, gaussSigma = 1, subpixelfit=True, thresh=0.15, normalize=True
       xy_v = xy_fft.copy()
   
   #convert to real space
+  rpk = inim_sz[0]/rpk*normXYscale[0]
   dx = xy_v[0,:]-xy0[0]
   dy = xy_v[1,:]-xy0[1]
   abc = LineFromFractIntercepts(inim_sz,dx,dy)
