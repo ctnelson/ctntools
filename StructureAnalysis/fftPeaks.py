@@ -101,7 +101,7 @@ def fftPeaks(inim, gaussSigma = 1, subpixelfit=True, thresh=0.15, normalize=True
   #convert to real space
   dx = xy_v[0,:]-xy0[0]
   dy = xy_v[1,:]-xy0[1]
-  abc = LineFromFracIntercepts(inim_sz,dx,dy)
+  abc = LineFromFractIntercepts(inim_sz,dx,dy)
   xy = NearestPointonLine(abc[:,0],abc[:,1],abc[:,2],[0,0])
   #r = np.sqrt((dx*normXYscale[0])**2+(dy*normXYscale[1])**2)
   xy_v[0,:] = xy[:,0]
