@@ -4,6 +4,8 @@ from ctntools.BaseSupportFunctions.kernels import gKernel2D
 from ctntools.PeakFinding.peakfitting import refinePeaks
 from ctntools.Convolution.kde1D import kde1D
 from ctntools.StructureAnalysis.RadialProfile import radKDE
+from ctntools.Geometry.LineFuncs import LineFromFractIntercepts, NearestPointonLine
+
 from scipy.ndimage import convolve
 import numpy as np
 import matplotlib.pyplot as plt
@@ -31,10 +33,10 @@ def fftPeaks(inim, gaussSigma = 1, subpixelfit=True, thresh=0.15, normalize=True
   scattersz = 20        #marker size for fit positions
   kde1Dsigma = .5
   #Parameters
-  inim_sz = np.array(inim.shape)
-  XYscale = 1/inim_sz[[1,0]]
+  inim_sz = np.array(inim.shape)[[1,0]]
+  XYscale = 1/inim_sz
   normXYscale = XYscale/np.min(XYscale)
-  xy0 = np.floor(inim_sz/2)[[1,0]]
+  xy0 = np.floor(inim_sz/2)
   
   #Normalize
   if normalize:
@@ -42,7 +44,7 @@ def fftPeaks(inim, gaussSigma = 1, subpixelfit=True, thresh=0.15, normalize=True
       inim = inim-np.nanmean(inim.ravel())
   
   #FFT
-  hann = np.outer(np.hanning(inim_sz[0]),np.hanning(inim_sz[1]))
+  hann = np.outer(np.hanning(inim_sz[1]),np.hanning(inim_sz[0]))
   im_fft = np.abs(np.fft.fftshift(np.fft.fft2(hann*inim)))
   
   #smooth
@@ -79,7 +81,7 @@ def fftPeaks(inim, gaussSigma = 1, subpixelfit=True, thresh=0.15, normalize=True
   im_fft_sm = (im_fft_sm - np.min(im_fft_sm))/np.ptp(im_fft_sm)
   
   #peaks
-  xx,yy = np.meshgrid(np.arange(inim_sz[1]),np.arange(inim_sz[0]))
+  xx,yy = np.meshgrid(np.arange(inim_sz[0]),np.arange(inim_sz[1]))
   dx = xx-xy0[0]
   dy = yy-xy0[1]
   dx = dx*normXYscale[0]
@@ -99,9 +101,11 @@ def fftPeaks(inim, gaussSigma = 1, subpixelfit=True, thresh=0.15, normalize=True
   #convert to real space
   dx = xy_v[0,:]-xy0[0]
   dy = xy_v[1,:]-xy0[1]
-  r = np.sqrt((dx*normXYscale[0])**2+(dy*normXYscale[1])**2)
-  xy_v[0,:] = inim_sz[1]/dx
-  xy_v[1,:] = inim_sz[0]/dy
+  abc = LineFromFracIntercepts(inim_sz,dx,dy)
+  xy = NearestPointonLine(abc[:,0],abc[:,1],abc[:,2],[0,0])
+  #r = np.sqrt((dx*normXYscale[0])**2+(dy*normXYscale[1])**2)
+  xy_v[0,:] = xy[:,0]
+  xy_v[1,:] = xy[:,1]
   
   #Plot?
   rng = 1.1 * np.nanmax(r)
