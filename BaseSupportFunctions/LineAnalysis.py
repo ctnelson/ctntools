@@ -78,3 +78,37 @@ def findScreeElbow(y, elbowMethod='LineOutlier', gradThresh=.03, kinkThresh=.01,
     return elbowInd
 
 #####################################################  findPeaksInDecayingFun  #####################################################
+#Looks for peaks in a decaying function
+#A simple wrapper around scipy.signal find_peaks function
+def findPeaksInDecayingFun(f, pkdfNormFlag=True, pkdfGaussSigma=0, pkdfPeaksOnlyAfterMinima=None, prominence=(.001, None), width=2,**kwargs):
+    ### Inputs ###
+    #f                              :   [n,1] function
+    #pkdfNormFlag                   :   Flag to normalize data
+    #pkdfGaussSigma                 :   Sigma for gaussian smoothing. Set 0 to ignore
+    #pkdfPeaksOnlyAfterMinima       :   None or Int. Exclude prior to minima #'pkdfPeaksOnlyAfterMinima'. Set to None to ignore this condition.
+    #prominence                     :   find_peaks min & max prominence
+    #width                          :   find_peaks min width
+    ### Outputs ### 
+    #maxPkInd                       :   Indices of maxima
+    #minInd0                        :   Index of initial minima (or zero if not used)
+
+    #Normalize?
+    if pkdfNormFlag:
+        f = (f-np.nanmin(f.ravel())) / (np.nanmax(f.ravel()) - np.nanmin(f.ravel()))
+
+    #Smooth?
+    if pkdfGaussSigma>0:
+        k = gKernel1D(pkdfGaussSigma,rscalar=3)
+        f = convolve(f,k,mode='nearest')
+
+    #Minima
+    if pkdfPeaksOnlyAfterMinima is None:
+        minInd0 = 0
+    else:
+        minPkInd,_ = find_peaks(np.nanmax(f.ravel())-f,prominence=prominence, width=width, **kwargs)
+        minInd0 = minPkInd[pkdfPeaksOnlyAfterMinima]
+    #Maxima
+    maxPkInd,_ = find_peaks(f[minInd0:],prominence=(.001, None), width=2)
+    maxPkInd += minInd0
+
+    return maxPkInd, minInd0
