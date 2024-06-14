@@ -1,6 +1,15 @@
 import numpy as np
 import matplotlib.pyplot as plt
+from scipy.signal import find_peaks
+from scipy.ndimage import convolve
 
+from ctntools.BaseSupportFunctions.kernels import gKernel1D
+
+########################################################  Contents  #########################################################
+#findScreeElbow                :    Function finds the 'elbow' in a monotonic function (decaying gradient)
+#findPeaksInDecayingFun        :    Function finds peaks in a monotonic decaying function
+
+#####################################################  findScreeElbow  #####################################################
 #Function finds the 'elbow' in a monotonic function (decaying gradient)
 #Includes the consideration that it is not present
 #Function is designed to find the 'elbow' for optimum latent parameter number for classfications such as PCA, NMF, KMeans, etc. 
@@ -67,3 +76,5 @@ def findScreeElbow(y, elbowMethod='LineOutlier', gradThresh=.03, kinkThresh=.01,
             inax.text(elbowInd,m[elbowInd]*elbowInd+c[elbowInd]+kinkThresh,'Gradient Kink Threshold',va='bottom',ha='left',color='r',alpha=.25)
 
     return elbowInd
+
+#####################################################  findPeaksInDecayingFun  #####################################################
