@@ -109,6 +109,7 @@ def fftPeaks(inim, gaussSigma = 1, subpixelfit=True, thresh=0.15, normalize=True
   
   #Plot?
   rng = 1.1 * np.nanmax(r)
+  print('Range: {:.2f}'.format(rng))
   xlim_ = [np.floor(im_fft.shape[1]/2-rng), np.ceil(im_fft.shape[1]/2+rng)]
   ylim_ = [np.floor(im_fft.shape[0]/2-rng), np.ceil(im_fft.shape[0]/2+rng)]
       
