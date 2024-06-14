@@ -76,6 +76,7 @@ def fftPeaks(inim, gaussSigma = 1, subpixelfit=True, thresh=0.15, normalize=True
       rpk = x[ind]  
   else:
       raise ValueError('unknown principlePeakMethod, must be "first" or "max"')
+  rpk = inim_sz[0]/rpk*normXYscale[0]
   
   #normalize
   im_fft_sm = (im_fft_sm - np.min(im_fft_sm))/np.ptp(im_fft_sm)
