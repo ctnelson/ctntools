@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+from tqdm import tqdm
 from sklearn.cluster import KMeans
 from ctntools.BaseSupportFunctions.LineAnalysis import findScreeElbow
 
@@ -43,7 +44,7 @@ def subImStackKMeans(iStack, maxClasses=10, findClassNum=True, classNaNMethod='r
                 print('Manually selected {:d} classes'.format(kmClustN))
     else:
         #Loop performing Kmeans for different #classes
-        for i in np.arange(1,maxClasses+1):
+        for i in tqdm(np.arange(1,maxClasses+1), desc='Performing KMeans for numerous cluser numbers', disable=(verbose==0)):
             kmeans = KMeans(n_clusters=i, random_state=0).fit(X_vec)
             km_labels[i-1,:] = kmeans.labels_ #kmeans.predict(kmdata)
             km_inertia[i-1] = kmeans.inertia_
