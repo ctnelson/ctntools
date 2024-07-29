@@ -105,7 +105,7 @@ def findPeaksInDecayingFun(f, pkdfNormFlag=True, pkdfGaussSigma=0, pkdfPeaksOnly
     if pkdfPeaksOnlyAfterMinima is None:
         minInd0 = 0
     else:
-        minPkInd,_ = find_peaks(np.nanmax(f.ravel())-f,prominence=prominence, width=width, **kwargs)
+        minPkInd,_ = find_peaks(np.nanmax(f.ravel())-f,prominence=prominence, width=width)
         minInd0 = minPkInd[pkdfPeaksOnlyAfterMinima]
     #Maxima
     maxPkInd,_ = find_peaks(f[minInd0:],prominence=(.001, None), width=2)
