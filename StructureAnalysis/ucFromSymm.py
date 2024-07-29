@@ -115,6 +115,8 @@ def ucFromSymm(im, M, abUCoffset=[.5,.5], swRadiusScalar=1.1, Mwt=None, symmCalc
     #Find peaks
     pkExclRadius=np.min(abmag/ds)*rExclScalar
     edgeExcl=np.max(abmag/ds)*edgeExclScalar
+    print(atmMinR)
+    print(ds)
     pkRefineWinsz = np.array([atmMinR, atmMinR])/ds/2
     pks_sp,_ = findPeaks(swSymm_combined, pFsig=1, pkExclRadius=pkExclRadius, edgeExcl=edgeExcl, iThresh=pkThresh, pkRefineWinsz=pkRefineWinsz, progressDescr='Fitting Candidate Peaks...',  inax=axSymmfit[0], verbose=verbose, **kwargs)
     
