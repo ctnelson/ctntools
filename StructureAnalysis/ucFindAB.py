@@ -117,7 +117,7 @@ def ucFindAB(im, imMask=None, ucScaleGuess=None, swUCScalar=4.1, pxlprUC=20, dow
 
     #Initial Unit Cell size estimate (if not provided estimate from FFT)
     if ucScaleGuess is None: 
-        _,_,_,fftPkRadial,principlePkIndex,_ fftPeaks(im, inax=inax, **kwargs)     #FFT
+        _,_,_,fftPkRadial,principlePkIndex,_ = fftPeaks(im, inax=inax, **kwargs)     #FFT
         ucScaleGuess = fftPkRadial[0,principlePkIndex]
         if verbose==2:
             print('Initial scale estimate by FFT: {:.2f}'.format(ucScaleGuess))
