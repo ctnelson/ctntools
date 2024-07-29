@@ -10,7 +10,7 @@ from scipy.ndimage import convolve
 import numpy as np
 import matplotlib.pyplot as plt
 
-def fftPeaks(inim, gaussSigma = 1, subpixelfit=True, thresh=0.1, normalize=True, minRExclusionMethod = 'afterminima', principlePeakMethod = 'first', inax=[None]*3, verbose=False, **kwargs):
+def fftPeaks(inim, gaussSigma = 1, subpixelfit=True, thresh=0.1, normalize=True, minRExclusionMethod='afterminima', principlePeakMethod='max', inax=[None]*3, verbose=False, **kwargs):
     #Inputs
     #inim                     :       input image
     #gaussSigma           (optional)  :   sigma for gaussian blur
