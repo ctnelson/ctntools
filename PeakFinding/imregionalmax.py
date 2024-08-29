@@ -62,7 +62,7 @@ def imregionalmax(inim, exclRadius=0, imask=None, maxPeaks=None, prominenceThres
         maxn = len(val)
     print(maxn)
     for ii in np.arange(maxn):
-        if zoneAssigned[sortind[ii]]>0: #==False:
+        if zoneAssigned[sortind[ii]]==0: #==False:
             #current point
             currpos = sortind[ii]
             cx = xx[sortind[ii]]
