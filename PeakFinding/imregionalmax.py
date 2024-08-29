@@ -57,11 +57,13 @@ def imregionalmax(inim, exclRadius=0, imask=None, maxPeaks=None, prominenceThres
     #Loop
     n=0
     if not(maxPeaks is None):
-        maxn = maxPeaks
+        maxPk = maxPeaks
     else:
-        maxn = len(val)
+        maxPk = len(val)
     print(maxn)
-    for ii in np.arange(maxn):
+    for ii in np.arange(len(val)):
+        if n>=maxPk:
+            break
         print(str(ii)+': '+str(zoneAssigned[sortind[ii]]))
         if zoneAssigned[sortind[ii]]==0: #==False:
             #current point
