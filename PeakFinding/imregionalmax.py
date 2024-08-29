@@ -87,8 +87,10 @@ def imregionalmax(inim, exclRadius=0, imask=None, maxPeaks=None, prominenceThres
 
             #local max test
             if localMaxRequired:
-                if np.any(val[ind]>val[currpos]):    #check if max within radius
-                    zoneAssigned[currpos]=-3
+                if np.any(val[ind]>val[currpos]):    #check if max within radius (continue in block if failure)
+                    zoneAssigned[currpos]=-3            #save local max failue
+                    tfind = np.where(zoneAssigned[ind]==0)[0]
+                    zoneAssigned[ind[tfind]]=-3        #remaining points in ROI will also fail
                     if verbose:
                         print(str(ii)+': not regional max:')
                     continue
