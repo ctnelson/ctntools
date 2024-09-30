@@ -100,6 +100,7 @@ def fftPeaks(inim, gaussSigma = 1, subpixelfit=True, thresh=0.1, normalize=True,
 
     #convert to real space
     #rpk = inim_sz[0]/rpk*normXYscale[0]
+    radialPks = np.append(radialPks[0,:][np.newaxis,:],radialPks,axis=0)
     radialPks[0,:] = inim_sz[0]/radialPks[0,:]*normXYscale[0]
     dx = xy_v[0,:]-xy0[0]
     dy = xy_v[1,:]-xy0[1]
