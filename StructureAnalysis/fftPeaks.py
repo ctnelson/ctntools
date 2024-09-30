@@ -26,7 +26,7 @@ def fftPeaks(inim, gaussSigma = 1, subpixelfit=True, thresh=0.1, normalize=True,
     #xy_fft                   :       xy vectors in fft space
     #xy_v                     :       xy vectors converted to real space
     #distr                    :       radial distribution of FFT peaks
-    #radialPks                :       peaks of radial distribution (converted to real space)
+    #radialPks                :       [4,pkN] peaks of radial distribution. [x axis real space, x axis recip space, height, ]
     #ind0                     :       index of principle peak in radial distribution
     #im_fft                   :       fft image
 
