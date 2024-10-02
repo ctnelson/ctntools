@@ -1,4 +1,7 @@
-#swSlices      #Slices window grid on image give winSz and stride. Returns stack of image patches, grid size, grid origins, and an index stack indicating overlaps.
+#Funs for grids of image patches (for sliding window analysis)
+###################################################   Contents   ###################################################
+#swSlices      :        Slices grid of image patches within image given winSz and stride. Returns stack of image patches, grid size, grid origins, and an index stack indicating overlaps.
+#swScoreMin    :        Companion to swSlices that uses the returned index Stack to resolve overlapping windows according to a provided score (minimum)
 
 ###################################################   Imports   ####################################################
 import numpy as np
@@ -79,3 +82,42 @@ def swSlices(inim, winSz, stride, iplot=0, verbose=0):
         ax[1].set_title('Image Patch {:d}'.format(iplot))
         
     return imPatchStack, sliceWinSz, imPatchOrigin, sliceInd
+
+###################################################   swScoreMin   ####################################################
+#Designed to return Labels of minimum score for a sliding window segmented image. Resolves the case of overlapping stride so each point is a member of multiple image patches.
+#Backbone is the 'swInd' index array that maps the indices of the sliding window grid for each point returned as 'sliceInd' by swSlices
+def swScoreMin(swInd, iScore, iValue):
+    ### Inputs ###
+    #swInd      :   [h,w,N] array of sliding window address indices corresponding to an input image. 3rd dimension corresponds to sliding window overlap (indices in sw space for each point)
+    #iScore     :   [sw_h, sw_w]    scoring of sliding windown patches (lower is better)
+    #iValue     :   [sw_h, sw_w]    input Value 
+
+    ### Outputs ###
+    #oValue     :   [h,w] Value of location in iValue for index of minimum iScore
+    #minScore   :   [h,w] minimum iScore
+
+    #Setup
+    imSz = np.array([swInd.shape[0],swInd.shape[1]])                    #image dimensions 
+    
+    #
+    tscore = np.append(iScore.ravel(),np.nan)                           #temporary version of score that appends a NaN to the end so all -1 indices will return NaN
+    #Preallocate outputs set to NaN
+    minScore = np.ones((np.prod(imSz),))*np.nan                         #Minimum Score
+    minScoreInd = np.ones((np.prod(imSz),))*np.nan                      #Index of the minimum score
+    oValue = np.ones((np.prod(imSz)),)*np.nan                          #image Value
+    #
+    temp = np.nan_to_num(swInd,nan=-1).astype('int')                    #create temperary version of swInd with all valid indices (nan -> -1)
+    swSliceScore = tscore[temp]                                         #the corresponding scores of swSliceInd
+    swSliceScore = np.reshape(swSliceScore,(-1,swSliceScore.shape[-1])) 
+    ind = np.where(np.any(np.isfinite(swSliceScore),axis=1))[0]         #index of valid patches
+    minScore[ind] = np.nanmin(swSliceScore[ind,:],axis=1)               #return minimum score (where exists)
+    minScoreInd[ind] = np.nanargmin(swSliceScore[ind,:],axis=1)         #return position of minimum score (where exists)
+    minScoreInd[ind] = np.reshape(swInd,(-1,swInd.shape[-1]))[ind,minScoreInd[ind].astype('int')]
+    oValue[ind] = iValue[minScoreInd[ind].astype('int')]
+
+    #reshape
+    minScore = np.reshape(minScore,im.shape)
+    #minScoreInd = np.reshape(minScoreInd,im.shape)
+    oValue = np.reshape(oValue,(imSz))
+
+    return oValue, minScore
