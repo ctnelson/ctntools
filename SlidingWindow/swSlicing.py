@@ -116,8 +116,8 @@ def swScoreMin(swInd, iScore, iValue):
     oValue[ind] = iValue[minScoreInd[ind].astype('int')]
 
     #reshape
-    minScore = np.reshape(minScore,im.shape)
-    #minScoreInd = np.reshape(minScoreInd,im.shape)
+    minScore = np.reshape(minScore,imSz)
     oValue = np.reshape(oValue,(imSz))
+    #minScoreInd = np.reshape(minScoreInd,imSz)
 
     return oValue, minScore
