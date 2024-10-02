@@ -7,7 +7,7 @@ from ctntools.Classification.LatentSpaceSupportFuns import ClassLatPositions, ge
 
 #########################################################   clusterPrune   ###########################################################
 #Prune Clusters in a (Latent?) Coordinate Space
-def clusterPrune(dataLatCoords, dClassLabels, classLatCoords=None, dClassN=None, RefMethod='minfrac', RefThresh=None, RefThresh_maxN=3, RefThresh_minPop=10, RefThresh_minFract=.04, ReClassMethod='latDist', ReClass_latDist=3, latNorm='classStd', reClassOnlyPruned=False, verbose=verbose):
+def clusterPrune(dataLatCoords, dClassLabels, classLatCoords=None, dClassN=None, RefMethod='minfrac', RefThresh=None, RefThresh_maxN=3, RefThresh_minPop=10, RefThresh_minFract=.04, ReClassMethod='latDist', ReClass_latDist=3, latNorm='classStd', reClassOnlyPruned=False, verbose=0):
     ### Inputs (Required) ###
     #dataLatCoords      :   [m,n]   data coordinates
     #dClassLabels       :   [m,]    data labels (numeric), noise/unclassified = -1
