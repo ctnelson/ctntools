@@ -14,14 +14,15 @@ from ctntools.BaseSupportFunctions.kernels import gKernel1D
 #Includes the consideration that it is not present
 #Function is designed to find the 'elbow' for optimum latent parameter number for classfications such as PCA, NMF, KMeans, etc. 
 #Choice of method: 'GradientThresh' will return for the first point the gradient falls below a threshold. 'LineOutlier' looks for the start of a linear region within a threshold value.
-def findScreeElbow(y, elbowMethod='LineOutlier', gradThresh=.03, kinkThresh=.01, minLinearLen=3, fSEnormalize=True, inax=None, **kwargs):
+def findScreeElbow(y, elbowMethod='LineOutlier', gradThresh=.03, kinkThresh=.01, minLinearLen=3, fSEnormalize=True, xAxisNorm=True, inax=None, **kwargs):
     ### Inputs ###
     #y                  :   [n,] input array. 
     #fSEMethod          :   'GradientThresh', 'LineOutlier'. Method to find eblow. 'GradientThresh' uses a slope threshold, 'LineOutlier' looks for a point of deviation of an array that ends in a linear region
     #gradThresh         :   threshold of improvement for incrementing additional class # (this is the criteria used to autoselect class #)
     #asymThresh         :   threshold for finding a kink. Looks for outlier from a linear regression of high # classes.
     #minLinearLen       :   for 'LineOutlier' method, minimum length at end of plot for linear regression
-    #fSEnormalize       :   flag to normalize y
+    #fSEnormalize       :   flag to normalize y (only used for GradientThresh)
+    #xAxisNorm          :   flag to normalize x (only used for GradientThresh)
     #inax               :   axis for optional plotting of results
 
     ### Outputs ###
@@ -33,10 +34,14 @@ def findScreeElbow(y, elbowMethod='LineOutlier', gradThresh=.03, kinkThresh=.01,
     #normalize?
     if fSEnormalize:
         y=y/np.max(y)
+    if xAxisNorm:
+        dx=1/y.size
+    else:
+        dx=1
 
     #Find by gradient threshold
     if elbowMethod=='GradientThresh':            
-        dyn = y[0:-1]-y[1:]
+        dyn = (y[0:-1]-y[1:])/dx
         elbowInd = np.argmax(np.abs(dyn)<gradThresh)
 
     #Find by onset of linear region at end of function
