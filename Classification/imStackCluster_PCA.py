@@ -33,6 +33,7 @@ def imStackCluster_PCA(imStack, Ndims=None, compN=None, componentMax=10, pcaNorm
     ### Outputs ###
     #cLabels            :      [N,] cluster label
     #cClassN            :      number of classes
+    #PCAValidInd        :      index of valid datapoints for PCA
     #PCAloading         :      [N, componentNum] PCA scores of downselected # of components
     #PCAcomponents      :      PCA components (downselected)
 
@@ -56,8 +57,8 @@ def imStackCluster_PCA(imStack, Ndims=None, compN=None, componentMax=10, pcaNorm
         raise ValueError('pca normalization method pcaNormalize not recognized, should be Global, Frame, or none') 
 
     #Remove invalid
-    pcaValidInd=np.where(np.all(np.isfinite(normXvec),axis=0))[0]
-    normXvec = normXvec[:,pcaValidInd]
+    PCAValidInd=np.where(np.all(np.isfinite(normXvec),axis=0))[0]
+    normXvec = normXvec[:,PCAValidInd]
 
     #Perform PCA
     pca = decomposition.PCA(componentMax)
@@ -105,4 +106,4 @@ def imStackCluster_PCA(imStack, Ndims=None, compN=None, componentMax=10, pcaNorm
         axPCAscree.set_xlabel('# Components')
         axPCAscree.set_ylabel('Explained Variance')
 
-    return cLabels, cClassN, PCAloading, PCAcomponents
+    return cLabels, cClassN, PCAValidInd, PCAloading, PCAcomponents
