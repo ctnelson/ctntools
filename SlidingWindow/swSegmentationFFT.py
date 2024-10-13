@@ -273,7 +273,6 @@ def swSegmentationFFT(im, imNormalize='none', winSz=None, stride=.5, fft_s=None,
     compN = PCAcomponents.shape[-1]
 
     ### Prune Clusters ###
-    tic=time.time()
     dReClassLabels, dReClassN = clusterPrune(PCAloading, cLabels, dClassN=cClassN, RefMethod=RefMethod, RefThresh=RefThresh, RefThresh_maxN=RefThresh_maxN, RefThresh_minPop=RefThresh_minPop, RefThresh_minFract=RefThresh_minFract, ReClassMethod=ReClassMethod, ReClass_latDist=ReClass_latDist, latNorm=latNorm, reClassOnlyPruned=reClassOnlyPruned, verbose=verbose)
     #plot?
     if verbose>1:
