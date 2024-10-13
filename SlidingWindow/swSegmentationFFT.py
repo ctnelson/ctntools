@@ -2,10 +2,13 @@
 
 ############################################## Contents ###################################################
 ### Sub Functions ###
-#getWinSz       :   Determine slicing window size (ensures multiple of stride)
-#getClassAvg    :   Determine the average by class
-#plotScore      :   Plots Score & Label Maps
-#plotLabelIm    :   plots final segmentation labels & colorized image
+#getWinSz           :   Determine slicing window size (ensures multiple of stride)
+#getClassAvg        :   Determine the average by class
+#plotScore          :   Plots Score & Label Maps
+#plotLabelIm        :   plots final segmentation labels & colorized image
+
+### Main ###
+#swSegmentationFFT  :   classify an image by a sliding window FFT
 
 ########################################### Imports #################################################
 import numpy as np
