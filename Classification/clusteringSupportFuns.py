@@ -52,7 +52,7 @@ def getNNbrThresh(inData, nbrKT=.03, nbrNum=1, verbose=0, inax=None):
 
 #A subset of sklearn clustering protocols that cluster quickly without an a priori number of clusters
 ############################################# Cluster_NumUnknown ################################################
-def Cluster_NumUnknown(inData, hyperparams=1, clustMethod='DBSCAN', verbose=0, **kwargs):
+def cluster_NumUnknown(inData, hyperparams=1, clustMethod='DBSCAN', verbose=0, **kwargs):
     ### Inputs ###
     #inData         :   [Ndatapoints, nDims] input data
     #hyperparams    :   threshold parameters for the various methods
