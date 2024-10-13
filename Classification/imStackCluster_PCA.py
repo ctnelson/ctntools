@@ -5,8 +5,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 from sklearn import decomposition
 
-from ctntools.BaseSupportFunctions.LineAnalysis import findScreeElbow                      #finds elbow in scree plot
-from ctntools.Classification.LatentSpaceSupportFuns import ClassLatPositions, plotPCA      #get latent class positions, plot PCA results
+from ctntools.BaseSupportFunctions.LineAnalysis import findScreeElbow           #finds elbow in scree plot
+from ctntools.Classification.LatentSpaceSupportFuns import plotPCA              #plot PCA results
 
 ############################################## imStackCluster_PCA ###############################################
 def imStackCluster_PCA(imStack, Ndims=None, compN=None, componentMax=10, pcaNormalize='Global', pcaScreeThresh=.1, clustMethod='DBSCAN', nnThreshScalar=1.0, nbrKT=.03, nbrNum=1, verbose=0, **kwargs):
