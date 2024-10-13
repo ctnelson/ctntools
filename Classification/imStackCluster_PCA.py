@@ -36,7 +36,7 @@ def imStackCluster_PCA(imStack, Ndims=None, compN=None, componentMax=10, pcaNorm
     #PCAValidInd        :      index of valid datapoints for PCA
     #PCAloading         :      [N, componentNum] PCA scores of downselected # of components
     #PCAcomponents      :      PCA components (downselected)
-
+    #pca                :      pca 
 
     ############## PCA ###############
     #Prepare Data
@@ -106,4 +106,4 @@ def imStackCluster_PCA(imStack, Ndims=None, compN=None, componentMax=10, pcaNorm
         axPCAscree.set_xlabel('# Components')
         axPCAscree.set_ylabel('Explained Variance')
 
-    return cLabels, cClassN, PCAValidInd, PCAloading, PCAcomponents
+    return cLabels, cClassN, PCAValidInd, PCAloading, PCAcomponents, pca
