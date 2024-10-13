@@ -157,7 +157,7 @@ def plotPCA(inScree, inComponents, inComponentMap, figW=18, figH=None, scalebarW
 
     #Scree plot
     axScree = fig.add_subplot(gs[:, 0])
-    axScree.plot(inScree,'-k')
+    axScree.plot(np.arange(inScree.size)+1, inScree, '-k')
     axScree.set_title('Scree Plot')
     axScree.set_xlabel('# Components')
     axScree.set_ylabel('Explained Variance')
