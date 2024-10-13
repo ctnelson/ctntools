@@ -91,7 +91,7 @@ def imStackCluster_PCA(imStack, Ndims=None, compN=None, componentMax=10, pcaNorm
     if verbose>1:
         if not(Ndims is None):
             if Ndims.size==2:
-                compMap = np.reshape(PCAloading,(Ndims[0],Ndims[1],compN))
+                compMap = np.reshape(PCAloading,(Ndims[1],Ndims[0],compN))
             elif ((Ndims.shape[0]==imSz[-1]) and (Ndims.shape[1]==2)):
                 raise ValueError('Nx2 loading map xy positions not yet coded')
             else:
