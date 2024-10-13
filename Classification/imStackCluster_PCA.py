@@ -73,7 +73,7 @@ def imStackCluster_PCA(imStack, Ndims=None, compN=None, componentMax=10, pcaNorm
     PCAloading = pca.fit_transform(normXvec)
     PCAloading = PCAloading[:,:compN]
     PCAcomponents = np.ones((imSz[0]*imSz[1],componentMax))*np.nan
-    PCAcomponents[pcaValidInd,:] = pca.components_.T
+    PCAcomponents[PCAValidInd,:] = pca.components_.T
     PCAcomponents = PCAcomponents.reshape(imSz[0], imSz[1],-1)
     PCAcomponents = PCAcomponents[:,:,:compN]
 
