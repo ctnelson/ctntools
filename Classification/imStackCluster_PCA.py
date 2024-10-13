@@ -68,7 +68,9 @@ def imStackCluster_PCA(imStack, Ndims=None, compN=None, componentMax=10, pcaNorm
     explained_var = pca.explained_variance_ratio_ 
     if compN is None:
         compN = findScreeElbow(explained_var, elbowMethod='LineOutlier', kinkThresh=pcaScreeThresh, minLinearLen=3, fSEnormalize=True, inax=None)+1 
-
+    if verbose>0:
+        print('Autoselected {:d} PCA Components'.format(compN))
+        
     #PCA variables
     PCAloading = pca.fit_transform(normXvec)
     PCAloading = PCAloading[:,:compN]
@@ -85,10 +87,6 @@ def imStackCluster_PCA(imStack, Ndims=None, compN=None, componentMax=10, pcaNorm
     cLabels, cClassN = cluster_NumUnknown(PCAloading, hyperparams=nnThresh*nnThreshScalar, clustMethod=clustMethod, verbose=verbose, **kwargs)
 
     ############## Display ###############
-    if verbose>0:
-        print('Autoselected {:d} PCA Components'.format(compN))
-        print('Autoselected cluster number: {:d}'.format(cClassN))
-    #plots
     if verbose>1:
         if not(Ndims is None):
             if Ndims.size==2:
