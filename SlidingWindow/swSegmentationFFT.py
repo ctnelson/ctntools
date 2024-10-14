@@ -287,14 +287,17 @@ def swSegmentationFFT(im, imNormalize='none', winSz=None, stride=.5, fft_s=None,
     ### Determine Output Image Labels & Class Averages ###
     #Class Averages
     if returnClass=='Avg':
+        print('return Avg')
         classAvg = getClassAvg(Xvec[:,PCAValidInd].T, dReClassLabels)
     elif returnClass=='PCAinv':
+        print('return PCA')
         if reclassLatCoords is None:
             reclassLatCoords = ClassLatPositions(PCAloading, dReClassLabels, lblArray=np.arange(dReClassN))
         temp = np.zeros((reclassLatCoords.shape[0],componentMax))
         temp[:,:compN] = reclassLatCoords
         classAvg = pca.inverse_transform(temp).T
     else:
+        print('return None')
         classAvg = None
     if (verbose>1) & (not (classAvg is None)):
         fig,ax = plt.subplots(1, classAvg.shape[-1], tight_layout=True, figsize=(18, 6), dpi = 100, facecolor=[.5,.75,.75])
