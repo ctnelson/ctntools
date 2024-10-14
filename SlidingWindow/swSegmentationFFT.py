@@ -329,6 +329,8 @@ def swSegmentationFFT(im, imNormalize='none', winSz=None, stride=.5, fft_s=None,
         imLabel = np.nan_to_num(imLabel,nan=-1).astype('int')
     #distance in latent space
     elif scoreMethod=='latDist':
+        if reclassLatCoords is None:
+            reclassLatCoords = ClassLatPositions(PCAloading, dReClassLabels, lblArray=np.arange(dReClassN))
         score = np.ones((dReClassLabels.size,))*np.nan
         ind = np.where(dReClassLabels>=0)[0]
         score[ind] = np.sqrt(np.sum((PCAloading[ind,:]-reclassLatCoords[dReClassLabels[ind],:])**2,axis=1))
