@@ -178,7 +178,7 @@ def swSegmentationFFT(im, imNormalize='none', winSz=None, stride=.5, fft_s=None,
 
     ########################################### Outputs #################################################
     #imLabel            :       class labels of image. Will be integers and non-classified / noise will be assigne -1
-    #classAvg           :       class average FFTs (if ReturnClass != None)
+    #classAvgIm         :       class average FFTs (if ReturnClass != None)
 
 
     ########################################### Main #####################################################
@@ -347,16 +347,16 @@ def swSegmentationFFT(im, imNormalize='none', winSz=None, stride=.5, fft_s=None,
         raise ValueError('scoreMethod not recognized. Must be Diff2Avg, LatDist, or All')
 
     #reshape class representation
-    if not (returnClass is None):
-        tClassAvg = np.ones((fftSz[0],fftSz[1],classAvg.shape[-1]))*np.nan
+    if (not (returnClass is None)) or (not (classAvg is None)):
+        classAvgIm = np.ones((fftSz[0],fftSz[1],classAvg.shape[-1]))*np.nan
         for i in range(classAvg.shape[-1]):
             #temp = np.ones((fftSz))*np.nan
             #temp.ravel()[PCAValidInd]=classAvg[:,i]
-            tClassAvg[:,:,i].ravel()[PCAValidInd]=classAvg[:,i]
+            classAvgIm[:,:,i].ravel()[PCAValidInd]=classAvg[:,i]
             print(classAvg[:,i])
-            print(tClassAvg[:,:,i].ravel()[PCAValidInd])
-        classAvg = tClassAvg
-        print(tClassAvg.shape)
+            print(classAvgIm[:,:,i].ravel()[PCAValidInd])
+    else:
+        classAvgIm = None
     
     if verbose>1:
         plotScore(np.reshape(dReClassLabels,(sWinSz[1],sWinSz[0])), score, cN=dReClassN)
@@ -374,4 +374,4 @@ def swSegmentationFFT(im, imNormalize='none', winSz=None, stride=.5, fft_s=None,
         plotLabelIm(im, imLabel, cN=dReClassN)
 
     ### Return ###
-    return imLabel, classAvg
+    return imLabel, classAvgIm
