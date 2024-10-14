@@ -298,7 +298,7 @@ def swSegmentationFFT(im, imNormalize='none', winSz=None, stride=.5, fft_s=None,
             temp[:,:compN] = reclassLatCoords
             classAvg = pca.inverse_transform(temp).T
         else:
-            raise ValueError('returnClass not recognized. Must be 'Avg', 'PCAinv', or None Type')
+            raise ValueError('returnClass not recognized. Must be Avg, PCAinv, or None Type')
     else: 
         print('return None')
         classAvg = None
