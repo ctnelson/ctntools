@@ -350,9 +350,10 @@ def swSegmentationFFT(im, imNormalize='none', winSz=None, stride=.5, fft_s=None,
     if (not (returnClass is None)) or (not (classAvg is None)):
         classAvgIm = np.ones((fftSz[0],fftSz[1],classAvg.shape[-1]))*np.nan
         for i in range(classAvg.shape[-1]):
-            #temp = np.ones((fftSz))*np.nan
-            #temp.ravel()[PCAValidInd]=classAvg[:,i]
-            classAvgIm[:,:,i].ravel()[PCAValidInd]=classAvg[:,i]
+            temp = np.ones((fftSz))*np.nan
+            temp.ravel()[PCAValidInd]=classAvg[:,i]
+            #classAvgIm[:,:,i].ravel()[PCAValidInd]=classAvg[:,i]
+            classAvgIm[:,:,i] = temp.copy()
             print(classAvg[:,i])
             print(classAvgIm[:,:,i].ravel()[PCAValidInd])
     else:
