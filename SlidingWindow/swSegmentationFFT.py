@@ -286,7 +286,7 @@ def swSegmentationFFT(im, imNormalize='none', winSz=None, stride=.5, fft_s=None,
 
     ### Determine Output Image Labels & Class Averages ###
     #Class Averages
-    if returnClass=='Avg':
+    if ((returnClass=='Avg') or (scoreMethod=='diff2Avg')):
         print('return Avg')
         classAvg = getClassAvg(Xvec[:,PCAValidInd].T, dReClassLabels)
     elif returnClass=='PCAinv':
@@ -311,8 +311,6 @@ def swSegmentationFFT(im, imNormalize='none', winSz=None, stride=.5, fft_s=None,
     #Score
     #image difference to class averages
     if scoreMethod=='diff2Avg':
-        if classAvg is None:
-            classAvg = getClassAvg(Xvec[:,PCAValidInd].T, dReClassLabels)
         score = np.ones((dReClassLabels.size,))*np.nan
         ind = np.where(dReClassLabels>=0)[0]
         temp = np.reshape(classAvg,(-1,classAvg.shape[-1]))
