@@ -355,12 +355,14 @@ def swSegmentationFFT(im, imNormalize='none', winSz=None, stride=.5, fft_s=None,
             #temp.ravel()[PCAValidInd]=classAvg[:,i]
             tClassAvg[:,:,i].ravel()[PCAValidInd]=classAvg[:,i]
         classAvg = tClassAvg
+        print(tClassAvg.shape)
     
     if verbose>1:
         plotScore(np.reshape(dReClassLabels,(sWinSz[1],sWinSz[0])), score, cN=dReClassN)
         plotScore(imLabel, minScore, cN=dReClassN)
         if (not (classAvg is None)):
             fig,ax = plt.subplots(1, classAvg.shape[-1], tight_layout=True, figsize=(18, 6), dpi = 100, facecolor=[.5,.75,.75])
+            #plot class average
             for i in range(classAvg.shape[-1]):
                 temp = np.ones((fftSz))*np.nan
                 temp.ravel()[PCAValidInd]=classAvg[:,i]
