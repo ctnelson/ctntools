@@ -145,7 +145,7 @@ def plotLabelIm(inim, inLabels, cN=None, normPrcntile=.1, classColors=None, nonC
 
 ################################################ Main ########################################################
 ########################################## swSegmentationFFT #################################################
-def swSegmentationFFT(im, imNormalize='none', winSz=None, stride=.5, fft_s=None, fft_zeroflag=False, fftMaxScalar=1.25, compN=None, componentMax=10, pcaNormalize='Global', pcaScreeThresh=.1, RefMethod='minfract', RefThresh=None, RefThresh_maxN=3, RefThresh_minPop=10, RefThresh_minFract=.04, ReClassMethod='latDist', ReClass_latDist=5, latNorm='classStd', reClassOnlyPruned=True, scoreMethod='Diff2Avg', returnClass=None, verbose=0):
+def swSegmentationFFT(im, imNormalize='none', winSz=None, stride=.5, fft_s=None, fft_zeroflag=False, fftMaxScalar=1.25, compN=None, componentMax=10, pcaNormalize='Global', pcaScreeThresh=.1, RefMethod='minfract', RefThresh=None, RefThresh_maxN=3, RefThresh_minPop=10, RefThresh_minFract=.04, ReClassMethod='latDist', ReClass_latDist=5, latNorm='classStd', reClassOnlyPruned=True, scoreMethod='diff2Avg', returnClass=None, verbose=0):
     ########################################### Inputs ###################################################
     #im                 :       image for segmentation
     #imNormalize        :       'Global', 'Frame', or 'none'. Method to normalize image patches prior to PCA.
@@ -172,7 +172,7 @@ def swSegmentationFFT(im, imNormalize='none', winSz=None, stride=.5, fft_s=None,
     #latNorm            :       'none', 'globalStd', or 'classStd'
     #reClassOnlyPruned  :       flag whether to reclassify only removed clusters? Only applies to LatDist, KMeans will reclassify all points for the determined pruned number of clusters.
     ##### Some Final Variables  ######
-    #scoreMethod        :       'LatDist', 'Diff2Avg', or 'All'. How to handle selection if slices overlap. Can use either minimum latent distance, image difference to class average, or use all points.
+    #scoreMethod        :       'latDist', 'diff2Avg', or 'all'. How to handle selection if slices overlap. Can use either minimum latent distance, image difference to class average, or use all points.
     #returnClass        :       set to 'Avg' or 'PCAinv' to return the class representations as an average or the inverted PCA representation. Defaults to None type.
     #verbose            :       Display debug / progress information. 0/False for silent. 1 for minimal, 2 for lots of info/plots
 
@@ -310,7 +310,7 @@ def swSegmentationFFT(im, imNormalize='none', winSz=None, stride=.5, fft_s=None,
     
     #Score
     #image difference to class averages
-    if scoreMethod=='Diff2Avg':
+    if scoreMethod=='diff2Avg':
         if classAvg is None:
             classAvg = getClassAvg(Xvec[:,PCAValidInd].T, dReClassLabels)
         score = np.ones((dReClassLabels.size,))*np.nan
@@ -328,7 +328,7 @@ def swSegmentationFFT(im, imNormalize='none', winSz=None, stride=.5, fft_s=None,
         imLabel, minScore = swScoreMin(swSliceInd, score, dReClassLabels)
         imLabel = np.nan_to_num(imLabel,nan=-1).astype('int')
     #distance in latent space
-    elif scoreMethod=='LatDist':
+    elif scoreMethod=='latDist':
         score = np.ones((dReClassLabels.size,))*np.nan
         ind = np.where(dReClassLabels>=0)[0]
         score[ind] = np.sqrt(np.sum((PCAloading[ind,:]-reclassLatCoords[dReClassLabels[ind],:])**2,axis=1))
@@ -337,7 +337,7 @@ def swSegmentationFFT(im, imNormalize='none', winSz=None, stride=.5, fft_s=None,
         imLabel, minScore = swScoreMin(swSliceInd, score, dReClassLabels)
         imLabel = np.nan_to_num(imLabel,nan=-1).astype('int')
     #all labels are interpolated to the image dimensions
-    elif scoreMethod=='All':
+    elif scoreMethod=='all':
         score = None
         minScore = None
         pts = np.append(imPatchOrigin[0][:,:,np.newaxis],imPatchOrigin[1][:,:,np.newaxis],axis=2)
