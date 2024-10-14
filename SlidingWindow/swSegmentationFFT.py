@@ -288,10 +288,8 @@ def swSegmentationFFT(im, imNormalize='none', winSz=None, stride=.5, fft_s=None,
     #Class Averages
     if not (returnClass is None):
         if returnClass=='Avg':
-            print('return Avg')
             classAvg = getClassAvg(Xvec[:,PCAValidInd].T, dReClassLabels)
         elif returnClass=='PCAinv':
-            print('return PCA')
             if reclassLatCoords is None:
                 reclassLatCoords = ClassLatPositions(PCAloading, dReClassLabels, lblArray=np.arange(dReClassN))
             temp = np.zeros((reclassLatCoords.shape[0],componentMax))
@@ -300,7 +298,6 @@ def swSegmentationFFT(im, imNormalize='none', winSz=None, stride=.5, fft_s=None,
         else:
             raise ValueError('returnClass not recognized. Must be Avg, PCAinv, or None Type')
     else: 
-        print('return None')
         classAvg = None
     
     #Score
