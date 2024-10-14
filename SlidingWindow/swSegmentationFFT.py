@@ -353,6 +353,7 @@ def swSegmentationFFT(im, imNormalize='none', winSz=None, stride=.5, fft_s=None,
             #temp = np.ones((fftSz))*np.nan
             #temp.ravel()[PCAValidInd]=classAvg[:,i]
             tClassAvg[:,:,i].ravel()[PCAValidInd]=classAvg[:,i]
+            print(classAvg[:,i])
             print(tClassAvg[:,:,i].ravel()[PCAValidInd])
         classAvg = tClassAvg
         print(tClassAvg.shape)
