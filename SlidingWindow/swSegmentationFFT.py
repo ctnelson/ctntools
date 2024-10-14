@@ -352,25 +352,21 @@ def swSegmentationFFT(im, imNormalize='none', winSz=None, stride=.5, fft_s=None,
         for i in range(classAvg.shape[-1]):
             temp = np.ones((fftSz))*np.nan
             temp.ravel()[PCAValidInd]=classAvg[:,i]
-            #classAvgIm[:,:,i].ravel()[PCAValidInd]=classAvg[:,i]
             classAvgIm[:,:,i] = temp.copy()
-            print(classAvg[:,i])
-            print(classAvgIm[:,:,i].ravel()[PCAValidInd])
+            #display
+            if verbose>1:
+                fig,ax = plt.subplots(1, classAvg.shape[-1], tight_layout=True, figsize=(18, 6), dpi = 100, facecolor=[.5,.75,.75])
+                for i in range(classAvg.shape[-1]):
+                    ax[i].imshow(classAvgIm[:,:,i], origin='lower', cmap='gray')
+                    ax[i].set_title('Class {:d}'.format(i))
+                    ax[i].set_axis_off()
     else:
         classAvgIm = None
     
     if verbose>1:
         plotScore(np.reshape(dReClassLabels,(sWinSz[1],sWinSz[0])), score, cN=dReClassN)
         plotScore(imLabel, minScore, cN=dReClassN)
-        if (not (classAvg is None)):
-            fig,ax = plt.subplots(1, classAvg.shape[-1], tight_layout=True, figsize=(18, 6), dpi = 100, facecolor=[.5,.75,.75])
-            #plot class average
-            for i in range(classAvg.shape[-1]):
-                temp = np.ones((fftSz))*np.nan
-                temp.ravel()[PCAValidInd]=classAvg[:,i]
-                ax[i].imshow(temp, origin='lower', cmap='gray')
-                ax[i].set_title('Class {:d}'.format(i))
-                ax[i].set_axis_off()
+        
     if verbose>0:
         plotLabelIm(im, imLabel, cN=dReClassN)
 
