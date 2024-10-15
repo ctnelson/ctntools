@@ -1,6 +1,6 @@
 ################################################ Contents ###################################################
 #getNNbrThresh         :    Returns a nearest-neighbor threshold via an elbow in a cumulative distribution function of NN-distances
-#Cluster_NumUnknown    :    A subset of sklearn clustering protocols that cluster quickly without an a priori number of clusters
+#cluster_NumUnknown    :    A subset of sklearn clustering protocols that cluster quickly without an a priori number of clusters
 
 ################################################# Imports ###################################################
 import numpy as np
