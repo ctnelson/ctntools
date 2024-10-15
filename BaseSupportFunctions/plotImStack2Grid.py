@@ -192,6 +192,6 @@ def plotImStackGridColorbars(imStack, gridDims=None, **kwargs):
     #Create Fig/Axes
     imAx, colorBarAx, fig, scaleBarWratio = createGridAxesWithColorbars(imStack, gridDims, **kwargs)
     #Plot Images & Colorbars
-    _=plotGridAxesWithColorbars(classAvg, imAx, colorBarAx, scalebarWratio=scaleBarWratio, **kwargs)
+    _=plotGridAxesWithColorbars(imStack, imAx, colorBarAx, scalebarWratio=scaleBarWratio, **kwargs)
 
     return imAx, colorBarAx, fig
