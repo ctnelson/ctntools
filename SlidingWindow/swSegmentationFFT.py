@@ -19,6 +19,7 @@ from scipy.interpolate import RegularGridInterpolator
 from papuc.example_maps import colormaps
 
 #Custom imports from repo
+from ctntools.BaseSupportFunctions.plotImStack2Grid import plotImStackGridColorbars             #quick helper function to plot image stacks & scalebars
 from ctntools.StructureAnalysis.fftPeaks import fftPeaks                                        #performs FFT and finds peaks
 from ctntools.SlidingWindow.swSlicing import swSlices, swScoreMin                               #returns image patch slices given size & stride
 from ctntools.Classification.LatentSpaceSupportFuns import ClassLatPositions, plotClassDistr    #get latent class positions, plot Classes in latent joint distributions  
@@ -350,13 +351,15 @@ def swSegmentationFFT(im, imNormalize='none', winSz=None, stride=.5, fft_s=None,
             temp = np.ones((fftSz))*np.nan
             temp.ravel()[PCAValidInd]=classAvg[:,i]
             classAvgIm[:,:,i] = temp.copy()
-            #display
-            if verbose>1:
-                fig,ax = plt.subplots(1, classAvg.shape[-1], tight_layout=True, figsize=(18, 6), dpi = 100, facecolor=[.5,.75,.75])
-                for i in range(classAvg.shape[-1]):
-                    ax[i].imshow(classAvgIm[:,:,i], origin='lower', cmap='gray')
-                    ax[i].set_title('Class {:d}'.format(i))
-                    ax[i].set_axis_off()
+        #display
+        if verbose>1:
+            _,_,fig = plotImStackGridColorbars(classAvg)
+            fig.set_facecolor([.75,.25,.25])
+            #fig,ax = plt.subplots(1, classAvg.shape[-1], tight_layout=True, figsize=(18, 6), dpi = 100, facecolor=[.75,.25,.25])
+            #for i in range(classAvg.shape[-1]):
+            #    ax[i].imshow(classAvgIm[:,:,i], origin='lower', cmap='gray')
+            #    ax[i].set_title('Class {:d}'.format(i))
+            #    ax[i].set_axis_off()
     else:
         classAvgIm = None
     
