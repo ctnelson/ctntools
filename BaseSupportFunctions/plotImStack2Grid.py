@@ -14,7 +14,7 @@ import matplotlib.pyplot as plt
 ########################################################################################################
 ############################################# createGridAxesWithScalebars ##############################
 #Creates a grid plotting axis for array of images & separated axes for colorbars. Part of a shortcut function to display grids of images w/ scalebars
-def createGridAxesWithColorbars(imStack, gridDims, figW=12, figH=None, scalebarWratio=.1, fig_wspace=.05, fig_hspace=.05):
+def createGridAxesWithColorbars(imStack, gridDims, figW=12, figH=None, scalebarWratio=.1, fig_wspace=.05, fig_hspace=.05, **kwargs):
     ### Inputs ###
     #imStack            :   [h,w,n]    array of scree plot values
     #gridDims           :   [r,c]      Axis grid. Must satisfy r*c > n
@@ -79,7 +79,7 @@ def createGridAxesWithColorbars(imStack, gridDims, figW=12, figH=None, scalebarW
   
 ############################################# plotGridAxesWithScalebars ##############################
 #Plots image stack to axes grid for ims & colorbars. Part of a shortcut function to display grids of images w/ scalebars
-def plotGridAxesWithColorbars(imStack, imAx, colorBarAx, scalebarIm=None, inCmap='gray', iVLims=.00, ColorBarZeroCentered=False, labelValues=[0,.5,1], scalebarWratio=.1, labelColor=[.25,.25,0]):
+def plotGridAxesWithColorbars(imStack, imAx, colorBarAx, scalebarIm=None, inCmap='gray', iVLims=.00, ColorBarZeroCentered=False, labelValues=[0,.5,1], scalebarWratio=.1, labelColor=[.25,.25,0], **kwargs):
     #imStack                :   array of images [h,w,n], or [h,w,4,n] (where colorbar must be explicitly provided in scalebarIm)
     #imAx                   :   [r,c]      array of image axes
     #colorBarAx             :   [r,c]      array of colorbar axes
