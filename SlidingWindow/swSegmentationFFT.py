@@ -173,7 +173,7 @@ def plotLabelIm(inim, inLabels, cN=None, normPrcntile=.1, classColors=None, nonC
 
 ################################################ Main ########################################################
 ########################################## swSegmentationFFT #################################################
-def swSegmentationFFT(im, imNormalize='none', winSz=None, stride=.5, fft_s=None, fft_zeroflag=False, fftMaxScalar=1.25, compN=None, componentMax=10, pcaNormalize='Global', pcaScreeThresh=.1, RefMethod='minfract', RefThresh=None, RefThresh_maxN=3, RefThresh_minPop=10, RefThresh_minFract=.04, ReClassMethod='latDist', ReClass_latDist=5, latNorm='classStd', reClassOnlyPruned=True, scoreMethod='diff2Avg', returnClass=None, verbose=0):
+def swSegmentationFFT(im, imNormalize='none', winSz=None, stride=.5, fft_s=None, fft_zeroflag=False, fftMaxScalar=1.25, clustHyperparameter=1.0, compN=None, componentMax=10, pcaNormalize='Global', pcaScreeThresh=.1, RefMethod='minfract', RefThresh=None, RefThresh_maxN=3, RefThresh_minPop=10, RefThresh_minFract=.04, ReClassMethod='latDist', ReClass_latDist=5, latNorm='classStd', reClassOnlyPruned=True, scoreMethod='diff2Avg', returnClass=None, verbose=0):
     ########################################### Inputs ###################################################
     #im                 :       image for segmentation
     #imNormalize        :       'Global', 'Frame', or 'none'. Method to normalize image patches prior to PCA.
@@ -183,7 +183,8 @@ def swSegmentationFFT(im, imNormalize='none', winSz=None, stride=.5, fft_s=None,
     #fft_s              :       value or None.   FFT min period.          If none autodeteremined by an FFT
     #fft_zeroflag       :       flag to include zero frequency (Mean of patch)?
     #fftMaxScalar       :       If autoselecting the winSz, this scalar is applied to the max FFT period.
-    ############## PCA ###############
+    ############## PCA Clustering ###############
+    #clustHyperparameter:       adjustment scalar for clustering algorithms
     #compN              :       manually predefine number of PCA components. If None type will be auto determined from variance scree plot.
     #componentMax       :       max # of components to consider
     #pcaNormalize       :       'Global', 'Frame', or 'none'. Method to normalize data for PCA. 
@@ -205,7 +206,7 @@ def swSegmentationFFT(im, imNormalize='none', winSz=None, stride=.5, fft_s=None,
     #verbose            :       Display debug / progress information. 0/False for silent. 1 for minimal, 2 for lots of info/plots
 
     ########################################### Outputs #################################################
-    #imLabel            :       class labels of image. Will be integers and non-classified / noise will be assigne -1
+    #imLabel            :       class labels of image. Will be integers and non-classified / noise will be assigned -1
     #classAvgIm         :       class average FFTs (if ReturnClass != None)
 
 
