@@ -70,10 +70,12 @@ def createGridAxesWithColorbars(imStack, gridDims, figW=12, figH=None, scalebarW
     #erase axes for excess
     if r*c > n:
         for i in range(n,r*c):
-            tr = i//c
-            tc = i%c
-            imAx[tr,tc].set_axis_off()
-            colorBarAx[tr,tc].set_axis_off()
+            #tr = i//c
+            #tc = i%c
+            #imAx[tr,tc].set_axis_off()
+            #colorBarAx[tr,tc].set_axis_off()
+            imAx.ravel()[i].set_axis_off()
+            colorBarAx.ravel()[i].set_axis_off()
 
     return imAx, colorBarAx, fig, scalebarWratio
   
