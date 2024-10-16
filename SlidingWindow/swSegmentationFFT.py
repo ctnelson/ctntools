@@ -19,7 +19,7 @@ from scipy.interpolate import RegularGridInterpolator
 from papuc.example_maps import colormaps
 
 #Custom imports from repo
-from ctntools.BaseSupportFunctions.plotImStack2Grid import plotImStackGridColorbars             #quick helper function to plot image stacks & scalebars
+from ctntools.BaseSupportFunctions.plottingFuns import plotImStackGridColorbars                 #quick helper function to plot image stacks & scalebars
 from ctntools.StructureAnalysis.fftPeaks import fftPeaks                                        #performs FFT and finds peaks
 from ctntools.SlidingWindow.swSlicing import swSlices, swScoreMin                               #returns image patch slices given size & stride
 from ctntools.Classification.LatentSpaceSupportFuns import ClassLatPositions, plotClassDistr    #get latent class positions, plot Classes in latent joint distributions  
