@@ -344,7 +344,7 @@ def swSegmentationFFT(im, imNormalize='none', winSz=None, stride=.5, fft_s=None,
     else:
         raise ValueError('scoreMethod not recognized. Must be Diff2Avg, LatDist, or All')
 
-    #reshape class representation
+    #Class representatives
     if (not (returnClass is None)) or (not (classAvg is None)):
         classAvgIm = np.ones((fftSz[0],fftSz[1],classAvg.shape[-1]))*np.nan
         for i in range(classAvg.shape[-1]):
@@ -353,13 +353,8 @@ def swSegmentationFFT(im, imNormalize='none', winSz=None, stride=.5, fft_s=None,
             classAvgIm[:,:,i] = temp.copy()
         #display
         if verbose>1:
-            _,_,fig = plotImStackGridColorbars(classAvgIm)
+            _,_,fig = plotImStackGridColorbars(classAvgIm, axLbls=['Class {:d}'.format(i) for i in np.arange(classAvg.shape[-1])])
             fig.set_facecolor([.75,.25,.25])
-            #fig,ax = plt.subplots(1, classAvg.shape[-1], tight_layout=True, figsize=(18, 6), dpi = 100, facecolor=[.75,.25,.25])
-            #for i in range(classAvg.shape[-1]):
-            #    ax[i].imshow(classAvgIm[:,:,i], origin='lower', cmap='gray')
-            #    ax[i].set_title('Class {:d}'.format(i))
-            #    ax[i].set_axis_off()
     else:
         classAvgIm = None
     
