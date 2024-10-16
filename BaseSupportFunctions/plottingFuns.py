@@ -1,4 +1,4 @@
-#Plots image stack onto a grid with colorbars
+#Plotting Helper Functions
 ############################################# Contents #################################################
 ### Support ###
 #createGridAxesWithColorbars    :    creates axes array to plot on
@@ -11,8 +11,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-########################################################################################################
-############################################# createGridAxesWithScalebars ##############################
+############################################# Supporting Functions ###########################################
+########################################## createGridAxesWithScalebars #######################################
 #Creates a grid plotting axis for array of images & separated axes for colorbars. Part of a shortcut function to display grids of images w/ scalebars
 def createGridAxesWithColorbars(imStack, gridDims, figW=12, figH=None, scalebarWratio=.1, fig_wspace=.05, fig_hspace=.05, **kwargs):
     ### Inputs ###
@@ -70,10 +70,6 @@ def createGridAxesWithColorbars(imStack, gridDims, figW=12, figH=None, scalebarW
     #erase axes for excess
     if r*c > n:
         for i in range(n,r*c):
-            #tr = i//c
-            #tc = i%c
-            #imAx[tr,tc].set_axis_off()
-            #colorBarAx[tr,tc].set_axis_off()
             imAx.ravel()[i].set_axis_off()
             colorBarAx.ravel()[i].set_axis_off()
 
@@ -163,7 +159,8 @@ def plotGridAxesWithColorbars(imStack, imAx, colorBarAx, scalebarIm=None, inCmap
 
     return vLims
 
-############################################# plotImStackGridColorbars ##############################
+################################################ Plotting Functions ################################################
+############################################# plotImStackGridColorbars #############################################
 #overall function to create and plot images
 def plotImStackGridColorbars(imStack, gridDims=None, **kwargs):
     ### Inputs ###
