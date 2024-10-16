@@ -353,7 +353,7 @@ def swSegmentationFFT(im, imNormalize='none', winSz=None, stride=.5, fft_s=None,
             classAvgIm[:,:,i] = temp.copy()
         #display
         if verbose>1:
-            _,_,fig = plotImStackGridColorbars(classAvg)
+            _,_,fig = plotImStackGridColorbars(classAvgIm)
             fig.set_facecolor([.75,.25,.25])
             #fig,ax = plt.subplots(1, classAvg.shape[-1], tight_layout=True, figsize=(18, 6), dpi = 100, facecolor=[.75,.25,.25])
             #for i in range(classAvg.shape[-1]):
