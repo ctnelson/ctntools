@@ -85,7 +85,7 @@ def getClassMed(inDataStack, inClassLabels, cN=None):
         if ind.size>0:
             classMed[:,i] = np.nanpercentile(dVec[:,ind],50,axis=1)
     #reshape like input    
-    classMed = np.reshape(classAvg,avgDims)
+    classMed = np.reshape(classMed,avgDims)
     return classMed
 
 ########################################### plotScore ###################################################
