@@ -298,7 +298,7 @@ def swSegmentationFFT(im, imNormalize='none', winSz=None, stride=.5, fft_s=None,
     fftSz = fftSz*2+1
 
     ### PCA Clustering ###
-    cLabels, cClassN, PCAValidInd, PCAloading, PCAcomponents, pca = imStackCluster_PCA(imPchFFT, Ndims=sWinSz, componentMax=componentMax, pcaNormalize=pcaNormalize, pcaScreeThresh=pcaScreeThresh, clustMethod='DBSCAN', nnThreshScalar=1.0, nbrKT=.03, nbrNum=1, verbose=verbose)
+    cLabels, cClassN, PCAValidInd, PCAloading, PCAcomponents, pca = imStackCluster_PCA(imPchFFT, Ndims=sWinSz, componentMax=componentMax, pcaNormalize=pcaNormalize, pcaScreeThresh=pcaScreeThresh, clustMethod='DBSCAN', nnThreshScalar=clustHyperparameter, nbrKT=.03, nbrNum=1, verbose=verbose)
     compN = PCAcomponents.shape[-1]
 
     ### Prune Clusters ###
