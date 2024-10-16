@@ -60,7 +60,7 @@ def createGridAxesWithColorbars(imStack, gridDims, figW=12, figH=None, scalebarW
     fig, ax = plt.subplots(nrows=r, ncols=c*2, gridspec_kw=gs_kw, figsize=(figW,figH))
 
     #split axes arrays
-    if r==2:
+    if r>1:
         imAx = ax[:,::2]
         colorBarAx = ax[:,1::2]
     if r==1:
