@@ -4,6 +4,7 @@
 ### Sub Functions ###
 #getWinSz           :   Determine slicing window size (ensures multiple of stride)
 #getClassAvg        :   Determine the average by class
+#getClassMed        :   Determine the median by class
 #plotScore          :   Plots Score & Label Maps
 #plotLabelIm        :   plots final segmentation labels & colorized image
 
@@ -61,6 +62,32 @@ def getClassAvg(inDataStack, inClassLabels, cN=None):
     #reshape like input    
     classAvg = np.reshape(classAvg,avgDims)
     return classAvg
+########################################### getClassMed ###################################################
+#Determine the median by class
+def getClassMed(inDataStack, inClassLabels, cN=None):
+    ### Inputs ###
+    #inDataStack    :   [,,,n]     n datapoints of whatever dims
+    #inClassLabels  :   [n,]       n class labels
+    ### Outputs ###
+    #classMed       :   [,,,classN]
+    ###
+    if cN is None:
+        cN = np.nanmax(inClassLabels)+1
+    dataDims = np.array(inDataStack.shape)
+    avgDims = dataDims.copy()
+    avgDims[-1] = cN
+    #Median of classes
+    dVec = np.reshape(inDataStack,(-1,dataDims[-1]))    #reshape to 2 dims
+    classMed = np.ones((dVec.shape[0],cN))*np.nan     #preallocate output
+    #loop through classes & average
+    for i in range(cN):
+        ind = np.where(inClassLabels==i)[0]
+        if ind.size>0:
+            classMed[:,i] = np.nanpercentile(dVec[:,ind],50,axis=1)
+    #reshape like input    
+    classMed = np.reshape(classAvg,avgDims)
+    return classMed
+
 ########################################### plotScore ###################################################
 #Plots Score & Label Maps
 def plotScore(inLabels, inScore, cN=None, classColors=None, nonClustColor=[.9,.9,.9,1], figW=8):
@@ -174,7 +201,7 @@ def swSegmentationFFT(im, imNormalize='none', winSz=None, stride=.5, fft_s=None,
     #reClassOnlyPruned  :       flag whether to reclassify only removed clusters? Only applies to LatDist, KMeans will reclassify all points for the determined pruned number of clusters.
     ##### Some Final Variables  ######
     #scoreMethod        :       'latDist', 'diff2Avg', or 'all'. How to handle selection if slices overlap. Can use either minimum latent distance, image difference to class average, or use all points.
-    #returnClass        :       set to 'Avg' or 'PCAinv' to return the class representations as an average or the inverted PCA representation. Defaults to None type.
+    #returnClass        :       'Avg', 'Med', or 'PCAinv' to return the class representations as an average, median, or the inverted PCA representation. Defaults to None type.
     #verbose            :       Display debug / progress information. 0/False for silent. 1 for minimal, 2 for lots of info/plots
 
     ########################################### Outputs #################################################
@@ -290,6 +317,8 @@ def swSegmentationFFT(im, imNormalize='none', winSz=None, stride=.5, fft_s=None,
     if not (returnClass is None):
         if returnClass=='Avg':
             classAvg = getClassAvg(Xvec[:,PCAValidInd].T, dReClassLabels)
+        elif returnClass=='Med':
+            classAvg = getClassMed(Xvec[:,PCAValidInd].T, dReClassLabels)
         elif returnClass=='PCAinv':
             if reclassLatCoords is None:
                 reclassLatCoords = ClassLatPositions(PCAloading, dReClassLabels, lblArray=np.arange(dReClassN))
