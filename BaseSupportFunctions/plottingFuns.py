@@ -162,7 +162,7 @@ def plotGridAxesWithColorbars(imStack, imAx, colorBarAx, scalebarIm=None, inCmap
 ################################################ Plotting Functions ################################################
 ############################################# plotImStackGridColorbars #############################################
 #overall function to create and plot images
-def plotImStackGridColorbars(imStack, gridDims=None, **kwargs):
+def plotImStackGridColorbars(imStack, gridDims=None, axLbls=None, **kwargs):
     ### Inputs ###
     #imStack        :   [h,w,n]    array of scree plot values
     #gridDims       :   [r,c]      Axis grid. Must satisfy r*c > n
@@ -192,5 +192,10 @@ def plotImStackGridColorbars(imStack, gridDims=None, **kwargs):
     imAx, colorBarAx, fig, scaleBarWratio = createGridAxesWithColorbars(imStack, gridDims, **kwargs)
     #Plot Images & Colorbars
     _=plotGridAxesWithColorbars(imStack, imAx, colorBarAx, scalebarWratio=scaleBarWratio, **kwargs)
+
+    #Labels
+    if not (axLbls is None):
+        for i in range(imStack.shape[-1]):
+            imAx.ravel()[i].set_title(axLbls[i])
 
     return imAx, colorBarAx, fig
