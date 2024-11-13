@@ -40,7 +40,7 @@ def findPeaks(inim, imask=None, pFsig=1, iThresh=-np.inf, pkExclRadius=1, edgeEx
         k = gKernel2D(pFsig, rdist=np.max([pFsig*3,2]), normMethod='Sum')
         im_sm = ndimage.convolve(inim,k,mode='nearest')
     else:
-        im_sm = im
+        im_sm = inim
 
     #Masks
     #2nd derivative <0
