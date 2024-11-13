@@ -43,8 +43,9 @@ def fftPeaks(inim, gaussSigma = 1, subpixelfit=True, thresh=0.1, normalize=True,
 
     #Normalize
     if normalize:
-        inim = (inim - np.min(inim.ravel())) / np.ptp(inim.ravel())
+        inim = (inim - np.nanmin(inim.ravel())) / (np.nanmax(inim.ravel()) - np.nanmin(inim.ravel()))
         inim = inim-np.nanmean(inim.ravel())
+        inim = np.nan_to_num(inim,nan=0.)
 
     #FFT
     hann = np.outer(np.hanning(inim_sz[1]),np.hanning(inim_sz[0]))
