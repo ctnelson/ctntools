@@ -9,7 +9,7 @@ import warnings
 from ctntools.BaseSupportFunctions.imSampling import condDownsample, getUCStack             #downsampling & creating stack of UC subimages
 from ctntools.StructureAnalysis.imSymmMap import imSymmMap                                  #symmetry mapping
 from ctntools.StructureAnalysis.ucFindAB import ucFindAB                                    #find basis vectors
-from ctntools.StructureAnalysis.Classify import subImStackKMeans                            #classify unit cells by kmeans
+from ctntools.Classification.Classify import subImStackKMeans                               #classify unit cells by kmeans
 from ctntools.PeakFinding.findPeaks import findPeaks                                        #peak finding protocol
 from ctntools.Networks.findDefinedNbrs import nbrByDist                                     #finding closest neighbor
 
