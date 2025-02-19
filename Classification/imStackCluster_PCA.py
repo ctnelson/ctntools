@@ -42,6 +42,7 @@ def imStackCluster_PCA(imStack, Ndims=None, compN=None, componentMax=10, pcaNorm
     #Prepare Data
     imSz = np.array(imStack.shape,dtype='int')
     Xvec = np.abs(imStack.reshape(-1,np.shape(imStack)[-1])).T        #reshape to 2D Datavector
+    print(Xvec.shape)
 
     #Normalize?
     if pcaNormalize=='Global':  #by global values
