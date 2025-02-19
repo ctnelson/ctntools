@@ -42,7 +42,6 @@ def imStackCluster_PCA(imStack, Ndims=None, compN=None, componentMax=10, pcaNorm
     #Prepare Data
     imSz = np.array(imStack.shape,dtype='int')
     Xvec = np.abs(imStack.reshape(-1,np.shape(imStack)[-1])).T        #reshape to 2D Datavector
-    print(Xvec.shape)
 
     #Normalize?
     if pcaNormalize=='Global':  #by global values
@@ -97,7 +96,7 @@ def imStackCluster_PCA(imStack, Ndims=None, compN=None, componentMax=10, pcaNorm
             else:
                 raise ValueError('Ndims not recognized. Must be either Nonetype, [h,w], or [N,2]')
         else:
-            compMap = None
+            compMap = np.array([])
         axPCAscree = plotPCA(explained_var,PCAcomponents[:,:,:compN],compMap)
         axPCAscree.clear()
         findScreeElbow(explained_var, elbowMethod='LineOutlier', kinkThresh=pcaScreeThresh, minLinearLen=3, fSEnormalize=True, inax=axPCAscree)
