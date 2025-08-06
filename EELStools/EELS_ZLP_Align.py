@@ -34,7 +34,7 @@ def EELS_ZLP_Align(indata, zlpmethod='gaussian', Estep=1, i0=None, croptovalid=F
     idsz = np.array(indata.shape,dtype='int')
     nd = indata.ndim
     #reshape
-    indata = np.reshape(indata,(np.product(idsz[:nd-1]),idsz[-1]))
+    indata = np.reshape(indata,(np.prod(idsz[:nd-1]),idsz[-1]))
     #preallocate outputs
     outlierptflag = np.zeros((indata.shape[0],),dtype=bool)
     zlp_params = np.ones((indata.shape[0],2))
